@@ -234,6 +234,18 @@ class GeneralForm(ListForm):
                 validator=rich_text_editors_validator,
             ),
         ]),
+        ListFieldSet('site_vocabulary', suppress_label=True,
+                     legend=N_('Your site\'s vocabulary regarding Podcasts:'),
+                     css_classes=['details_fieldset'], children=[
+            TextField('vocabulary_podcasts_plural', maxlength=255,
+                label_text=N_('"Podcasts"')),
+            TextField('vocabulary_podcasts_singular', maxlength=255,
+                label_text=N_('"Podcast"')),
+            TextField('vocabulary_episodes_plural', maxlength=255,
+                label_text=N_('"Episodes"')),
+            TextField('vocabulary_episodes_singular', maxlength=255,
+                label_text=N_('"Episode"')),
+            ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
