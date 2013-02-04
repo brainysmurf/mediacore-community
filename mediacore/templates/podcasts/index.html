@@ -13,14 +13,14 @@ See LICENSE.txt in the main project directory, for more information.
       xmlns:xi="http://www.w3.org/2001/XInclude">
 <xi:include href="../master.html" />
 <head>
-	<title>${h.page_title(default='Podcasts', podcast=c.podcast or 'all')}</title>
+	<title>${h.page_title(default=settings.get('vocabulary_podcasts_plural', 'Podcasts'), podcast=c.podcast or 'all')}</title>
 	<meta name="keywords" content="${h.meta_keywords(podcast=c.podcast or 'all')}" />
 	<meta name="description" content="${h.meta_description(podcast=c.podcast or 'all')}" />
 	<link href="${h.url_for('/styles/podcasts.css')}" media="screen" rel="stylesheet" type="text/css" />
 </head>
 <body class="nav-podcasts-on">
 	<div class="mediacore-content podcasts-list">
-		<h2 class="uppercase mcore-heading">All Podcasts</h2>
+		<h2 class="uppercase mcore-heading">All ${settings.get('vocabulary_podcasts_plural', 'Podcasts')}</h2>
 		<div py:for="podcast in podcasts" class="podcast-box feat-box">
 			<div class="feat-top"><div class="feat-vr" /></div>
 			<div class="feat-content">
@@ -35,14 +35,14 @@ See LICENSE.txt in the main project directory, for more information.
 						<a class="meta meta-rss underline-hover" href="${h.url_for(action='feed', slug=podcast.slug)}">Subscribe via RSS</a>
 					</div>
 					<div class="podcast-episodes">
-						<h4>Latest Episodes</h4>
+						<h4>Latest ${settings.get('vocabulary_episodes_plural', 'Episodes')}</h4>
 						<ol>
 							<li py:for="media in podcast_episodes[podcast]" class="meta-${media.type}">
 								<a class="underline-hover" href="${h.url_for(controller='/media', action='view', slug=media.slug, podcast_slug=podcast.slug)}">${media.title}</a>
 							</li>
 						</ol>
 					</div>
-					<a class="meta meta-go underline-hover" href="${h.url_for(action='view', slug=podcast.slug)}">Browse all episodes</a>
+					<a class="meta meta-go underline-hover" href="${h.url_for(action='view', slug=podcast.slug)}">Browse all ${settings.get('vocabulary_episodes_plural', 'episodes').lower()}</a>
 				</div>
 			</div>
 			<div class="feat-bottom"><div class="feat-vr" /></div>

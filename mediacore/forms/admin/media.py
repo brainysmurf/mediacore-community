@@ -143,7 +143,7 @@ class MediaForm(ListForm):
     event = events.Admin.MediaForm
     
     fields = [
-        SingleSelectField('podcast', label_text=N_('Include in the Podcast'), css_classes=['dropdown-select'], help_text=N_('Optional'), options=lambda: [(None, None)] + DBSession.query(Podcast.id, Podcast.title).all()),
+        SingleSelectField('podcast', label_text=N_('Include in the {}'.format(request.settings.get('vocabulary_podcasts_singular', 'Podcast'))), css_classes=['dropdown-select'], help_text=N_('Optional'), options=lambda: [(None, None)] + DBSession.query(Podcast.id, Podcast.title).all()),
         TextField('slug', label_text=N_('Permalink'), maxlength=50),
         TextField('title', label_text=N_('Title'), validator=TextField.validator(not_empty=True), maxlength=255),
         TextField('author_name', label_text=N_('Author Name'), maxlength=50),

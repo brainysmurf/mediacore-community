@@ -57,7 +57,7 @@ See LICENSE.txt in the main project directory, for more information.
 		<ul py:if="not c.nav_hide_main" class="mcore-nav">
 			<li class="mcore-nav-left"><a class="${'nav-explore-on' in body_class and 'active' or None} mcore-nav-link" href="${h.url_for(controller='/media', action='explore')}"><span>Explore</span><em /></a></li>
 			<li><a class="${'nav-media-on' in body_class and 'active' or None} mcore-nav-link" href="${h.url_for(controller='/media')}"><span>Media Library</span><em /></a></li>
-			<li><a py:if="settings['appearance_enable_podcast_tab']" class="${'nav-podcasts-on' in body_class and 'active' or None} mcore-nav-link" href="${h.url_for(controller='/podcasts')}"><span>Podcasts</span><em /></a></li>
+			<li><a py:if="settings['appearance_enable_podcast_tab']" class="${'nav-podcasts-on' in body_class and 'active' or None} mcore-nav-link" href="${h.url_for(controller='/podcasts')}"><span>${settings.get('vocabulary_podcasts_plural', 'Podcasts')}</span><em /></a></li>
 			<li class="mcore-nav-right"><a class="${'nav-categories-on' in body_class and 'active' or None} mcore-nav-link" href="${h.url_for(controller='/categories')}"><span>Categories</span><em /></a></li>
 			<li py:if="settings['appearance_enable_user_uploads'] and request.perm.contains_permission('upload')" 
 			    class="mcore-nav-left mcore-nav-right f-rgt"><a class="${'nav-upload-on' in body_class and 'active' or None} mcore-nav-link" href="${h.url_for(controller='/upload')}"><span>Upload</span><em /></a></li>
