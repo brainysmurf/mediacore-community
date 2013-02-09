@@ -80,7 +80,14 @@ class LoginController(BaseController):
             # mechanism doesn't work so go to the login method directly here.
             self._increase_number_of_failed_logins()
             return self.login(came_from=came_from)
-        redirect(came_from or url_for('/admin'))
+
+        if not request.perm.user.groups:
+            # If user doesn't have a group, they by definition don't have permissions to access /admin
+            # And then they have no way of logging out (unless they type the URL manually or restarting the browser)
+            # So we should probably do this for them
+            redirect(url_for('/logout'))
+        else:
+            redirect(came_from or url_for('/admin'))
 
     @expose()
     @observable(events.LoginController.post_logout)
