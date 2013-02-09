@@ -81,7 +81,7 @@ class MediacoreSettingsForm(ListForm):
     def __init__(self, *args, **kwargs):
         ListForm.__init__(self, *args, **kwargs)
         if hasattr(self, 'default_values'):
-            print(insert_settings(self.default_values))
+            insert_settings(self.default_values)
 
 class NotificationsForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
@@ -154,8 +154,13 @@ class UploadForm(MediacoreSettingsForm):
 
     default_values = [
         ('restrict_domains_enabled', u''), #false
-        ('illegal_domain_message', u'Your email has to be from a specified domain(s).'),
+        ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
         ('legal_domains', u''),
+        ('requires_confirmation_enabled', u''),
+        ('username', u'{email}'),
+        ('limited_permissions_group', u'ReviewPublishOwnOnly'),
+        ('please_confirm_message', u'Greetings {yourname},\n\nSomeone (probably you) has recently uploaded an item onto {sitename}.\n\nPlease confirm this action and activate your account by clicking the link:\n\n{confirmation_url}\n\nYour new account will be activated and a subsequent email will follow.\n\nIf you have not uploaded anything, please ignore this notice.\n\nRegards,\n{site_name} Admin\n{email_send_from}'),
+        ('confirmed_message', u'Thank you for confirming your {sitename} account.\n\nYour account details are as follows:\n\nUsername: {username}\n\nYou will be prompted to enter a new password if you haven\'t changed it already.\n\nSincerely,\n{sitename} Admin{email_send_from}'),
         ]
     
     fields = [
@@ -167,9 +172,23 @@ class UploadForm(MediacoreSettingsForm):
             TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
             TextArea('legal_domains', label_text=N_('Domains'), validator=LegalDomainsValidator(),
                       help_text=N_(u'Use commas to delineate multiple domains')),
-            ]),        
-        ListFieldSet('legal_wording', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
-            XHTMLTextArea('wording_user_uploads', label_text=N_('User Uploads'), attrs=dict(rows=15, cols=25)),
+            ]),
+        ListFieldSet('requires_confirmation', suppress_label=True,
+                     legend=N_('Create accounts on first upload with limited permissions:'),
+                     css_classes=['details_fieldset'], children=[
+            CheckBox('requires_confirmation_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            TextField('username', label_text=N_('Username'), validator=None,
+                      help_text=N_(u'{email} {handle}')),
+            TextField('limited_permissions_group', label_text=N_('Assigned Group'), validator=None, disabled=True,
+                      help_text=N_(u'Users in the {} group only have permission to review and publish their own uploads. Users can be promoted by de-assigning this group and assigning other groups (such as "Editor") in "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings.get('limited_group_name', '')))),
+            TextArea('please_confirm_message', label_text=N_('Please confirm message'), validator=None,
+                      help_text=N_(u'{confirmation_url} {sitename} {yourname} {email} {username} {email_send_from}')),
+            TextArea('confirmed_message', label_text=N_('Confirmed message'), validator=None,
+                      help_text=N_(u'{sitename} {yourname} {email} {username} {email_send_from}')),
+            ]),
+        ListFieldSet('legal_wording_updated', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
+            XHTMLTextArea('wording_user_uploads', label_text=N_('User Uploads'), attrs=dict(rows=15, cols=25),
+                          help_text=N_(u'{sitename} {yourname} {email} {username}')),
         ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
