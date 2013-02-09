@@ -186,7 +186,7 @@ class UploadForm(MediacoreSettingsForm):
             TextArea('confirmed_message', label_text=N_('Confirmed message'), validator=None,
                       help_text=N_(u'{sitename} {yourname} {email} {username} {email_send_from}')),
             ]),
-        ListFieldSet('legal_wording_updated', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
+        ListFieldSet('legal_wording', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
             XHTMLTextArea('wording_user_uploads', label_text=N_('User Uploads'), attrs=dict(rows=15, cols=25),
                           help_text=N_(u'{sitename} {yourname} {email} {username}')),
         ]),
