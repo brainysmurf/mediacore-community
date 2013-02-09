@@ -78,6 +78,10 @@ def boolean_radiobuttonlist(name, **kwargs):
     )
 
 class MediacoreSettingsForm(ListForm):
+    """
+    Abstract class
+    Allows definition of class variable to assign defaults to form items
+    """
     def __init__(self, *args, **kwargs):
         ListForm.__init__(self, *args, **kwargs)
         if hasattr(self, 'default_values'):
