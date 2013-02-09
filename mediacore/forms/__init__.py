@@ -20,6 +20,7 @@ from mediacore.lib.templating import tmpl_globals
 from mediacore.lib.util import url_for
 from mediacore.plugin import events
 
+import re
 
 def leniant_schema():
     return forms.validators.Schema(
@@ -206,6 +207,67 @@ tinyMCE.init({
                 kwargs['css_classes'] = ['tinymcearea']
 
         return TextArea.display(self, value, **kwargs)
+
+class UploadEmailValidator(Email):
+    """
+    Checks the legal domains as entered by user
+    """
+    def __init__(self, *args, **kwargs):
+        self.restrict_domains = request.settings.get('restrict_domains_enabled', False)
+        self.legal_domains = self.parse_domains() if self.restrict_domains else ""
+        Email.__init__(self,
+                       messages={'illegalDomain': N_(request.settings.get('illegal_domain_message',
+                                                                          'Email address should be from {}'.format(
+                                                                              " or ".join(self.legal_domains)
+                                                                              )))}, *args, **kwargs)
+
+    def parse_domains(self):
+        """ Simple regexp parser with comma as delimiter """
+        return re.split(r'[, ]*', request.settings.get('legal_domains', ''))
+
+    def validate_python(self, value, state):
+        """ Adds domain checking by completely overriding """
+        if not value:
+            raise Invalid(self.message('empty', state), value, state)
+        value = value.strip()
+        splitted = value.split('@', 1)
+        try:
+            username, domain=splitted
+        except ValueError:
+            raise Invalid(self.message('noAt', state), value, state)
+        if not self.usernameRE.search(username):
+            raise Invalid(
+                self.message('badUsername', state, username=username),
+                value, state)
+        if not self.domainRE.search(domain):
+            raise Invalid(
+                self.message('badDomain', state, domain=domain),
+                value, state)
+        # Added code
+        if self.restrict_domains and not domain in self.legal_domains:
+            raise Invalid(
+                self.message('illegalDomain', state, domain=domain),
+                value, state)
+        # End added code
+        if self.resolve_domain:
+            assert have_dns, "pyDNS should be available"
+            global socket
+            if socket is None:
+                import socket
+            try:
+                answers = DNS.DnsRequest(domain, qtype='a',
+                    timeout=self.resolve_timeout).req().answers
+                if answers:
+                    answers = DNS.DnsRequest(domain, qtype='mx',
+                        timeout=self.resolve_timeout).req().answers
+            except (socket.error, DNS.DNSError), e:
+                raise Invalid(
+                    self.message('socketError', state, error=e),
+                    value, state)
+            if not answers:
+                raise Invalid(
+                    self.message('domainDoesNotExist', state, domain=domain),
+                    value, state)
 
 email_validator = Email(messages={
     'badUsername': N_('The portion of the email address before the @ is invalid'),
