@@ -21,6 +21,8 @@ from mediacore.forms.admin.categories import category_options
 from mediacore.lib.i18n import N_, _, get_available_locales
 from mediacore.plugin import events
 
+from mediacore.model.settings import insert_settings
+
 comments_enable_disable = lambda: (
     ('mediacore', _("Built-in comments")),
     ('facebook', _('Facebook comments (requires a Facebook application ID)')),
@@ -75,7 +77,13 @@ def boolean_radiobuttonlist(name, **kwargs):
         **kwargs
     )
 
-class NotificationsForm(ListForm):
+class MediacoreSettingsForm(ListForm):
+    def __init__(self, *args, **kwargs):
+        ListForm.__init__(self, *args, **kwargs)
+        if hasattr(self, 'default_values'):
+            print(insert_settings(self.default_values))
+
+class NotificationsForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -94,7 +102,7 @@ class NotificationsForm(ListForm):
     ]
 
 
-class PopularityForm(ListForm):
+class PopularityForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -133,23 +141,40 @@ class MegaByteValidator(Int):
             pass
         return super(MegaByteValidator, self)._from_python(value, state)
 
-class UploadForm(ListForm):
+class LegalDomainsValidator(Regex):
+    regex = r"^[a-zA-Z_0-9\-\., ]*$"
+
+class UploadForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
     submit_text = None
     
     event = events.Admin.Settings.UploadForm
+
+    default_values = [
+        ('restrict_domains_enabled', u''), #false
+        ('illegal_domain_message', u'Your email has to be from a specified domain(s).'),
+        ('legal_domains', u''),
+        ]
     
     fields = [
         TextField('max_upload_size', label_text=N_('Max. allowed upload file size in megabytes'), validator=MegaByteValidator(not_empty=True, min=0)),
+        ListFieldSet('restrict_domains', suppress_label=True,
+                     legend=N_('User upload requires email address from specified domain(s):'),
+                     css_classes=['details_fieldset'], children=[
+            CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
+            TextArea('legal_domains', label_text=N_('Domains'), validator=LegalDomainsValidator(),
+                      help_text=N_(u'Use commas to delineate multiple domains')),
+            ]),        
         ListFieldSet('legal_wording', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
             XHTMLTextArea('wording_user_uploads', label_text=N_('User Uploads'), attrs=dict(rows=15, cols=25)),
         ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class AnalyticsForm(ListForm):
+class AnalyticsForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -164,7 +189,7 @@ class AnalyticsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class SiteMapsForm(ListForm):
+class SiteMapsForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -203,7 +228,7 @@ class SiteMapsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class GeneralForm(ListForm):
+class GeneralForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -237,7 +262,7 @@ class GeneralForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class CommentsForm(ListForm):
+class CommentsForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -271,7 +296,7 @@ class CommentsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class APIForm(ListForm):
+class APIForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -291,7 +316,7 @@ class APIForm(ListForm):
         SubmitButton('save', default='Save', css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class AppearanceForm(ListForm):
+class AppearanceForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -439,7 +464,7 @@ class AppearanceForm(ListForm):
             css_classes=['btn', 'btn-cancel', 'reset-confirm']),
     ]
 
-class AdvertisingForm(ListForm):
+class AdvertisingForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
