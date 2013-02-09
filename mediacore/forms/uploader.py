@@ -9,7 +9,7 @@ from tw.api import WidgetsList
 from tw.forms.validators import FieldStorageUploadConverter
 
 from mediacore.lib.i18n import N_
-from mediacore.forms import ListForm, TextField, XHTMLTextArea, FileField, SubmitButton, email_validator
+from mediacore.forms import ListForm, TextField, XHTMLTextArea, FileField, SubmitButton, email_validator, UploadEmailValidator
 from mediacore.plugin import events
 
 validators = dict(
@@ -41,7 +41,7 @@ class UploadForm(ListForm):
     
     class fields(WidgetsList):
         name = TextField(validator=validators['name'], label_text=N_('Your Name:'), maxlength=50)
-        email = TextField(validator=email_validator(not_empty=True), label_text=N_('Your Email:'), help_text=N_('(will never be published)'), maxlength=255)
+        email = TextField(validator=UploadEmailValidator(not_empty=True), label_text=N_('Your Email:'), help_text=N_('(will never be published)'), maxlength=255)
         title = TextField(validator=validators['title'], label_text=N_('Title:'), maxlength=255)
         description = XHTMLTextArea(validator=validators['description'], label_text=N_('Description:'), attrs=dict(rows=5, cols=25))
         url = TextField(validator=validators['url'], label_text=N_('Add a YouTube, Vimeo or Google Video URL:'), maxlength=255)
