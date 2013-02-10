@@ -148,8 +148,12 @@ class UploadController(BaseController):
                         # Create a new user using the model
                         user = User()
                         user_email = kwargs['email']
+                        username_template = request.settings.get('create_account_username')
+                        if not username_template:
+                            username_template = '{email}'
+                        user_name = username_template.format(email=user_email, handle=user_email[:user_email.index('@')])
                         defaults = dict(
-                            user_name = user_email[:user_email.index('@')],
+                            user_name = user_name,
                             email_address = user_email,
                             display_name = kwargs['name'],
                             created = datetime.datetime.now(),
