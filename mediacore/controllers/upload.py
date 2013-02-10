@@ -153,12 +153,13 @@ class UploadController(BaseController):
                         if not username_template:
                             username_template = '{email}'
                         user_name = username_template.format(email=user_email, handle=user_email[:user_email.index('@')])
+                        builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
                         defaults = dict(
                             user_name = user_name,
                             email_address = user_email,
                             display_name = kwargs['name'],
                             created = datetime.datetime.now(),
-                            groups = [group, DBSession.query(Group).filter(Group.group_id.in_([2])).first()]
+                            groups = [group, builtin_editor_group]
                             )
                         for key, value in defaults.items():
                             setattr(user, key, value)
