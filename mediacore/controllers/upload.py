@@ -126,25 +126,30 @@ class UploadController(BaseController):
                 # else actually save it!
                 kwargs.setdefault('name')
 
-                media_obj = self.save_media_obj(
-                    kwargs['name'], kwargs['email'],
-                    kwargs['title'], kwargs['description'],
-                    None, kwargs['file'], kwargs['url'],
-                )
+                apply_yourname = kwargs['name']
+                apply_email = kwargs['email']
+                apply_title = kwargs['title']
+                apply_description = kwargs['description']
+                apply_tags = None
+                apply_categories = None
+                apply_file = kwargs['file']
+                apply_url = kwargs['url']
 
                 if request.settings.get('create_accounts_on_upload', False):
                     # Figure out if the user is already here
                     user = User.by_email_address(kwargs['email'])
-                    
-                    if not user:
+                    if user:
+                        apply_yourname = user.display_name
+                    else:
                         # get the RestrictedGroup group that we need (and create it if it's not already there)
                         restricted_group_name = request.settings.get('restricted_permissions_group')
-                        group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-                        if not group:
-                            group = Group(name=restricted_group_name, display_name=restricted_group_name)
-                            DBSession.add(group)
+                        restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+                        if not restricted_group:
+                            make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+                            DBSession.add(make_new_group)
                             DBSession.flush()
-                            group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+                            # get the group we just created
+                            restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
 
                         # Create a new user using the model
                         user = User()
@@ -159,13 +164,19 @@ class UploadController(BaseController):
                             email_address = user_email,
                             display_name = kwargs['name'],
                             created = datetime.datetime.now(),
-                            groups = [group, builtin_editor_group]
+                            groups = [restricted_group, builtin_editor_group]
                             )
                         for key, value in defaults.items():
                             setattr(user, key, value)
                         user.password = u'changeme'
                         DBSession.add(user)
                         DBSession.flush()
+
+                media_obj = self.save_media_obj(
+                    apply_yourname, apply_email,
+                    apply_title, apply_description,
+                    apply_tags, apply_categories, apply_file, apply_url,
+                )
 
                 email.send_media_notification(media_obj)
                 data = dict(
@@ -205,7 +216,7 @@ class UploadController(BaseController):
     def failure(self, **kwargs):
         return dict()
 
-    def save_media_obj(self, name, email, title, description, tags, uploaded_file, url):
+    def save_media_obj(self, name, email, title, description, tags, categories, uploaded_file, url):
         # create our media object as a status-less placeholder initially
         media_obj = Media()
         media_obj.author = Author(name, email)
@@ -215,6 +226,8 @@ class UploadController(BaseController):
         if request.settings['wording_display_administrative_notes']:
             media_obj.notes = request.settings['wording_administrative_notes']
         media_obj.set_tags(tags)
+        if categories:
+            media_obj.set_categories(categories)
 
         # Give the Media object an ID.
         DBSession.add(media_obj)
