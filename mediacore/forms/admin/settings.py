@@ -22,6 +22,7 @@ from mediacore.lib.i18n import N_, _, get_available_locales
 from mediacore.plugin import events
 
 from mediacore.model.settings import insert_settings
+from mediacore.model import Category
 
 comments_enable_disable = lambda: (
     ('mediacore', _("Built-in comments")),
@@ -159,6 +160,8 @@ class UploadForm(MediacoreSettingsForm):
     default_values = [
         ('restrict_domains_enabled', u''), #false
         ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
+        ('upload_assign_default_category_enabled', u''),
+        ('upload_default_category', u''),
         ('handle_regexp_pattern', u''),
         ('legal_domains', u''),
         ('create_accounts_on_upload', u''),
@@ -170,6 +173,14 @@ class UploadForm(MediacoreSettingsForm):
     
     fields = [
         TextField('max_upload_size', label_text=N_('Max. allowed upload file size in megabytes'), validator=MegaByteValidator(not_empty=True, min=0)),
+        ListFieldSet('restrict_domains', suppress_label=True,
+                     legend=N_('Automatically assign default category:'),
+                     css_classes=['details_fieldset'], children=[
+            CheckBox('upload_assign_default_category_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            SingleSelectField('upload_default_category',
+                     label_text=N_('Default Category'),
+                     options=lambda : ["-" * depth + cat.name for cat, depth in Category.query.order_by(Category.name).populated_tree().traverse()])
+                     ]),
         ListFieldSet('restrict_domains', suppress_label=True,
                      legend=N_('User upload requires email address from specified domain(s):'),
                      css_classes=['details_fieldset'], children=[
@@ -198,6 +209,7 @@ class UploadForm(MediacoreSettingsForm):
         ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
+
 
 class AnalyticsForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
