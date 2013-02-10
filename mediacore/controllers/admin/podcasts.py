@@ -82,6 +82,11 @@ class PodcastsController(BaseController):
         """
         podcast = fetch_row(Podcast, id)
 
+        user_has_restricted_permissions = lambda : request.settings.get('restricted_permissions_group', False)
+        their_own_media_item = lambda : media.author.email == request.perm.user.email_address
+        if user_has_restricted_permissions() and not their_own_media_item():
+            redirect(url_for('/admin'))  # no message, just redirect TODO: Figure out how to display info
+
         if tmpl_context.action == 'save' or id == 'new':
             form_values = kwargs
             user = request.perm.user

@@ -214,7 +214,9 @@ class UploadEmailValidator(Email):
     """
     def __init__(self, *args, **kwargs):
         self.restrict_domains = request.settings.get('restrict_domains_enabled', False)
-        self.legal_domains = self.parse_domains() if self.restrict_domains else ""
+        self.legal_domains = self.parse_domains()
+        if not self.legal_domains:
+            print("Warning: legal_domains not defined")
         Email.__init__(self,
                        messages={'illegalDomain': N_(request.settings.get('illegal_domain_message',
                                                                           'Email address should be from {}'.format(
