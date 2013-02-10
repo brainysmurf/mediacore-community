@@ -135,6 +135,7 @@ class UploadController(BaseController):
                 if request.settings.get('create_accounts_on_upload', False):
                     # Figure out if the user is already here
                     user = User.by_email_address(kwargs['email'])
+                    
                     if not user:
                         # get the RestrictedGroup group that we need (and create it if it's not already there)
                         restricted_group_name = request.settings.get('restricted_permissions_group')
@@ -157,13 +158,11 @@ class UploadController(BaseController):
                             email_address = user_email,
                             display_name = kwargs['name'],
                             created = datetime.datetime.now(),
-                            groups = [group],
+                            groups = [group, DBSession.query(Group).filter(Group.group_id.in_([2])).first()]
                             )
                         for key, value in defaults.items():
                             setattr(user, key, value)
                         user.password = u'changeme'
-                        from IPython import embed
-                        embed()
                         DBSession.add(user)
                         DBSession.flush()
 
