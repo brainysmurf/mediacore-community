@@ -159,6 +159,7 @@ class UploadForm(MediacoreSettingsForm):
     default_values = [
         ('restrict_domains_enabled', u''), #false
         ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
+        ('handle_regexp_pattern', u''),
         ('legal_domains', u''),
         ('requires_confirmation_enabled', u''),
         ('username', u'{email}'),
@@ -173,6 +174,7 @@ class UploadForm(MediacoreSettingsForm):
                      legend=N_('User upload requires email address from specified domain(s):'),
                      css_classes=['details_fieldset'], children=[
             CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            TextField('handle_regexp_pattern', label_text=N_('Handle regexp pattern'), validator=None),
             TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
             TextArea('legal_domains', label_text=N_('Domains'), validator=LegalDomainsValidator(),
                       help_text=N_(u'Use commas to delineate multiple domains')),
@@ -184,7 +186,7 @@ class UploadForm(MediacoreSettingsForm):
             TextField('username', label_text=N_('Username'), validator=None,
                       help_text=N_(u'{email} {handle}')),
             TextField('limited_permissions_group', label_text=N_('Assigned Group'), validator=None, disabled=True,
-                      help_text=N_(u'Users in the {} group only have permission to review and publish their own uploads. Users can be promoted by de-assigning this group and assigning other groups (such as "Editor") in "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings.get('limited_group_name', '')))),
+                      help_text=N_(u'Users in the {} group only have permission to review and publish their own uploads. Users can be promoted by de-assigning this group and assigning other groups (such as "Editor") in "Users" settings. The name of this group cannot be changed to ensure functionality.')),
             TextArea('please_confirm_message', label_text=N_('Please confirm message'), validator=None,
                       help_text=N_(u'{confirmation_url} {sitename} {yourname} {email} {username} {email_send_from}')),
             TextArea('confirmed_message', label_text=N_('Confirmed message'), validator=None,
