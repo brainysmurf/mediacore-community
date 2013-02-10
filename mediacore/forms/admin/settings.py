@@ -162,7 +162,7 @@ class UploadForm(MediacoreSettingsForm):
         ('handle_regexp_pattern', u''),
         ('legal_domains', u''),
         ('create_accounts_on_upload', u''),
-        ('username', u'{email}'),
+        ('create_account_username', u'{email}'),
         ('restricted_permissions_group', u'RestrictedGroup'),
         ('please_confirm_message', u'Greetings {yourname},\n\nSomeone (probably you) has recently uploaded an item onto {sitename}.\n\nPlease confirm this action and activate your account by clicking the link:\n\n{confirmation_url}\n\nYour new account will be activated and a subsequent email will follow.\n\nIf you have not uploaded anything, please ignore this notice.\n\nRegards,\n{site_name} Admin\n{email_send_from}'),
         ('confirmed_message', u'Thank you for confirming your {sitename} account.\n\nYour account details are as follows:\n\nUsername: {username}\n\nYou will be prompted to enter a new password if you haven\'t changed it already.\n\nSincerely,\n{sitename} Admin{email_send_from}'),
@@ -183,7 +183,7 @@ class UploadForm(MediacoreSettingsForm):
                      legend=N_('Create accounts on first upload with restricted permissions:'),
                      css_classes=['details_fieldset'], children=[
             CheckBox('create_accounts_on_upload', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
-            TextField('username', label_text=N_('Username'), validator=None,
+            TextField('create_account_username', label_text=N_('Username'), validator=None,
                       help_text=N_(u'{email} {handle}')),
             TextField('restricted_permissions_group', label_text=N_('Assigned Group'), validator=None, disabled=True,
                       help_text=N_(u'Users in the "{}" group only have permission to review and publish their own uploads. Users can be promoted by re-assignment in the "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings['restricted_permissions_group']))),
