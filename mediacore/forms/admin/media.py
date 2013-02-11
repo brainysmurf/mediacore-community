@@ -131,6 +131,9 @@ class EditFileForm(ListForm):
         bitrate = TextField(validator=Int, attrs={'id': None, 'autocomplete': 'off'})
         delete = SubmitButton(default=N_('Delete file'), named_button=True, css_class='file-delete', attrs={'id': None})
 
+def restricted():
+    """ Returns true if our account is a restricted one """
+    return request.settings.get('restricted_permissions_group') in [g.group_name for g in request.perm.groups]
 
 class MediaForm(ListForm):
     template = 'admin/box-form.html'
@@ -141,12 +144,16 @@ class MediaForm(ListForm):
     _name = 'media-form' # TODO: Figure out why this is required??
     
     event = events.Admin.MediaForm
-    
+
     fields = [
         TextField('slug', label_text=N_('Permalink'), maxlength=50),
         TextField('title', label_text=N_('Title'), validator=TextField.validator(not_empty=True), maxlength=255),
-        TextField('author_name', label_text=N_('Author Name'), maxlength=50),
-        TextField('author_email', label_text=N_('Author Email'), validator=email_validator(not_empty=True), maxlength=255),
+        TextField('author_name',
+            disabled=restricted,
+            label_text=N_('Author Name'), maxlength=50),
+        TextField('author_email',
+            disabled=restricted,
+            label_text=N_('Author Email'), validator=email_validator(not_empty=True), maxlength=255),
         XHTMLTextArea('description', label_text=N_('Description'), attrs=dict(rows=5, cols=25)),
         CategoryCheckBoxList('categories', label_text=N_('Categories'), options=lambda: DBSession.query(Category.id, Category.name).all()),
         TextArea('tags', label_text=N_('Tags'), attrs=dict(rows=3, cols=15), help_text=N_(u'e.g.: puppies, great dane, adorable')),

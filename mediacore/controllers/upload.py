@@ -19,7 +19,7 @@ from mediacore.lib.storage import add_new_media_file
 from mediacore.lib.thumbnails import create_default_thumbs_for, has_thumbs
 from mediacore.model import Author, DBSession, get_available_slug, Media
 from mediacore.plugin import events
-from mediacore.model import User, Group
+from mediacore.model import User, Group, Category
 import datetime
 
 import logging
@@ -131,7 +131,11 @@ class UploadController(BaseController):
                 apply_title = kwargs['title']
                 apply_description = kwargs['description']
                 apply_tags = None
-                apply_categories = None
+                if request.settings.get('upload_default_category') and request.settings.get('upload_default_category'):
+                    default_category = Category.query.filter(Category.name == request.settings['upload_default_category']).first()
+                    apply_categories = [default_category.id] if default_category else None
+                else:
+                    apply_categories = None
                 apply_file = kwargs['file']
                 apply_url = kwargs['url']
 

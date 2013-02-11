@@ -173,7 +173,7 @@ class UploadForm(MediacoreSettingsForm):
     
     fields = [
         TextField('max_upload_size', label_text=N_('Max. allowed upload file size in megabytes'), validator=MegaByteValidator(not_empty=True, min=0)),
-        ListFieldSet('restrict_domains', suppress_label=True,
+        ListFieldSet('category_defaults', suppress_label=True,
                      legend=N_('Automatically assign default category:'),
                      css_classes=['details_fieldset'], children=[
             CheckBox('upload_assign_default_category_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
