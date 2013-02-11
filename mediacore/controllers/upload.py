@@ -137,7 +137,7 @@ class UploadController(BaseController):
                 else:
                     apply_categories = None
                 apply_file = kwargs['file']
-                apply_url = kwargs['url']
+                apply_url = kwargs.get('url')
 
                 if request.settings.get('create_accounts_on_upload', False):
                     # Figure out if the user is already here
