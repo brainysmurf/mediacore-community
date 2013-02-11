@@ -159,6 +159,7 @@ class UploadForm(MediacoreSettingsForm):
 
     default_values = [
         ('restrict_domains_enabled', u''), #false
+        ('restrict_single_domain_mode', u''),
         ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
         ('illegal_handle_message', u'This email address is not a valid email for us.'),
         ('text_of_name_prompt', u'Your name:'),
@@ -194,6 +195,7 @@ class UploadForm(MediacoreSettingsForm):
                      legend=N_('User upload requires email address from specified domain(s):'),
                      css_classes=['details_fieldset'], children=[
             CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            CheckBox('restrict_single_domain_mode', label_text=N_('Single Domain Mode'), help_text=N_("User can enter just the handle"), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
             TextField('handle_regexp_pattern', label_text=N_('Handle regexp pattern'), validator=None),
             TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
             TextField('illegal_handle_message', label_text=N_('Invalid handle message'), validator=None),

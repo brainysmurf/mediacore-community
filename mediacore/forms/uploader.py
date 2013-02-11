@@ -40,6 +40,7 @@ class UploadEmailValidator(Email):
     """
     def __init__(self, *args, **kwargs):
         self.restrict_domains = request.settings.get('restrict_domains_enabled', False)
+        self.single_domain_mode = self.restrict_domains and request.settings.get('restrict_single_domain_mode', False)
         self.legal_domains = self.parse_domains()
         if not self.legal_domains:
             print("Warning: legal_domains not defined")
@@ -57,10 +58,22 @@ class UploadEmailValidator(Email):
             raise Invalid(self.message('empty', state), value, state)
         value = value.strip()
         splitted = value.split('@', 1)
+        handle_regexp = request.settings.get('handle_regexp_pattern')
+
         try:
             username, domain=splitted
         except ValueError:
-            raise Invalid(self.message('noAt', state), value, state)
+            # Added code
+            if self.single_domain_mode:
+                if handle_regexp and not re.match(handle_regexp, value):
+                    raise Invalid(
+                        self.message('illegalHandle', state, value=value),
+                        value, state)
+                else:
+                    return
+            # End added code
+            else:
+                raise Invalid(self.message('noAt', state), value, state)
         if not self.usernameRE.search(username):
             raise Invalid(
                 self.message('badUsername', state, username=username),
@@ -74,7 +87,6 @@ class UploadEmailValidator(Email):
             raise Invalid(
                 self.message('illegalDomain', state, domain=domain),
                 value, state)
-        handle_regexp = request.settings.get('handle_regexp_pattern')
         if handle_regexp and not re.match(handle_regexp, username):
             raise Invalid(
                 self.message('illegalHandle', state, username=username),
