@@ -161,6 +161,14 @@ class UploadForm(MediacoreSettingsForm):
         ('restrict_domains_enabled', u''), #false
         ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
         ('illegal_handle_message', u'This email address is not a valid email for us.'),
+        ('text_of_name_prompt', u'Your name:'),
+        ('text_of_name_help', u''),
+        ('text_of_email_prompt', u'Your email:'),
+        ('text_of_email_help', u'(will never be published)'),
+        ('text_of_title_prompt', u'Title:'),
+        ('text_of_title_help', u''),
+        ('text_of_description_prompt', u'Description:'),
+        ('text_of_description_help', u''),
         ('upload_assign_default_category_enabled', u''),
         ('upload_default_category', u''),
         ('handle_regexp_pattern', u''),
@@ -205,10 +213,23 @@ class UploadForm(MediacoreSettingsForm):
             TextArea('confirmed_message', label_text=N_('Confirmed message'), validator=None,
                       help_text=N_(u'{sitename} {yourname} {email} {username} {email_send_from}')),
             ]),
+        ListFieldSet('upload_form_prompts', suppress_label=True,
+                     legend=N_('Upload form prompts and help text:'),
+                     css_classes=['details_fieldset'], children=[
+            TextField('text_of_name_prompt', label_text=N_('"Your name"'), validator=None),
+            TextField('text_of_name_help', label_text=N_('After ?'), validator=None),
+            TextField('text_of_email_prompt', label_text=N_('"Email"'), validator=None),
+            TextField('text_of_email_help', label_text=N_('After ?'), validator=None),
+            TextField('text_of_title_prompt', label_text=N_('"Title"'), validator=None),
+            TextField('text_of_title_help', label_text=N_('After ?'), validator=None),
+            TextField('text_of_description_prompt', label_text=N_('"Description"'), validator=None),
+            TextField('text_of_description_help', label_text=N_('After ?'), validator=None),
+            ]),
         ListFieldSet('legal_wording', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
             XHTMLTextArea('wording_user_uploads', label_text=N_('User Uploads'), attrs=dict(rows=15, cols=25),
                           help_text=N_(u'{sitename} {yourname} {email} {username}')),
         ]),
+
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
