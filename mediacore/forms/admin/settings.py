@@ -160,6 +160,7 @@ class UploadForm(MediacoreSettingsForm):
     default_values = [
         ('restrict_domains_enabled', u''), #false
         ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
+        ('illegal_handle_message', u'This email address is not a valid email for us.'),
         ('upload_assign_default_category_enabled', u''),
         ('upload_default_category', u''),
         ('handle_regexp_pattern', u''),
@@ -187,6 +188,7 @@ class UploadForm(MediacoreSettingsForm):
             CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
             TextField('handle_regexp_pattern', label_text=N_('Handle regexp pattern'), validator=None),
             TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
+            TextField('illegal_handle_message', label_text=N_('Invalid handle message'), validator=None),
             TextArea('legal_domains', label_text=N_('Domains'), validator=LegalDomainsValidator(),
                       help_text=N_(u'Use commas to delineate multiple domains')),
             ]),

@@ -13,6 +13,7 @@ from mediacore.lib.i18n import N_
 from mediacore.forms import ListForm, TextField, XHTMLTextArea, FileField, SubmitButton, email_validator
 from mediacore.plugin import events
 from tw.forms.validators import Email
+from formencode.api import Invalid
 import re
 
 validators = dict(
@@ -43,10 +44,8 @@ class UploadEmailValidator(Email):
         if not self.legal_domains:
             print("Warning: legal_domains not defined")
         Email.__init__(self,
-                       messages={'illegalDomain': N_(request.settings.get('illegal_domain_message',
-                                                                          'Email address should be from {}'.format(
-                                                                              " or ".join(self.legal_domains)
-                                                                              )))}, *args, **kwargs)
+                       messages={'illegalDomain': N_(request.settings.get('illegal_domain_message')),
+                                 'illegalHandle': N_(request.settings.get('illegal_handle_message', 'Nope!'))}, *args, **kwargs)
 
     def parse_domains(self):
         """ Simple regexp parser with comma as delimiter """
@@ -74,6 +73,11 @@ class UploadEmailValidator(Email):
         if self.restrict_domains and not domain in self.legal_domains:
             raise Invalid(
                 self.message('illegalDomain', state, domain=domain),
+                value, state)
+        handle_regexp = request.settings.get('handle_regexp_pattern')
+        if handle_regexp and not re.match(handle_regexp, username):
+            raise Invalid(
+                self.message('illegalHandle', state, username=username),
                 value, state)
         # End added code
         if self.resolve_domain:
