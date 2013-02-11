@@ -5,12 +5,15 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
+from pylons import request
 from tw.api import WidgetsList
 from tw.forms.validators import FieldStorageUploadConverter
 
 from mediacore.lib.i18n import N_
 from mediacore.forms import ListForm, TextField, XHTMLTextArea, FileField, SubmitButton, email_validator
 from mediacore.plugin import events
+from tw.forms.validators import Email
+import re
 
 validators = dict(
     description = XHTMLTextArea.validator(

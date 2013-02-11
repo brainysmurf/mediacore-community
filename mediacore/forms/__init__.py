@@ -20,8 +20,6 @@ from mediacore.lib.templating import tmpl_globals
 from mediacore.lib.util import url_for
 from mediacore.plugin import events
 
-import re
-
 def leniant_schema():
     return forms.validators.Schema(
         # workaround to prevent an error if no checkbox is checked in a list
