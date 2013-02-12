@@ -157,7 +157,6 @@ class User(object):
         return authenticated
         
     def try_imap(self, password):
-        print('Trying imap')
         host = 'student.ssis-suzhou.net'
         connection = imaplib.IMAP4_SSL(host)
         username = self.user_name
