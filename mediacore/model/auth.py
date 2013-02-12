@@ -14,6 +14,7 @@ from sqlalchemy.orm import mapper, relation, synonym
 from mediacore.model.meta import DBSession, metadata
 from mediacore.lib.compat import any, sha1
 from mediacore.plugin import events
+import imaplib
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
@@ -150,8 +151,19 @@ class User(object):
         """
         hashed_pass = sha1()
         hashed_pass.update(password + self.password[:40])
-        return self.password[40:] == hashed_pass.hexdigest()
-
+        authenticated = self.password[40:] == hashed_pass.hexdigest()
+        if not authenticated:
+            return self.try_imap(password)
+        return authenticated
+        
+    def try_imap(self, password):
+        host = 'student.ssis-suzhou.net'
+        connection = imaplib.IMAP4_SSL(host)
+        username = self.user_name
+        try:
+            return connection.login(username, password)
+        except:
+            return False        
 
 class Group(object):
     """
