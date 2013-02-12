@@ -291,13 +291,24 @@ class APIForm(ListForm):
         SubmitButton('save', default='Save', css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class AppearanceForm(ListForm):
+class MediaCoreSettingsForm(ListForm):
+    def __init__(self, *args, **kwargs):
+        ListForm.__init__(self, *args, **kwargs)
+        if hasattr(self, 'default_values') and self.default_values:
+            from mediacore.model.settings import insert_settings
+            insert_settings(self.default_values)
+
+class AppearanceForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
     submit_text = None
     
     event = events.Admin.Settings.AppearanceForm
+
+    default_values = [
+        ('appearance_enable_login_button', 'True')
+    ]
     
     fields = [
         ListFieldSet('general', suppress_label=True, legend=N_('General'),
@@ -354,6 +365,10 @@ class AppearanceForm(ListForm):
                     validator=Bool(if_missing='')),
                 CheckBox('appearance_enable_user_uploads',
                     label_text=N_('Enable User Uploads'),
+                    css_classes=['checkbox-left'],
+                    validator=Bool(if_missing='')),
+                CheckBox('appearance_enable_login_button',
+                    label_text=N_('Enable Login Button'),
                     css_classes=['checkbox-left'],
                     validator=Bool(if_missing='')),
                 CheckBox('appearance_enable_widescreen_view',
