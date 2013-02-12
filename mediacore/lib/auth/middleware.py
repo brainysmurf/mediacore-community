@@ -14,7 +14,7 @@ from repoze.who.plugins.friendlyform import FriendlyFormPlugin
 from repoze.who.plugins.sa import SQLAlchemyAuthenticatorPlugin
 from mediacore.config.routing import login_form_url, login_handler_url, \
     logout_handler_url, post_login_url, post_logout_url
-
+from pylons.controllers.util import Request
 from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 
 from mediacore.model import User, Group
