@@ -201,7 +201,7 @@ class UploadForm(MediacoreSettingsForm):
                      legend=N_('User upload requires email address from specified domain(s):'),
                      css_classes=['details_fieldset'], children=[
             CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
-            CheckBox('restrict_single_domain_mode', label_text=N_('Single Domain Mode'), help_text=N_("User can enter just the handle"), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            CheckBox('restrict_single_domain_mode', label_text=N_('Single Domain Mode'), help_text=N_("(User can enter just the handle)"), css_classes=['checkbox-left', 'checkbox-inline-help'], validator=Bool(if_missing='')),
             TextField('handle_regexp_pattern', label_text=N_('Handle regexp pattern'), validator=None),
             TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
             TextField('illegal_handle_message', label_text=N_('Invalid handle message'), validator=None),
@@ -216,7 +216,7 @@ class UploadForm(MediacoreSettingsForm):
             TextField('create_account_username', label_text=N_('Username'), validator=None,
                       help_text=N_(u'{email} {handle}')),
             TextField('restricted_permissions_group', label_text=N_('Assigned Group'), validator=None, disabled=True,
-                      help_text=N_(u'Users in the "{}" group only have permission to review and publish their own uploads. Users can be promoted by re-assignment in the "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings['restricted_permissions_group']))),
+                      help_text=N_(u'Users in the "{}" group only have permission to review and publish their own uploads. Users can be promoted by re-assignment in the "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings.get('restricted_permissions_group', 'RestrictedGroup')))),
             TextArea('please_confirm_message', label_text=N_('Please confirm message'), validator=None,
                       help_text=N_(u'{confirmation_url} {sitename} {yourname} {email} {username} {email_send_from}')),
             TextArea('confirmed_message', label_text=N_('Confirmed message'), validator=None,
