@@ -12,13 +12,15 @@ from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
 from repoze.who.plugins.friendlyform import FriendlyFormPlugin
 from repoze.who.plugins.sa import SQLAlchemyAuthenticatorPlugin
-from webob.request import Request
-
 from mediacore.config.routing import login_form_url, login_handler_url, \
     logout_handler_url, post_login_url, post_logout_url
 
 from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 
+from mediacore.model import User
+import imaplib
+import datetime
+from mediacore.model.meta import DBSession
 
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
@@ -27,7 +29,24 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def authenticate(self, environ, identity):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
         if login is None:
-            return None
+            host = 'student.ssis-suzhou.net'
+            connection = imaplib.IMAP4_SSL(host)
+            username = identity['login']
+            password = identity['password']
+            try:
+                connected = connection.login(username, password)
+            except:
+                return None
+            user = User()
+            user.user_name = username
+            user.display_name = 'whatever'
+            user.email_address = user.user_name + '@student.ssis-suzhou.net'
+            user.password = 'imap'
+            DBSession.add(user)
+            DBSession.flush()
+            from IPython import embed; embed()
+            return self.authenticate(environ, identity)
+
         user = self.get_user(login)
         # The return value of this method is used to identify the user later on.
         # As the username can be changed, that's not really secure and may 

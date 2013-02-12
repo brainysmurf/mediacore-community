@@ -46,6 +46,11 @@ navbar_colors = lambda: (
     ('purple', _('Purple')),
     ('black', _('Black')),
 )
+imap_options = lambda: (
+    ('imapplain', _("imap plaintext")),
+    ('imapcert', _("imap certificate")),
+    ('imapssl', _("imap ssl")),
+)
 
 hex_validation_regex = "^#\w{3,6}$"
 # End Appearance Settings #
@@ -74,6 +79,13 @@ def boolean_radiobuttonlist(name, **kwargs):
         validator=StringBool,
         **kwargs
     )
+
+class MediacoreSettingsForm(ListForm):
+    def __init__(self, *args, **kwargs):
+        ListForm.__init__(self, *args, **kwargs)
+        if hasattr(self, 'default_values') and self.default_values:
+            from mediacore.model.settings import insert_settings
+            insert_settings(self.default_values)
 
 class NotificationsForm(ListForm):
     template = 'admin/box-form.html'
@@ -203,13 +215,18 @@ class SiteMapsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class GeneralForm(ListForm):
+class GeneralForm(MediacoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
     submit_text = None
     
     event = events.Admin.Settings.GeneralForm
+    default_values = (
+        ('imap_enabled', ''),
+        ('imap_host', ''),
+        ('imap_option_select', ''),
+        )
     
     fields = [
         ListFieldSet('general', suppress_label=True, legend=N_('General Settings:'), css_classes=['details_fieldset'], children=[
@@ -234,6 +251,18 @@ class GeneralForm(ListForm):
                 validator=rich_text_editors_validator,
             ),
         ]),
+        ListFieldSet('imap_authentication', suppress_label=True, legend=N_('Use imap to authenticate users:'),
+                     css_classes=['details_fieldset'], children=[
+            CheckBox('imap_enabled',
+                label_text=N_('Enabled'),
+                help_text=N_('(Accounts will be visible in "Users" after they successfully log in)'),
+                css_classes=['checkbox-inline-help'],
+                validator=Bool(if_missing='')),
+            TextField('imap_host', maxlength=255, label_text=N_('Domain')),
+            SingleSelectField('imap_option_select',
+                label_text=N_('imap'),
+                options=imap_options),
+            ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
