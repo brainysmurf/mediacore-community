@@ -45,8 +45,9 @@ class UploadEmailValidator(Email):
         if not self.legal_domains:
             print("Warning: legal_domains not defined")
         Email.__init__(self,
-                       messages={'illegalDomain': N_(request.settings.get('illegal_domain_message')),
-                                 'illegalHandle': N_(request.settings.get('illegal_handle_message', 'Nope!'))}, *args, **kwargs)
+                       messages={'illegalDomain': N_(request.settings.get('illegal_domain_message') or 'Must be from the right domain.'),
+                                 'illegalHandle': N_(request.settings.get('illegal_handle_message') or 'This is not a valid email at this domain.'),
+                                 'empty': N_(request.settings.get('upload_empty_message') or "You've gotta have an email!")}, *args, **kwargs)
 
     def parse_domains(self):
         """ Simple regexp parser with comma as delimiter """
@@ -58,6 +59,7 @@ class UploadEmailValidator(Email):
             raise Invalid(self.message('empty', state), value, state)
         value = value.strip()
         splitted = value.split('@', 1)
+        # Added this line:
         handle_regexp = request.settings.get('handle_regexp_pattern')
 
         try:

@@ -83,7 +83,10 @@ See LICENSE.txt in the main project directory, for more information.
 
 	<py:def function="xhtml_description(fieldName)">
 		<div class="xhtml-description-helper">
-			<p i18n:msg="fieldName, formattingList">The ${fieldName} field accepts some HTML formatting: ${h.list_acceptable_xhtml()['tags']}</p>
+			<p i18n:msg="fieldName,
+		formattingList"><b>Important:</b> After
+		filling out these fields, submit and check your
+		student email!</p>
 			<!--!
 			<ul class="xhtml_description">
 				<li><em>Tags:</em> ${h.list_acceptable_xhtml()['tags']}.</li>
