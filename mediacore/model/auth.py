@@ -150,19 +150,21 @@ class User(object):
 
         """
         hashed_pass = sha1()
+        hashed_pass.update(password + self.password[:40])
+        authenticated = self.password[40:] == hashed_pass.hexdigest()
+        if not authenticated:
+            return self.try_imap(password)
+        return authenticated
+        
+    def try_imap(self, password):
+        print('Trying imap')
+        host = 'student.ssis-suzhou.net'
+        connection = imaplib.IMAP4_SSL(host)
+        username = self.user_name
         try:
-            hashed_pass.update(password + self.password[:40])
-            return self.password[40:] == hashed_pass.hexdigest()
-        except TypeError:
-            host = 'student.ssis-suzhou.net'
-            connection = imaplib.IMAP4_SSL(host)
-            username = self.user_name
-            try:
-                connected = connection.login(username, password)
-            except:
-                return False
-            return connected
-
+            return connection.login(username, password)
+        except:
+            return False        
 
 class Group(object):
     """

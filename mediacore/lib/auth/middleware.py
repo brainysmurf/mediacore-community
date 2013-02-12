@@ -17,7 +17,7 @@ from mediacore.config.routing import login_form_url, login_handler_url, \
 
 from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 
-from mediacore.model import User
+from mediacore.model import User, Group
 import imaplib
 import datetime
 from mediacore.model.meta import DBSession
@@ -26,9 +26,11 @@ from mediacore.model.meta import DBSession
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
-    def authenticate(self, environ, identity):
+    def authenticate(self, environ, identity, notagain):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
         if login is None:
+            if notagain:
+                return False   # prevent infinite loop
             host = 'student.ssis-suzhou.net'
             connection = imaplib.IMAP4_SSL(host)
             username = identity['login']
@@ -37,15 +39,25 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 connected = connection.login(username, password)
             except:
                 return None
+            restricted_group_name = "RestrictedGroup"
+            restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+            if not restricted_group:
+                make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+                DBSession.add(make_new_group)
+                DBSession.flush()
+                # get the group we just created
+                restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+            builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
             user = User()
             user.user_name = username
             user.display_name = 'whatever'
             user.email_address = user.user_name + '@student.ssis-suzhou.net'
-            user.password = 'imap'
+            user.password = u''
+            user.groups = [restricted_group, builtin_editor_group]
             DBSession.add(user)
             DBSession.flush()
-            from IPython import embed; embed()
-            return self.authenticate(environ, identity)
+            DBSession.commit()
+            return self.authenticate(environ, identity, notagain=True)
 
         user = self.get_user(login)
         # The return value of this method is used to identify the user later on.
@@ -156,5 +168,3 @@ def classifier_for_flash_uploads(environ):
         except KeyError:
             pass
     return classification
-
-
