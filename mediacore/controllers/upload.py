@@ -139,43 +139,6 @@ class UploadController(BaseController):
                 apply_file = kwargs['file']
                 apply_url = kwargs.get('url')
 
-                if request.settings.get('create_accounts_on_upload', False):
-                    # Figure out if the user is already here
-                    user = User.by_email_address(kwargs['email'])
-                    if user:
-                        apply_yourname = user.display_name
-                    else:
-                        # get the RestrictedGroup group that we need (and create it if it's not already there)
-                        restricted_group_name = request.settings.get('restricted_permissions_group')
-                        restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-                        if not restricted_group:
-                            make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
-                            DBSession.add(make_new_group)
-                            DBSession.flush()
-                            # get the group we just created
-                            restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-
-                        # Create a new user using the model
-                        user = User()
-                        user_email = kwargs['email']
-                        username_template = request.settings.get('create_account_username')
-                        if not username_template:
-                            username_template = '{email}'
-                        user_name = username_template.format(email=user_email, handle=user_email[:user_email.index('@')])
-                        builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
-                        defaults = dict(
-                            user_name = user_name,
-                            email_address = user_email,
-                            display_name = kwargs['name'],
-                            created = datetime.datetime.now(),
-                            groups = [restricted_group, builtin_editor_group]
-                            )
-                        for key, value in defaults.items():
-                            setattr(user, key, value)
-                        user.password = u'changeme'
-                        DBSession.add(user)
-                        DBSession.flush()
-
                 media_obj = self.save_media_obj(
                     apply_yourname, apply_email,
                     apply_title, apply_description,
@@ -185,7 +148,7 @@ class UploadController(BaseController):
                 email.send_media_notification(media_obj)
                 data = dict(
                     success = True,
-                    redirect = url_for(action='success')
+                    redirect = url_for(action='login')
                 )
 
         return data
