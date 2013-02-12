@@ -83,7 +83,7 @@ def boolean_radiobuttonlist(name, **kwargs):
         **kwargs
     )
 
-class MediacoreSettingsForm(ListForm):
+class MediaCoreSettingsForm(ListForm):
     """
     Abstract class
     Allows definition of class variable to assign defaults to form items
@@ -112,7 +112,7 @@ class NotificationsForm(ListForm):
     ]
 
 
-class PopularityForm(MediacoreSettingsForm):
+class PopularityForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -154,7 +154,7 @@ class MegaByteValidator(Int):
 class LegalDomainsValidator(Regex):
     regex = r"^[a-zA-Z_0-9\-\., ]*$"
 
-class UploadForm(MediacoreSettingsForm):
+class UploadForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -243,7 +243,7 @@ class UploadForm(MediacoreSettingsForm):
     ]
 
 
-class AnalyticsForm(MediacoreSettingsForm):
+class AnalyticsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -258,7 +258,7 @@ class AnalyticsForm(MediacoreSettingsForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class SiteMapsForm(MediacoreSettingsForm):
+class SiteMapsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -297,7 +297,7 @@ class SiteMapsForm(MediacoreSettingsForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class GeneralForm(MediacoreSettingsForm):
+class GeneralForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -348,7 +348,7 @@ class GeneralForm(MediacoreSettingsForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class CommentsForm(MediacoreSettingsForm):
+class CommentsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -382,7 +382,7 @@ class CommentsForm(MediacoreSettingsForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class APIForm(MediacoreSettingsForm):
+class APIForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -402,13 +402,17 @@ class APIForm(MediacoreSettingsForm):
         SubmitButton('save', default='Save', css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class AppearanceForm(MediacoreSettingsForm):
+class AppearanceForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
     submit_text = None
     
     event = events.Admin.Settings.AppearanceForm
+
+    default_values = [
+        ('appearance_enable_login_button', 'True')
+    ]
     
     fields = [
         ListFieldSet('general', suppress_label=True, legend=N_('General'),
@@ -465,6 +469,10 @@ class AppearanceForm(MediacoreSettingsForm):
                     validator=Bool(if_missing='')),
                 CheckBox('appearance_enable_user_uploads',
                     label_text=N_('Enable User Uploads'),
+                    css_classes=['checkbox-left'],
+                    validator=Bool(if_missing='')),
+                CheckBox('appearance_enable_login_button',
+                    label_text=N_('Enable Login Button'),
                     css_classes=['checkbox-left'],
                     validator=Bool(if_missing='')),
                 CheckBox('appearance_enable_widescreen_view',
@@ -550,7 +558,7 @@ class AppearanceForm(MediacoreSettingsForm):
             css_classes=['btn', 'btn-cancel', 'reset-confirm']),
     ]
 
-class AdvertisingForm(MediacoreSettingsForm):
+class AdvertisingForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
