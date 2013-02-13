@@ -320,7 +320,7 @@ class APIForm(MediaCoreSettingsForm):
         SubmitButton('save', default='Save', css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class Form(MediaCoreSettingsForm):
+class AppearanceForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
