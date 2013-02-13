@@ -20,6 +20,7 @@ from mediacore.forms import (FileField, ListFieldSet, ListForm,
 from mediacore.forms.admin.categories import category_options
 from mediacore.lib.i18n import N_, _, get_available_locales
 from mediacore.plugin import events
+from mediacore.model.settings import insert_settings
 
 comments_enable_disable = lambda: (
     ('mediacore', _("Built-in comments")),
@@ -75,7 +76,35 @@ def boolean_radiobuttonlist(name, **kwargs):
         **kwargs
     )
 
-class NotificationsForm(ListForm):
+class MediaCoreSettingsForm(ListForm):    
+    def __init__(self, *args, **kwargs):
+        super(ListForm, self).__init__(*args, **kwargs)
+        self.init_values = []
+        self.walk_fields(self.fields)
+        if self.init_values:
+            insert_settings(self.init_values)
+
+    def walk_fields(self, fields):
+        """ introspect fields and put append into self.defaults along the way """
+        for field in fields:
+            if hasattr(field, 'children') and field.children:
+                # any field with 'children' is a placeholder, recurse
+                if callable(field.children):
+                    self.walk_fields(field.children())
+                else:
+                    self.walk_fields(field.children)
+            else:
+                if not field.name:
+                    continue
+                try:
+                    prefix, key = field.name.split('.')
+                except ValueError:
+                    key = field.name
+                if hasattr(field, 'init_value') and not request.settings.get(key):
+                    # This field indicates it has a init_value and it's not in the database yet
+                    self.init_values.append( (key, field.init_value) )
+            
+class NotificationsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -94,7 +123,7 @@ class NotificationsForm(ListForm):
     ]
 
 
-class PopularityForm(ListForm):
+class PopularityForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -133,7 +162,7 @@ class MegaByteValidator(Int):
             pass
         return super(MegaByteValidator, self)._from_python(value, state)
 
-class UploadForm(ListForm):
+class UploadForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -149,7 +178,7 @@ class UploadForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class AnalyticsForm(ListForm):
+class AnalyticsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -164,7 +193,7 @@ class AnalyticsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class SiteMapsForm(ListForm):
+class SiteMapsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -203,7 +232,7 @@ class SiteMapsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class GeneralForm(ListForm):
+class GeneralForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -237,7 +266,7 @@ class GeneralForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class CommentsForm(ListForm):
+class CommentsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -271,7 +300,7 @@ class CommentsForm(ListForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class APIForm(ListForm):
+class APIForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -291,7 +320,7 @@ class APIForm(ListForm):
         SubmitButton('save', default='Save', css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class AppearanceForm(ListForm):
+class Form(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -439,7 +468,7 @@ class AppearanceForm(ListForm):
             css_classes=['btn', 'btn-cancel', 'reset-confirm']),
     ]
 
-class AdvertisingForm(ListForm):
+class AdvertisingForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'

@@ -77,6 +77,12 @@ class MultiSetting(object):
 mapper(Setting, settings, extension=events.MapperObserver(events.Setting))
 mapper(MultiSetting, multisettings, extension=events.MapperObserver(events.MultiSetting))
 
+def db_ize(x):
+    # Database values have to be string, None is None, and False represented by empty string
+    if x is None: return None
+    if x is False: return u''
+    return str(x)
+
 def insert_settings(defaults):
     """Insert the given setting if they don't exist yet.
 
@@ -101,12 +107,13 @@ def insert_settings(defaults):
         # The settings will be created the next time the event fires,
         # which will likely be the first time the app server starts up.
         return inserted
+
     for key, value in defaults:
         if key in existing_settings:
             continue
         transaction = DBSession.begin_nested()
         try:
-            s = Setting(key, value)
+            s = Setting(key, db_ize(value))
             DBSession.add(s)
             transaction.commit()
             inserted.append(s)
