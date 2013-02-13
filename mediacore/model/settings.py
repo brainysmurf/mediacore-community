@@ -81,7 +81,7 @@ def db_ize(x):
     # Database values have to be string, None is None, and False represented by empty string
     if x is None: return None
     if x is False: return u''
-    return str(x)
+    return unicode(x)
 
 def insert_settings(defaults):
     """Insert the given setting if they don't exist yet.
