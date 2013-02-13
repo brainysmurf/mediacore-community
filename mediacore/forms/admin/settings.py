@@ -20,6 +20,7 @@ from mediacore.forms import (FileField, ListFieldSet, ListForm,
 from mediacore.forms.admin.categories import category_options
 from mediacore.lib.i18n import N_, _, get_available_locales
 from mediacore.plugin import events
+from mediacore.model.settings import insert_settings
 
 from mediacore.model.settings import insert_settings
 from mediacore.model import Category
@@ -83,17 +84,35 @@ def boolean_radiobuttonlist(name, **kwargs):
         **kwargs
     )
 
-class MediaCoreSettingsForm(ListForm):
-    """
-    Abstract class
-    Allows definition of class variable to assign defaults to form items
-    """
+class MediaCoreSettingsForm(ListForm):    
     def __init__(self, *args, **kwargs):
-        ListForm.__init__(self, *args, **kwargs)
-        if hasattr(self, 'default_values') and self.default_values:
-            insert_settings(self.default_values)
+        super(ListForm, self).__init__(*args, **kwargs)
+        self.init_values = []
+        self.walk_fields(self.fields)
+        if self.init_values:
+            insert_settings(self.init_values)
 
-class NotificationsForm(ListForm):
+    def walk_fields(self, fields):
+        """ introspect fields and put append into self.defaults along the way """
+        for field in fields:
+            if hasattr(field, 'children') and field.children:
+                # any field with 'children' is a placeholder, recurse
+                if callable(field.children):
+                    self.walk_fields(field.children())
+                else:
+                    self.walk_fields(field.children)
+            else:
+                if not field.name:
+                    continue
+                try:
+                    prefix, key = field.name.split('.')
+                except ValueError:
+                    key = field.name
+                if hasattr(field, 'init_value') and not request.settings.get(key):
+                    # This field indicates it has a init_value and it's not in the database yet
+                    self.init_values.append( (key, field.init_value) )
+            
+class NotificationsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'
@@ -161,78 +180,64 @@ class UploadForm(MediaCoreSettingsForm):
     submit_text = None
     
     event = events.Admin.Settings.UploadForm
-
-    default_values = [
-        ('restrict_domains_enabled', u''), #false
-        ('restrict_single_domain_mode', u''),
-        ('illegal_domain_message', u'Your email has to be from the specified domain(s).'),
-        ('illegal_handle_message', u'This email address is not a valid email for us.'),
-        ('upload_empty_message', u"You've gotta have an email!"),
-        ('text_of_name_prompt', u'Your name:'),
-        ('text_of_name_help', u''),
-        ('text_of_email_prompt', u'Your email:'),
-        ('text_of_email_help', u'(will never be published)'),
-        ('text_of_title_prompt', u'Title:'),
-        ('text_of_title_help', u''),
-        ('text_of_description_prompt', u'Description:'),
-        ('text_of_description_help', u''),
-        ('upload_assign_default_category_enabled', u''),
-        ('upload_default_category', u''),
-        ('handle_regexp_pattern', u''),
-        ('legal_domains', u''),
-        ('create_accounts_on_upload', u''),
-        ('create_account_username', u'{email}'),
-        ('restricted_permissions_group', u'RestrictedGroup'),
-        ('please_confirm_message', u'Greetings {yourname},\n\nSomeone (probably you) has recently uploaded an item onto {sitename}.\n\nPlease confirm this action and activate your account by clicking the link:\n\n{confirmation_url}\n\nYour new account will be activated and a subsequent email will follow.\n\nIf you have not uploaded anything, please ignore this notice.\n\nRegards,\n{site_name} Admin\n{email_send_from}'),
-        ('confirmed_message', u'Thank you for confirming your {sitename} account.\n\nYour account details are as follows:\n\nUsername: {username}\n\nYou will be prompted to enter a new password if you haven\'t changed it already.\n\nSincerely,\n{sitename} Admin{email_send_from}'),
-        ]
     
     fields = [
         TextField('max_upload_size', label_text=N_('Max. allowed upload file size in megabytes'), validator=MegaByteValidator(not_empty=True, min=0)),
         ListFieldSet('category_defaults', suppress_label=True,
                      legend=N_('Automatically assign default category:'),
                      css_classes=['details_fieldset'], children=[
-            CheckBox('upload_assign_default_category_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            CheckBox('upload_assign_default_category_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'],
+                     validator=Bool(if_missing=''), init_value=False),
             SingleSelectField('upload_default_category',
                      label_text=N_('Default Category'),
-                     options=lambda : ["-" * depth + cat.name for cat, depth in Category.query.order_by(Category.name).populated_tree().traverse()])
+                     options=lambda : ["-" * depth + cat.name for cat, depth in Category.query.order_by(Category.name).populated_tree().traverse()],init_value='')
                      ]),
         ListFieldSet('restrict_domains', suppress_label=True,
                      legend=N_('User upload requires email address from specified domain(s):'),
                      css_classes=['details_fieldset'], children=[
-            CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
-            CheckBox('restrict_single_domain_mode', label_text=N_('Single Domain Mode'), help_text=N_("(User can enter just the handle)"), css_classes=['checkbox-left', 'checkbox-inline-help'], validator=Bool(if_missing='')),
-            TextField('handle_regexp_pattern', label_text=N_('Handle regexp pattern'), validator=None),
-            TextField('illegal_domain_message', label_text=N_('Invalid domain message'), validator=None),
-            TextField('illegal_handle_message', label_text=N_('Invalid handle message'), validator=None),
-            TextField('upload_empty_message', label_text=N_('Email empty message'), validator=None),
+            CheckBox('restrict_domains_enabled', label_text=N_('Enabled'), css_classes=['checkbox-left', 'checkbox-inline-help'],
+                     validator=Bool(if_missing=''), init_value=False),
+            CheckBox('restrict_single_domain_mode', label_text=N_('Single Domain Mode'), help_text=N_("(User can enter just the handle)"),
+                     css_classes=['checkbox-left', 'checkbox-inline-help'],
+                     validator=Bool(if_missing=''), init_value=False),
+            TextField('handle_regexp_pattern', label_text=N_('Handle regexp pattern'), validator=None, init_value=''),
+            TextField('illegal_domain_message', label_text=N_('Invalid domain message'),
+                      validator=None, init_value='Your email has to be from the specified domain(s).'),
+            TextField('illegal_handle_message', label_text=N_('Invalid handle message'),
+                      validator=None, init_value='This email address is not a valid email for this domain.'),
+            TextField('upload_empty_message', label_text=N_('Email empty message'),
+                      validator=None, init_value="You've gotta have an email!"),
             TextArea('legal_domains', label_text=N_('Domains'), validator=LegalDomainsValidator(),
-            help_text=N_(u'Use commas to delineate multiple domains')),
+                     help_text=N_(u'Use commas to delineate multiple domains'), init_value=""),
+            
             ]),
         ListFieldSet('requires_confirmation', suppress_label=True,
                      legend=N_('Create accounts on first upload with restricted permissions:'),
                      css_classes=['details_fieldset'], children=[
-            CheckBox('create_accounts_on_upload', label_text=N_('Enabled'), css_classes=['checkbox-left'], validator=Bool(if_missing='')),
+            CheckBox('create_accounts_on_upload', label_text=N_('Enabled'), css_classes=['checkbox-left'],
+                     validator=Bool(if_missing=''), init_value=False),
             TextField('create_account_username', label_text=N_('Username'), validator=None,
-                      help_text=N_(u'{email} {handle}')),
+                      help_text=N_(u'{email} {handle}'), init_value="{email}"),
             TextField('restricted_permissions_group', label_text=N_('Assigned Group'), validator=None, disabled=True,
-                      help_text=N_(u'Users in the "{}" group only have permission to review and publish their own uploads. Users can be promoted by re-assignment in the "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings.get('restricted_permissions_group', 'RestrictedGroup')))),
+                      help_text=lambda : N_(u'Users in the "{}" group only have permission to review and publish their own uploads. Users can be promoted by re-assignment in the "Users" settings. The name of this group cannot be changed to ensure functionality.'.format(request.settings.get('restricted_permissions_group', 'RestrictedGroup'))), init_value='RestrictedGroup'),
             TextArea('please_confirm_message', label_text=N_('Please confirm message'), validator=None,
-                      help_text=N_(u'{confirmation_url} {sitename} {yourname} {email} {username} {email_send_from}')),
+                      help_text=N_(u'{confirmation_url} {sitename} {yourname} {email} {username} {email_send_from}'),
+                      init_value = 'Greetings {yourname},\n\nSomeone (probably you) has recently uploaded an item onto {sitename}.\n\nPlease confirm this action and activate your account by clicking the link:\n\n{confirmation_url}\n\nYour new account will be activated and a subsequent email will follow.\n\nIf you have not uploaded anything, please ignore this notice.\n\nRegards,\n{site_name} Admin\n{email_send_from}'),
             TextArea('confirmed_message', label_text=N_('Confirmed message'), validator=None,
-                      help_text=N_(u'{sitename} {yourname} {email} {username} {email_send_from}')),
+                      help_text=N_(u'{sitename} {yourname} {email} {username} {email_send_from}'),
+                      init_value='Thank you for confirming your {sitename} account.\n\nYour account details are as follows:\n\nUsername: {username}\n\nYou will be prompted to enter a new password if you haven\'t changed it already.\n\nSincerely,\n{sitename} Admin{email_send_from}'),
             ]),
         ListFieldSet('upload_form_prompts', suppress_label=True,
                      legend=N_('Upload form prompts and help text:'),
                      css_classes=['details_fieldset'], children=[
-            TextField('text_of_name_prompt', label_text=N_('"Your name"'), validator=None),
-            TextField('text_of_name_help', label_text=N_('After ?'), validator=None),
-            TextField('text_of_email_prompt', label_text=N_('"Email"'), validator=None),
-            TextField('text_of_email_help', label_text=N_('After ?'), validator=None),
-            TextField('text_of_title_prompt', label_text=N_('"Title"'), validator=None),
-            TextField('text_of_title_help', label_text=N_('After ?'), validator=None),
-            TextField('text_of_description_prompt', label_text=N_('"Description"'), validator=None),
-            TextField('text_of_description_help', label_text=N_('After ?'), validator=None),
+            TextField('text_of_name_prompt', label_text=N_('"Your name"'), validator=None, init_value="Your name:"),
+            TextField('text_of_name_help', label_text=N_('After ?'), validator=None, init_value=""),
+            TextField('text_of_email_prompt', label_text=N_('"Email"'), validator=None, init_value="Your email:"),
+            TextField('text_of_email_help', label_text=N_('After ?'), validator=None, init_value="(will never be published)"),
+            TextField('text_of_title_prompt', label_text=N_('"Title"'), validator=None, init_value="Title:"),
+            TextField('text_of_title_help', label_text=N_('After ?'), validator=None, init_value=""),
+            TextField('text_of_description_prompt', label_text=N_('"Description"'), validator=None, init_value="Description:"),
+            TextField('text_of_description_help', label_text=N_('After ?'), validator=None, init_value=""),
             ]),
         ListFieldSet('legal_wording', suppress_label=True, legend=N_('Legal Wording:'), css_classes=['details_fieldset'], children=[
             XHTMLTextArea('wording_user_uploads', label_text=N_('User Uploads'), attrs=dict(rows=15, cols=25),
@@ -241,7 +246,6 @@ class UploadForm(MediaCoreSettingsForm):
 
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
-
 
 class AnalyticsForm(MediaCoreSettingsForm):
     template = 'admin/box-form.html'
@@ -304,11 +308,6 @@ class GeneralForm(MediaCoreSettingsForm):
     submit_text = None
     
     event = events.Admin.Settings.GeneralForm
-    default_values = (
-        ('imap_enabled', ''),
-        ('imap_host', ''),
-        ('imap_option_select', ''),
-        )
     
     fields = [
         ListFieldSet('general', suppress_label=True, legend=N_('General Settings:'), css_classes=['details_fieldset'], children=[
@@ -339,11 +338,11 @@ class GeneralForm(MediaCoreSettingsForm):
                 label_text=N_('Enabled'),
                 help_text=N_('(Accounts will be visible in "Users" after they successfully log in)'),
                 css_classes=['checkbox-inline-help'],
-                validator=Bool(if_missing='')),
-            TextField('imap_host', maxlength=255, label_text=N_('Domain')),
+                validator=Bool(if_missing=''), init_value=False),
+            TextField('imap_host', maxlength=255, label_text=N_('Domain'), init_value=''),
             SingleSelectField('imap_option_select',
                 label_text=N_('imap'),
-                options=imap_options),
+                options=imap_options, init_value=''),
             ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
@@ -409,10 +408,6 @@ class AppearanceForm(MediaCoreSettingsForm):
     submit_text = None
     
     event = events.Admin.Settings.AppearanceForm
-
-    default_values = [
-        ('appearance_enable_login_button', 'True')
-    ]
     
     fields = [
         ListFieldSet('general', suppress_label=True, legend=N_('General'),
@@ -474,7 +469,7 @@ class AppearanceForm(MediaCoreSettingsForm):
                 CheckBox('appearance_enable_login_button',
                     label_text=N_('Enable Login Button'),
                     css_classes=['checkbox-left'],
-                    validator=Bool(if_missing='')),
+                    validator=Bool(if_missing=''), init_value=True),
                 CheckBox('appearance_enable_widescreen_view',
                     label_text=N_('Enable widescreen media player by default'),
                     css_classes=['checkbox-left'],
