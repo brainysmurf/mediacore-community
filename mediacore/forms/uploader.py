@@ -51,7 +51,7 @@ class UploadEmailValidator(Email):
 
     def parse_domains(self):
         """ Simple regexp parser with comma as delimiter """
-        return re.split(r'[, ]*', request.settings.get('legal_domains', ''))
+        return re.split(r'[, ]*', request.settings.get('legal_domains') or u'')
 
     def validate_python(self, value, state):
         """ Adds domain checking by completely overriding """
