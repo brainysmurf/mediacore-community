@@ -14,7 +14,7 @@ from sqlalchemy.orm import mapper, relation, synonym
 from mediacore.model.meta import DBSession, metadata
 from mediacore.lib.compat import any, sha1
 from mediacore.plugin import events
-import imaplib
+import ldap
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
@@ -161,7 +161,7 @@ class User(object):
         host = 'ldap://localhost'
         dn = 'uid={uid},ou=user,dc=example,dc=com'
         username = self.user_name
-        connection.ldap.initialize(host)
+        ldap_connection = ldap.initialize(host)
 
         try:
             ldap_connection.simple_bind_s(dn.format(uid=username), password)
