@@ -130,7 +130,7 @@ class UploadController(BaseController):
                 apply_email = kwargs['email']
                 apply_title = kwargs['title']
                 apply_description = kwargs['description']
-                apply_tags = None
+                apply_tags = kwargs['tags']
                 if request.settings.get('upload_default_category') and request.settings.get('upload_default_category'):
                     default_category = Category.query.filter(Category.name == request.settings['upload_default_category']).first()
                     apply_categories = [default_category.id] if default_category else None
@@ -169,9 +169,7 @@ class UploadController(BaseController):
             apply_categories = None
 
         # Save the media_obj!
-        # For DragonTV, we enter the tags first and then enter the description
-        # So we need to change up the parameters for this
-            media_obj = self.save_media_obj(
+        media_obj = self.save_media_obj(
             kwargs['name'], kwargs['email'],
             kwargs['title'], u'',
             kwargs['description'], apply_categories, kwargs['file'], kwargs.get('url'),

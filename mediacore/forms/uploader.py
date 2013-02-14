@@ -18,7 +18,7 @@ import re
 
 validators = dict(
     description = XHTMLTextArea.validator(
-        messages = {'empty': N_('At least pick one word...')},
+        messages = {'empty': N_('There must be something to describe...')},
         not_empty = True,
     ),
     name = TextField.validator(
@@ -27,6 +27,10 @@ validators = dict(
     ),
     title = TextField.validator(
         messages = {'empty': N_("You've gotta have a title!")},
+        not_empty = True,
+    ),
+    tags = TextField.validator(
+        messages = {'empty': N_("At least pick one word!")},
         not_empty = True,
     ),
     url = TextField.validator(
@@ -128,6 +132,7 @@ class UploadForm(ListForm):
         name = TextField(validator=validators['name'], label_text=N_(request.settings.get('text_of_name_prompt') or 'Your Name:'), help_text=N_(request.settings.get('text_of_name_help') or ''), maxlength=50)
         email = TextField(validator=UploadEmailValidator(not_empty=True), label_text=N_(request.settings.get('text_of_email_prompt') or 'Your email:'), help_text=N_(request.settings.get('text_of_email_help') or ''), maxlength=255)
         title = TextField(validator=validators['title'], label_text=N_(request.settings.get('text_of_title_prompt') or 'Title:'), help_text=N_(request.settings.get('text_of_title_help') or ''), maxlength=255)
-        description = TextArea(validator=validators['description'], label_text=N_(request.settings.get('text_of_description_prompt') or 'Description:'), help_text=N_(request.settings.get('text_of_description_help') or ''), attrs=dict(rows=5, cols=25))
+        tags = TextArea(validator=validators['tags'], label_text=N_(request.settings.get('text_of_tags_prompt') or 'Tags:'), help_text=N_(request.settings.get('text_of_tag_help') or '(one tag for each line)'), maxlength=255)
+        description = TextField(validator=validators['description'], label_text=N_(request.settings.get('text_of_description_prompt') or 'Description:'), help_text=N_(request.settings.get('text_of_description_help') or ''), attrs=dict(rows=5, cols=25))
         #url = TextField(validator=validators['url'], label_text=N_('Add a YouTube, Vimeo or Google Video URL:'), maxlength=255)
         submit = SubmitButton(default=N_('Continue'), css_classes=['mcore-btn', 'btn-submit'])
