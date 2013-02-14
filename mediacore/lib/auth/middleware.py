@@ -43,17 +43,22 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
             if not restricted_group:
                 make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+                builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+                # Copy the permissions from the same group that can give us access to the /admin section
+                from copy import copy
+                make_new_group.permissions = copy(builtin_editor_group.permissions)
                 DBSession.add(make_new_group)
                 DBSession.flush()
                 # get the group we just created
                 restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-            builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+            
             user = User()
             user.user_name = username
             user.display_name = 'whatever'
             user.email_address = user.user_name + '@student.ssis-suzhou.net'
             user.password = u''
-            user.groups = [restricted_group, builtin_editor_group]
+            user.groups = [restricted_group]            
+            
             DBSession.add(user)
             DBSession.flush()
             DBSession.commit()

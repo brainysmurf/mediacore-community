@@ -130,4 +130,4 @@ class UploadForm(ListForm):
         title = TextField(validator=validators['title'], label_text=N_(request.settings.get('text_of_title_prompt') or 'Title:'), help_text=N_(request.settings.get('text_of_title_help') or ''), maxlength=255)
         description = TextArea(validator=validators['description'], label_text=N_(request.settings.get('text_of_description_prompt') or 'Description:'), help_text=N_(request.settings.get('text_of_description_help') or ''), attrs=dict(rows=5, cols=25))
         #url = TextField(validator=validators['url'], label_text=N_('Add a YouTube, Vimeo or Google Video URL:'), maxlength=255)
-        submit = SubmitButton(default=N_('Submit'), css_classes=['mcore-btn', 'btn-submit'])
+        submit = SubmitButton(default=N_('Continue'), css_classes=['mcore-btn', 'btn-submit'])

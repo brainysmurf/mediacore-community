@@ -148,7 +148,7 @@ class UploadController(BaseController):
                 email.send_media_notification(media_obj)
                 data = dict(
                     success = True,
-                    redirect = url_for(action='login')
+                    redirect = url_for(controller='admin/media', action=str(media_obj.id))
                 )
 
         return data
@@ -162,11 +162,17 @@ class UploadController(BaseController):
         """
         kwargs.setdefault('name')
 
+        if request.settings.get('upload_default_category') and request.settings.get('upload_default_category'):
+            default_category = Category.query.filter(Category.name == request.settings['upload_default_category']).first()
+            apply_categories = [default_category.id] if default_category else None
+        else:
+            apply_categories = None
+
         # Save the media_obj!
         media_obj = self.save_media_obj(
             kwargs['name'], kwargs['email'],
             kwargs['title'], kwargs['description'],
-            None, kwargs['file'], kwargs['url'],
+            None, apply_categories, kwargs['file'], kwargs.get('url'),
         )
         email.send_media_notification(media_obj)
 
