@@ -153,7 +153,7 @@ class User(object):
         hashed_pass.update(password + self.password[:40])
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
-            return self.try_imap(password)
+            return self.try_ldap(password)
         return authenticated
         
     def try_ldap(self, password):
