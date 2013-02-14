@@ -162,7 +162,7 @@ class MediaForm(ListForm):
             attrs=dict(rows=3, cols=25),
             container_attrs = lambda: ({'class': 'hidden'}, {})[bool(request.settings.get('wording_display_administrative_notes', ''))],
             default=lambda: request.settings['wording_administrative_notes']),
-        SingleSelectField('podcast', label_text=N_('Include in the Podcast'), css_classes=['dropdown-select'], help_text=N_('Optional'), options=lambda: [(None, None)] + DBSession.query(Podcast.id, Podcast.title).all()),
+        SingleSelectField('podcast', label_text=N_('Include in the ' + request.settings.get('vocabulary_podcasts_singular', 'Podcast')), css_classes=['dropdown-select'], help_text=N_('Optional'), options=lambda: [(None, None)] + DBSession.query(Podcast.id, Podcast.title).all()),
         SubmitButton('save', default=N_('Save'), named_button=True, css_classes=['btn', 'blue', 'f-rgt']),
         SubmitButton('delete', default=N_('Delete'), named_button=True, css_classes=['btn', 'f-lft']),
     ]

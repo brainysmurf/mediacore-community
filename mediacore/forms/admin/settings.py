@@ -348,13 +348,13 @@ class GeneralForm(MediaCoreSettingsForm):
                      legend=N_('Your site\'s vocabulary regarding Podcasts:'),
                      css_classes=['details_fieldset'], children=[
             TextField('vocabulary_podcasts_plural', maxlength=255,
-                label_text=N_('"Podcasts"')),
+                label_text=N_('"Podcasts"'), init_value="Podcasts"),
             TextField('vocabulary_podcasts_singular', maxlength=255,
-                label_text=N_('"Podcast"')),
+                label_text=N_('"Podcast"'), init_value="Podcast"),
             TextField('vocabulary_episodes_plural', maxlength=255,
-                label_text=N_('"Episodes"')),
+                label_text=N_('"Episodes"'), init_value="Episodes"),
             TextField('vocabulary_episodes_singular', maxlength=255,
-                label_text=N_('"Episode"')),
+                label_text=N_('"Episode"'), init_value="Episode"),
             ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
