@@ -21,22 +21,26 @@ from mediacore.model import User, Group
 import imaplib
 import datetime
 from mediacore.model.meta import DBSession
-
+import imaplib
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
-    def authenticate(self, environ, identity, notagain):
+    def __init__(self, *args, **kwargs):
+        super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
+        host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
+        self.imap_connection = imaplib.IMAP4_SSL(host)
+    
+    def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
         if login is None:
             if notagain:
                 return False   # prevent infinite loop
-            host = 'student.ssis-suzhou.net'
-            connection = imaplib.IMAP4_SSL(host)
+
             username = identity['login']
             password = identity['password']
             try:
-                connected = connection.login(username, password)
+                connected = self.imap_connection.login(username, password)
             except:
                 return None
             restricted_group_name = "RestrictedGroup"
@@ -57,6 +61,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             DBSession.add(user)
             DBSession.flush()
             DBSession.commit()
+            # Now repoze.who should be able to login
             return self.authenticate(environ, identity, notagain=True)
 
         user = self.get_user(login)
