@@ -21,15 +21,19 @@ from mediacore.model import User, Group
 import imaplib
 import datetime
 from mediacore.model.meta import DBSession
-import imaplib
+import ldap
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
-        host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
-        self.imap_connection = imaplib.IMAP4_SSL(host)
+        host = 'ldap://localhost'   #TODO: Read this in from config
+        self.dn = 'uid={uid},ou=user,dc=example,dc=com'
+        self.ldap_connection = ldap.initialize(host)
+
+    def check_for_user(self, username, password):
+        return self.ldap_connection.simple_bind_s(self.dn.format(uid=username), password)
     
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
@@ -40,29 +44,44 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             username = identity['login']
             password = identity['password']
             try:
-                connected = self.imap_connection.login(username, password)
+                user_exists = self.ldap_connection.check_for_user(username, password)
             except:
                 return None
-            restricted_group_name = "RestrictedGroup"
-            restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-            if not restricted_group:
-                make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
-                DBSession.add(make_new_group)
-                DBSession.flush()
-                # get the group we just created
+            if user_exists:
+                # Now that we know the user exists on the auth server,
+                # go ahead and create it manually on this side.
+                # Subsequent logins (including the one we force below)
+                # Will skip this code and call mediacore.model.auth.User.validate_password
+                # Which will then use our own authentication protocol to check the password
+
+                # All our users created in this way will be put in the "RestrictedGroup" group
+                # Which we can use to limit access (although this requires coding up the controllers
+                # The idea is to give them only permissions to edit/publish their own media items and no one else's
+                restricted_group_name = "RestrictedGroup"
                 restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-            builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
-            user = User()
-            user.user_name = username
-            user.display_name = 'whatever'
-            user.email_address = user.user_name + '@student.ssis-suzhou.net'
-            user.password = u''
-            user.groups = [restricted_group, builtin_editor_group]
-            DBSession.add(user)
-            DBSession.flush()
-            DBSession.commit()
-            # Now repoze.who should be able to login
-            return self.authenticate(environ, identity, notagain=True)
+                if not restricted_group:
+                    make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+                    DBSession.add(make_new_group)
+                    DBSession.flush()
+                    # get the group we just created
+                    restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+
+                # Due to current limits in mediacore, we have to put them in the 'editor' group so they can access the backend
+                builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+
+                # Actually create the user
+                user = User()
+                user.user_name = username
+                user.display_name = 'whatever'
+                user.email_address = user.user_name + '@student.ssis-suzhou.net'
+                user.password = u''
+                user.groups = [restricted_group, builtin_editor_group]
+                DBSession.add(user)
+                DBSession.flush()
+                DBSession.commit()
+                # Now we should be able to login using the built-in methods, recurse to find out
+                return self.authenticate(environ, identity, notagain=True)
+            return None
 
         user = self.get_user(login)
         # The return value of this method is used to identify the user later on.

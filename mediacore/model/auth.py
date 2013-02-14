@@ -156,12 +156,15 @@ class User(object):
             return self.try_imap(password)
         return authenticated
         
-    def try_imap(self, password):
-        host = 'student.ssis-suzhou.net'
-        connection = imaplib.IMAP4_SSL(host)
+    def try_ldap(self, password):
+        # TODO: Refactor this into the config
+        host = 'ldap://localhost'
+        dn = 'uid={uid},ou=user,dc=example,dc=com'
         username = self.user_name
+        connection.ldap.initialize(host)
+
         try:
-            return connection.login(username, password)
+            ldap_connection.simple_bind_s(dn.format(uid=username), password)
         except:
             return False        
 
