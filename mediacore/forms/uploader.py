@@ -18,7 +18,7 @@ import re
 
 validators = dict(
     description = XHTMLTextArea.validator(
-        messages = {'empty': N_('At least give it a short description...')},
+        messages = {'empty': N_('At least pick one word...')},
         not_empty = True,
     ),
     name = TextField.validator(

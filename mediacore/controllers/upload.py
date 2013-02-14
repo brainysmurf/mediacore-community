@@ -169,10 +169,12 @@ class UploadController(BaseController):
             apply_categories = None
 
         # Save the media_obj!
-        media_obj = self.save_media_obj(
+        # For DragonTV, we enter the tags first and then enter the description
+        # So we need to change up the parameters for this
+            media_obj = self.save_media_obj(
             kwargs['name'], kwargs['email'],
-            kwargs['title'], kwargs['description'],
-            None, apply_categories, kwargs['file'], kwargs.get('url'),
+            kwargs['title'], u'',
+            kwargs['description'], apply_categories, kwargs['file'], kwargs.get('url'),
         )
         email.send_media_notification(media_obj)
 
