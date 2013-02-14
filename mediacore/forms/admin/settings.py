@@ -342,7 +342,19 @@ class GeneralForm(MediaCoreSettingsForm):
             TextField('imap_host', maxlength=255, label_text=N_('Domain'), init_value=''),
             SingleSelectField('imap_option_select',
                 label_text=N_('imap'),
-                options=imap_options, init_value=''),
+                options=imap_options, init_value='')
+                ]),
+        ListFieldSet('site_vocabulary', suppress_label=True,
+                     legend=N_('Your site\'s vocabulary regarding Podcasts:'),
+                     css_classes=['details_fieldset'], children=[
+            TextField('vocabulary_podcasts_plural', maxlength=255,
+                label_text=N_('"Podcasts"')),
+            TextField('vocabulary_podcasts_singular', maxlength=255,
+                label_text=N_('"Podcast"')),
+            TextField('vocabulary_episodes_plural', maxlength=255,
+                label_text=N_('"Episodes"')),
+            TextField('vocabulary_episodes_singular', maxlength=255,
+                label_text=N_('"Episode"')),
             ]),
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]

@@ -5,6 +5,7 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
+from pylons import request
 from formencode.validators import URL
 from tw.forms import SingleSelectField
 from tw.forms.validators import NotEmpty
@@ -106,7 +107,9 @@ class PodcastForm(ListForm):
         TextField('author_name', label_text=N_('Author Name'), validator=TextField.validator(not_empty=True), maxlength=50),
         TextField('author_email', label_text=N_('Author Email'), validator=email_validator(not_empty=True), maxlength=50),
         XHTMLTextArea('description', label_text=N_('Description'), attrs=dict(rows=5, cols=25)),
-        ListFieldSet('details', suppress_label=True, legend=N_('Podcast Details:'), css_classes=['details_fieldset'], children=[
+        ListFieldSet('details', suppress_label=True,
+                     legend=N_('{} Details:'.format(request.settings.get('vocabulary_podcasts_singular', 'Podcast'))),
+                     css_classes=['details_fieldset'], children=[
             SingleSelectField('explicit', label_text=N_('Explicit?'), options=explicit_options),
             SingleSelectField('category', label_text=N_('Category'), options=category_options),
             TextField('copyright', label_text=N_('Copyright'), maxlength=50),
