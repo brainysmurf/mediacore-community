@@ -79,7 +79,7 @@ mapper(MultiSetting, multisettings, extension=events.MapperObserver(events.Multi
 
 def db_ize(x):
     # Database values have to be string, None is None, and False represented by empty string
-    if x is None: return None
+    if x is None: return u''
     if x is False: return u''
     return unicode(x)
 
