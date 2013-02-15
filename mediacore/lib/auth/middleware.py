@@ -53,9 +53,18 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
             
             user = User()
+            # Determine username from our DragonNet database, if anything goes wrong then just set to username.title()
+            try:
+                import psycopg2
+                conn = psycopg2.connect("host=dragonnet.ssis-suzhou.net dbname=moodle user=moodle")
+                cur = conn.cursor()
+                cur.execute("select firstname, username from ssismdl_user where username = '{}'".format(user.user_name))
+                firstname, lastname = cur.fetchone()
+                user.display_name = firstname + lastname
+            except:
+                user.display_name = username.title()
             user.user_name = username
-            user.display_name = 'whatever'
-            user.email_address = user.user_name + '@student.ssis-suzhou.net'
+            user.email_address = user.user_name + '@' + host
             user.password = u''
             user.groups = [restricted_group]            
             
