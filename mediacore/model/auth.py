@@ -18,7 +18,7 @@ import imaplib
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
-    Column('user_name', Unicode(16), unique=True, nullable=False),
+    Column('user_name', Unicode(255), unique=True, nullable=False),
     Column('email_address', Unicode(255), unique=True, nullable=False),
     Column('display_name', Unicode(255)),
     Column('password', Unicode(80)),
