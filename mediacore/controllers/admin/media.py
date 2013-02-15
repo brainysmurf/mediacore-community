@@ -30,6 +30,7 @@ from mediacore.lib.thumbnails import thumb_path, thumb_paths, create_thumbs_for,
 from mediacore.model import Author, Category, Media, Podcast, Tag, fetch_row, get_available_slug
 from mediacore.model.meta import DBSession
 from mediacore.plugin import events
+from mediacore.model.authors import Author
 
 import logging
 log = logging.getLogger(__name__)
@@ -159,9 +160,14 @@ class MediaController(BaseController):
         restricted_group_name = lambda : request.settings.get('restricted_permissions_group', False)
         user_has_restricted_permissions = lambda : restricted_group_name() in [g.group_name for g in request.perm.groups]
         their_own_media_item = lambda : media.author.email == request.perm.user.email_address
-        if restricted_group_name() and user_has_restricted_permissions() and not their_own_media_item():
-            redirect(url_for('/admin'))  # no message, just redirect TODO: Figure out how to display info
-
+        if restricted_group_name() and user_has_restricted_permissions():
+            if not their_own_media_item():
+                redirect(url_for('/admin'))  # no message, just redirect TODO: Figure out how to display info
+            else:
+                # Need to set this
+                media.author = Author(request.perm.user.display_name, request.perm.user.email_address)
+                DBSession.commit()
+                
         if tmpl_context.action == 'save' or id == 'new':
             # Use the values from error_handler or GET for new podcast media
             media_values = kwargs

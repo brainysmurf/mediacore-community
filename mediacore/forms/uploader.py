@@ -47,8 +47,8 @@ class UploadEmailValidator(Email):
         self.single_domain_mode = self.restrict_domains and request.settings.get('restrict_single_domain_mode', False)
         self.legal_domains = self.parse_domains()
         if not self.legal_domains:
-            print("Warning: legal_domains not defined")
-        Email.__init__(self,
+            pass  # TODO: Some error here            
+        super(UploadEmailValidator, self).__init__(
                        messages={'illegalDomain': N_(request.settings.get('illegal_domain_message') or 'Must be from the right domain.'),
                                  'illegalHandle': N_(request.settings.get('illegal_handle_message') or 'This is not a valid email at this domain.'),
                                  'empty': N_(request.settings.get('upload_empty_message') or "You've gotta have an email!")}, *args, **kwargs)
@@ -116,7 +116,7 @@ class UploadEmailValidator(Email):
             if not answers:
                 raise Invalid(
                     self.message('domainDoesNotExist', state, domain=domain),
-                    value, state)
+                    value, state)                
 
 class UploadForm(ListForm):
     template = 'upload/form.html'
@@ -129,7 +129,7 @@ class UploadForm(ListForm):
     
     class fields(WidgetsList):
         file = FileField(validator=FieldStorageUploadConverter(if_missing=None, messages={'empty':N_('Oops! You forgot to enter a file.')}), label_text=N_('Upload:'), help_text="(Must be an mp4 or m4a file)")
-        name = TextField(validator=validators['name'], label_text=N_(request.settings.get('text_of_name_prompt') or 'Your Name:'), help_text=N_(request.settings.get('text_of_name_help') or ''), maxlength=50)
+        #name = TextField(validator=validators['name'], label_text=N_(request.settings.get('text_of_name_prompt') or 'Your Name:'), help_text=N_(request.settings.get('text_of_name_help') or ''), maxlength=50)
         email = TextField(validator=UploadEmailValidator(not_empty=True), label_text=N_(request.settings.get('text_of_email_prompt') or 'Your email:'), help_text=N_(request.settings.get('text_of_email_help') or ''), maxlength=255)
         title = TextField(validator=validators['title'], label_text=N_(request.settings.get('text_of_title_prompt') or 'Title:'), help_text=N_(request.settings.get('text_of_title_help') or ''), maxlength=255)
         tags = TextArea(validator=validators['tags'], label_text=N_(request.settings.get('text_of_tags_prompt') or 'Tags:'), help_text=N_(request.settings.get('text_of_tag_help') or '(one tag for each line)'), maxlength=255)

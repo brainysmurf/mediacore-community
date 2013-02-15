@@ -149,7 +149,7 @@ class MediaForm(ListForm):
         TextField('slug', label_text=N_('Permalink'), maxlength=50),
         TextField('title', label_text=N_('Title'), validator=TextField.validator(not_empty=True), maxlength=255),
         TextField('author_name',
-            label_text=N_('Author Name'), maxlength=50),
+            label_text=N_('Author Name'), maxlength=50, disabled=restricted),
         TextField('author_email',
             disabled=restricted,
             label_text=N_('Author Email'), validator=email_validator(not_empty=True), maxlength=255),
