@@ -91,7 +91,14 @@ def send_media_notification(media_obj):
     :param media_obj: The media object to send a notification about.
     :type media_obj: :class:`~mediacore.model.media.Media` instance
     """
-    send_to = request.settings['email_media_uploaded']
+    send_to = []
+    
+    admin_email = request.settings['email_media_uploaded']
+    if admin_email:
+        send_to.append( admin_email )
+    if request.settings.get('email_media_uploaded_user'):
+        send_to.append( media_obj.author.email )
+
     if not send_to:
         # media notification emails are disabled!
         return
@@ -102,11 +109,12 @@ def send_media_notification(media_obj):
     clean_description = strip_xhtml(line_break_xhtml(line_break_xhtml(media_obj.description)))
 
     type = media_obj.type
+    site_name = request.settings['site_name']
     title = media_obj.title
     author_name = media_obj.author.name
     author_email = media_obj.author.email
-    subject = _('New %(type)s: %(title)s') % locals()
-    body = _("""A new %(type)s file has been uploaded!
+    subject = _('%(site_name)s: %(title)s') % locals()
+    body = _("""A new movie has been uploaded!
 
 Title: %(title)s
 
@@ -117,7 +125,8 @@ Admin URL: %(edit_url)s
 Description: %(clean_description)s
 """) % locals()
 
-    send(send_to, request.settings['email_send_from'], subject, body)
+    for recipient in send_to:
+        send(recipient, request.settings['email_send_from'], subject, body)
 
 def send_comment_notification(media_obj, comment):
     """

@@ -123,6 +123,7 @@ class NotificationsForm(MediaCoreSettingsForm):
     fields = [
         ListFieldSet('email', suppress_label=True, legend=N_('Email Notifications:'), css_classes=['details_fieldset'], children=[
             TextField('email_media_uploaded', validator=email_list_validator, label_text=N_('Media Uploaded'), maxlength=255),
+            CheckBox('email_media_uploaded_user', validator=Bool(if_missing=''), label_text=N_('To Uploader'), css_classes=['checkbox-left', 'checkbox-inline-help'], init_value=False),
             TextField('email_comment_posted', validator=email_list_validator, label_text=N_('Comment Posted'), maxlength=255),
             TextField('email_support_requests', validator=email_list_validator, label_text=N_('Support Requested'), maxlength=255),
             TextField('email_send_from', validator=email_validator, label_text=N_('Send Emails From'), maxlength=255),
