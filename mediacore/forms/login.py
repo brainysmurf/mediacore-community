@@ -33,7 +33,7 @@ class LoginForm(ListForm):
         TextField('login', label_text=N_('Username'), 
             # 'autofocus' is actually not XHTML-compliant
             attrs={'autofocus': True}),
-        PasswordField('password', label_text=N_('Password')),
+        PasswordField('password', label_text=N_('Password'), help_text=N_("Students, must be your email password")),
         
         SubmitButton('login_button', default=N_('Login'), 
             css_classes=['mcore-btn', 'btn-submit', 'f-rgt'])
