@@ -52,7 +52,7 @@ See LICENSE.txt in the main project directory, for more information.
 								<div py:strip="True"><strong>
 									<i18n:choose numeral="podcast.media_count" params="num">
 										<a i18n:singular="" href="${h.url_for(controller='admin/media', action='edit', id=podcast.media.first().id)}" class="view-episodes">View First ${settings.get('vocabulary_episodes_singular', 'Episode')}</a>
-										<a i18n:plural="" href="${h.url_for(controller='admin/media', podcast=podcast.slug, id=None)}" class="view-episodes">View All ${'{} {}'.format(podcast.media_count, settings.get('vocabulary_podcasts_plural', 'Episodes'))}</a>
+										<a i18n:plural="" href="${h.url_for(controller='admin/media', podcast=podcast.slug, id=None)}" class="view-episodes">View All ${'{} {}'.format(podcast.media_count, settings.get('vocabulary_episodes_plural', 'Episodes'))}</a>
 									</i18n:choose></strong>
 								</div>
 							</div>
