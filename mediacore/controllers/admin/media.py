@@ -22,7 +22,7 @@ from mediacore.lib.auth import has_permission
 from mediacore.lib.base import BaseController
 from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate, validate_xhr)
-from mediacore.lib.helpers import redirect, url_for
+from mediacore.lib.helpers import redirect, url_for, in_restricted_group
 from mediacore.lib.i18n import _
 from mediacore.lib.storage import add_new_media_file
 from mediacore.lib.templating import render
@@ -164,10 +164,8 @@ class MediaController(BaseController):
             media_values.setdefault('author_name', user.display_name)
             media_values.setdefault('author_email', user.email_address)
         else:
-            restricted_group_name = lambda : request.settings.get('restricted_permissions_group', False)
-            user_has_restricted_permissions = lambda : restricted_group_name() in [g.group_name for g in request.perm.groups]
             their_own_media_item = lambda : media.author.email == request.perm.user.email_address
-            if restricted_group_name() and user_has_restricted_permissions():
+            if in_restricted_group():
                 if not their_own_media_item():
                     redirect(url_for('/admin'))  # no message, just redirect TODO: Figure out how to display info
                 else:
