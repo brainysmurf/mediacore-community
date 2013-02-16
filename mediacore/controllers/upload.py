@@ -128,7 +128,7 @@ class UploadController(BaseController):
 
                 apply_yourname = kwargs.get('name') or kwargs.get('email') or "To be determined"
                 apply_email = kwargs['email'] if not request.settings.get('restrict_single_domain_mode') \
-                                                 else kwargs['email'] + request.settings.get('legal_domains')
+                                                 else kwargs['email'] + '@' + request.settings.get('legal_domains')
                 apply_title = kwargs['title']
                 apply_description = kwargs['description']
                 apply_tags = kwargs['tags']
@@ -173,7 +173,7 @@ class UploadController(BaseController):
         media_obj = self.save_media_obj(
             kwargs.get('name') or kwargs.get('email') or "To be determined", \
                  kwargs.get('email') if not request.settings.get('restrict_single_domain_mode') \
-                                     else kwargs['email'] + request.settings.get('legal_domains'),
+                                     else kwargs['email'] + '@' + request.settings.get('legal_domains'),
             kwargs['title'], u'',
             kwargs['description'], apply_categories, kwargs['file'], kwargs.get('url'),
         )
