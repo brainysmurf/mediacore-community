@@ -55,9 +55,6 @@ class IndexController(BaseController):
                 Total deleted comments
 
         """
-        if in_restricted_group():
-            redirect(url_for(controller="admin/media"))
-
         # Any publishable video that does have a publish_on date that is in the
         # past and is publishable is 'Recently Published'
         recent_media = Media.query.published()\
