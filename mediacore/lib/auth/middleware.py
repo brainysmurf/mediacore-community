@@ -21,7 +21,7 @@ from mediacore.model import User, Group
 import imaplib
 import datetime
 from mediacore.model.meta import DBSession
-
+from sqlalchemy.exc import IntegrityError
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
@@ -68,9 +68,11 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             user.password = u''
             user.groups = [restricted_group]            
             
-            DBSession.add(user)
-            DBSession.flush()
-            DBSession.commit()
+            try:
+                DBSession.add(user)
+                DBSession.commit()
+            except IntegrityError:
+                DBSession.rollback()
             return self.authenticate(environ, identity, notagain=True)
 
         user = self.get_user(login)
