@@ -21,7 +21,7 @@ from mediacore.model import User, Group
 import imaplib
 import datetime
 from mediacore.model.meta import DBSession
-import imaplib
+from sqlalchemy.exc import IntegrityError
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
@@ -58,9 +58,14 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             user.email_address = user.user_name + '@student.ssis-suzhou.net'
             user.password = u''
             user.groups = [restricted_group, builtin_editor_group]
-            DBSession.add(user)
-            DBSession.flush()
-            DBSession.commit()
+
+            try:
+                #actually add the user
+                DBSession.add(user)
+                DBSession.commit()
+            except IntegrityError:
+                DBSession.rollback()
+
             # Now repoze.who should be able to login
             return self.authenticate(environ, identity, notagain=True)
 
