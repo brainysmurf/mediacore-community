@@ -12,7 +12,7 @@ from mediacore.lib.base import BaseController
 from mediacore.lib.decorators import expose, observable
 from mediacore.model import Comment, Media
 from mediacore.plugin import events
-from mediacore.lib.helpers import in_restricted_group, redirect, url_for
+from mediacore.lib.helpers import redirect, url_for, in_restricted_group
 
 import logging
 log = logging.getLogger(__name__)
