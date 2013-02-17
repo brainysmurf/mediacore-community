@@ -41,7 +41,7 @@ See LICENSE.txt in the main project directory, for more information.
 <body py:match="body" py:with="attrs = h.attrs_to_dict(select('@*')); body_class = attrs.get('class', '').split(' ')" py:attrs="attrs">
 	<div id="container" class="clearfix">
 		<div id="header" class="clearfix">
-			<div id="logo">
+			<div py:if="False" id="logo">
 				<h2><a id="logo-dropdown-toggle" href="${h.url_for(controller='/admin/index')}"><span>MediaCore</span></a></h2>
 				<div class="dropdown-box">
 					<ul id="logo-dropdown">
@@ -60,8 +60,9 @@ See LICENSE.txt in the main project directory, for more information.
 				<li py:if="is_admin"><a class="btn nav${'menu-users-on' in body_class and ' active' or ''}" href="${h.url_for(controller='/admin/users')}"><span>Users</span></a></li>
 				<li py:if="is_admin"><a class="btn nav${'menu-groups-on' in body_class and ' active' or ''}" href="${h.url_for(controller='/admin/groups')}"><span>Groups</span></a></li>
 				<li py:if="is_admin"><a class="btn nav${'menu-settings-on' in body_class and ' active' or ''}" href="${h.url_for(controller='/admin/settings')}"><span>Settings</span></a></li>
-				<li><a class="btn nav${'menu-podcasts-on' in body_class and ' active' or ''}" href="http://dragonnet.ssis-suzhou.net"><span>DragonNet</span></a></li>
-			</ul>
+				<li><a class="btn nav" href="/logout"><span>Logout</span></a></li>
+				<li><a class="btn nav" href="http://dragonnet.ssis-suzhou.net"><span>DragonNet</span></a></li>
+		       </ul>
 		</div>
 		<div id="body" class="clearfix" py:content="select('*|text()')" />
 		

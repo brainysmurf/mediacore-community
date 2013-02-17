@@ -71,7 +71,8 @@ See LICENSE.txt in the main project directory, for more information.
 				<h1 py:when="media_filter == 'unencoded'">Unencoded Media</h1>
 				<h1 py:when="media_filter == 'drafts'">Draft Media</h1>
 				<h1 py:when="media_filter == 'published'">Published Media</h1>
-				<h1 py:otherwise="">All Media</h1>
+				<h1 py:when="h.in_restricted_group()">All Your Media</h1>
+		                <h1 py:otherwise="">All Media</h1>
 			</py:choose>
 			<div class="f-rgt">
 				<a class="btn inline block f-lft" href="${h.url_for(action='edit', id='new')}" style="margin-right:10px"><span>Add New Media</span></a>

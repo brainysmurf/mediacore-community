@@ -71,7 +71,10 @@ class MediaController(BaseController):
                 The podcast object for rendering if filtering by podcast.
 
         """
-        media = Media.query.options(orm.undefer('comment_count_published'))
+        if in_restricted_group():
+            media = Media.query.filter_by(author_email=request.perm.user.email_address)
+        else:
+            media = Media.query.options(orm.undefer('comment_count_published'))
 
         if search:
             media = media.admin_search(search)
