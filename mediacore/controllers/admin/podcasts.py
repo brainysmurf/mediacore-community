@@ -16,7 +16,7 @@ from mediacore.lib.auth import has_permission
 from mediacore.lib.base import BaseController
 from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate)
-from mediacore.lib.helpers import redirect, url_for
+from mediacore.lib.helpers import redirect, url_for, in_restricted_group
 from mediacore.lib.i18n import _
 from mediacore.lib.thumbnails import (create_default_thumbs_for,
     create_thumbs_for, delete_thumbs)
@@ -82,8 +82,7 @@ class PodcastsController(BaseController):
         """
         podcast = fetch_row(Podcast, id)
 
-        user_has_restricted_permissions = lambda : request.settings.get('restricted_permissions_group', False)
-        if user_has_restricted_permissions():
+        if in_restricted_group():
             redirect(url_for('/admin'))  # no message, just redirect TODO: Figure out how to display info
 
         if tmpl_context.action == 'save' or id == 'new':
