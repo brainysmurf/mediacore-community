@@ -12,6 +12,7 @@ from mediacore.lib.base import BaseController
 from mediacore.lib.decorators import expose, observable
 from mediacore.model import Comment, Media
 from mediacore.plugin import events
+from mediacore.lib.helpers import redirect, in_restricted_group
 
 import logging
 log = logging.getLogger(__name__)
@@ -54,6 +55,9 @@ class IndexController(BaseController):
                 Total deleted comments
 
         """
+        if in_restricted_group():
+            redirect(controller="admin/media")
+        
         # Any publishable video that does have a publish_on date that is in the
         # past and is publishable is 'Recently Published'
         recent_media = Media.query.published()\

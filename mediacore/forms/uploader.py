@@ -128,7 +128,7 @@ class UploadForm(ListForm):
     events = events.UploadForm
     
     class fields(WidgetsList):
-        file = FileField(validator=FieldStorageUploadConverter(if_missing=None, messages={'empty':N_('Oops! You forgot to enter a file.')}), label_text=N_('Upload:'), help_text="(Must be an mp4 or m4a file)")
+        #file = FileField(validator=FieldStorageUploadConverter(if_missing=None, messages={'empty':N_('Oops! You forgot to enter a file.')}), label_text=N_('Upload:'), help_text="(Must be an mp4 or m4a file)")
         #name = TextField(validator=validators['name'], label_text=N_(request.settings.get('text_of_name_prompt') or 'Your Name:'), help_text=N_(request.settings.get('text_of_name_help') or ''), maxlength=50)
         email = TextField(validator=UploadEmailValidator(not_empty=True), label_text=N_(request.settings.get('text_of_email_prompt') or 'Your email:'), help_text=N_(request.settings.get('text_of_email_help') or ''), maxlength=255)
         title = TextField(validator=validators['title'], label_text=N_(request.settings.get('text_of_title_prompt') or 'Title:'), help_text=N_(request.settings.get('text_of_title_help') or ''), maxlength=255)

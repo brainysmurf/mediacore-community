@@ -174,13 +174,13 @@ class UploadController(BaseController):
             kwargs.get('name') or kwargs.get('email') or "To be determined", \
                  kwargs.get('email') if not request.settings.get('restrict_single_domain_mode') \
                                      else kwargs['email'] + '@' + request.settings.get('legal_domains'),
-            kwargs['title'], u'',
-            kwargs['description'], apply_categories, kwargs['file'], kwargs.get('url'),
+            kwargs['title'], kwargs['description'],
+            kwargs['tags'], apply_categories, kwargs.get('file'), kwargs.get('url'),
         )
         email.send_media_notification(media_obj)
 
         # Redirect to success page!
-        redirect(action='success')
+        redirect(controller="admin/media", action=media_obj.id)
 
     @expose('upload/success.html')
     @observable(events.UploadController.success)
@@ -210,8 +210,10 @@ class UploadController(BaseController):
         DBSession.flush()
 
         # Create a MediaFile object, add it to the media_obj, and store the file permanently.
-        media_file = add_new_media_file(media_obj, file=uploaded_file, url=url)
-
+        if uploaded_file:
+            media_file = add_new_media_file(media_obj, file=uploaded_file, url=url)
+        else:
+            media_file = None
         # The thumbs may have been created already by add_new_media_file
         if not has_thumbs(media_obj):
             create_default_thumbs_for(media_obj)
