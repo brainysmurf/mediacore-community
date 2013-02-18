@@ -14,7 +14,7 @@ See LICENSE.txt in the main project directory, for more information.
 		<input py:replace="field.display(value_for(field), **args_for(field))" />
 		<input py:replace="children['add_url'].display(value_for(field), **args_for(field))" />
 	</div>
-	<div class="url-or-file"><strong>OR</strong></div>
+	<div py:if="False" class="url-or-file"><strong>OR</strong></div>
 	<div py:with="field = children['file']" class="file-container clearfix">
 		<label id="${field.id}-label" for="${field.id}">${_(field.label_text)}:</label>
 		<input py:replace="field.display(value_for(field), **args_for(field))" />
