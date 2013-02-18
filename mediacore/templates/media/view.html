@@ -78,7 +78,7 @@ See LICENSE.txt in the main project directory, for more information.
 
 		<py:if test="media.podcast" py:with="title_len = 50; desc_len = 120; m_desc_len = (desc_len - min(len(media.podcast.title), title_len)) or 0">
 			<div id="podcast-context" class="contextbox" py:with="podcast = media.podcast">
-				<h3 class="uppercase">Related Podcast</h3>
+				<h3 class="uppercase">Related ${request.settings.get('vocabulary_podcasts_singular') or 'Podcast'}</h3>
 				<ul class="grid s-grid">
 					<li>
 						<a href="${h.url_for(controller='/podcasts', action='view', slug=podcast.slug)}">
@@ -104,6 +104,7 @@ See LICENSE.txt in the main project directory, for more information.
 			</div>
 		</py:if>
 
+		<py:if test="not media.podcast">
 		<div id="media-context" class="contextbox" py:if="related_media">
 			<h3 class="uppercase">Related Media</h3>
 			<ul py:replace="media_grid(related_media, thumb_size='s', title_len=40, desc_len=0)" />
@@ -123,6 +124,7 @@ See LICENSE.txt in the main project directory, for more information.
 			<p py:if="media.tags">${tag_link(media.tags[0])}<py:for each="tag in media.tags[1:]">, ${tag_link(tag)}</py:for></p>
 			<p py:if="not media.tags" class="contextbox-none">This does not have any associated tags.</p>
 		</div>
+		</py:if>
 	</div>
 
 	</div>
