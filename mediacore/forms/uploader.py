@@ -14,7 +14,7 @@ from mediacore.forms import ListForm, TextField, TextArea, XHTMLTextArea, FileFi
 from mediacore.plugin import events
 from tw.forms.validators import Email
 from formencode.api import Invalid
-import pyscopg2
+import psycopg2
 import re
 
 validators = dict(
