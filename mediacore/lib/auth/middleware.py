@@ -58,7 +58,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 import psycopg2
                 conn = psycopg2.connect("host=dragonnet.ssis-suzhou.net dbname=moodle user=moodle")
                 cur = conn.cursor()
-                cur.execute("select firstname, username from ssismdl_user where username = '{}'".format(user.user_name))
+                cur.execute("select firstname, lastname from ssismdl_user where username = '{}'".format(user.user_name))
                 firstname, lastname = cur.fetchone()
                 user.display_name = firstname + lastname
             except:

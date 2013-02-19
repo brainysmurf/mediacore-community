@@ -14,6 +14,7 @@ from mediacore.forms import ListForm, TextField, TextArea, XHTMLTextArea, FileFi
 from mediacore.plugin import events
 from tw.forms.validators import Email
 from formencode.api import Invalid
+import pyscopg2
 import re
 
 validators = dict(
@@ -48,9 +49,12 @@ class UploadEmailValidator(Email):
         self.legal_domains = self.parse_domains()
         if not self.legal_domains:
             pass  # TODO: Some error here            
+        self.dnet_connection = psycopg2.connect("host=dragonnet.ssis-suzhou.net dbname=moodle user=moodle")
+        self.dnet_cursor = self.dnet.connection.cursor()
         super(UploadEmailValidator, self).__init__(
                        messages={'illegalDomain': N_(request.settings.get('illegal_domain_message') or 'Must be from the right domain.'),
                                  'illegalHandle': N_(request.settings.get('illegal_handle_message') or 'This is not a valid email at this domain.'),
+                                 'noDragonNet': N_("This DragonNet name does not exist!"),
                                  'empty': N_(request.settings.get('upload_empty_message') or "You've gotta have an email!")}, *args, **kwargs)
 
     def parse_domains(self):
@@ -96,6 +100,11 @@ class UploadEmailValidator(Email):
         if handle_regexp and not re.match(handle_regexp, username):
             raise Invalid(
                 self.message('illegalHandle', state, username=username),
+                value, state) 
+        exists = self.dnet_cursor.execute("select firstname, lastname from ssismdl_user where username = '{}'".format(user_name))
+        if not exists:
+            raise Invalid(
+                self.message('noDragonNet', state, username=username),
                 value, state)
         # End added code
         if self.resolve_domain:
