@@ -50,7 +50,7 @@ class UploadEmailValidator(Email):
         if not self.legal_domains:
             pass  # TODO: Some error here            
         self.dnet_connection = psycopg2.connect("host=dragonnet.ssis-suzhou.net dbname=moodle user=moodle")
-        self.dnet_cursor = self.dnet.connection.cursor()
+        self.dnet_cursor = self.dnet_connection.cursor()
         super(UploadEmailValidator, self).__init__(
                        messages={'illegalDomain': N_(request.settings.get('illegal_domain_message') or 'Must be from the right domain.'),
                                  'illegalHandle': N_(request.settings.get('illegal_handle_message') or 'This is not a valid email at this domain.'),
