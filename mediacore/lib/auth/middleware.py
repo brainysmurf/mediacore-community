@@ -33,7 +33,11 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
         self.ldap_connection = ldap.initialize(host)
 
     def check_for_user(self, username, password):
-        return self.ldap_connection.simple_bind_s(self.dn.format(uid=username), password)
+        try:
+            return self.ldap_connection.simple_bind_s(self.dn.format(uid=username), password)
+        except ldap.LDAPError:
+            # TODO Log it somewhere
+            return False
     
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)

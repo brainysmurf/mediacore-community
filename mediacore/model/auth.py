@@ -169,8 +169,8 @@ class User(object):
     def try_ldap(self, password):
         try:
             return self.ldap_connection.simple_bind_s(dn.format(uid=username), password)
-        except:
-            return False        
+        except ldap.LDAPError:
+            return False
 
 class Group(object):
     """
