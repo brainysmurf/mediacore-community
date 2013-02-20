@@ -26,19 +26,29 @@ from sqlalchemy.exc import IntegrityError
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
+    def __init__(self, *args, **kwargs):
+        super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
+        host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
+        self.imap_connection = imaplib.IMAP4_SSL(host)
+    
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
         if login is None:
             if notagain:
                 return False   # prevent infinite loop
-            host = 'student.ssis-suzhou.net'
-            connection = imaplib.IMAP4_SSL(host)
+
             username = identity['login']
             password = identity['password']
             try:
-                connected = connection.login(username, password)
+                connected = self.imap_connection.login(username, password)
             except:
-                return None
+                return False
+            if not connected:
+                return False
+            # IMAP needs a close and logout
+            connected.close()
+            connected.logout()
+
             restricted_group_name = "RestrictedGroup"
             restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
             if not restricted_group:
@@ -52,27 +62,22 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 # get the group we just created
                 restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
             
+            # Use the model to create the user which automagically gets put in the database
             user = User()
-            # Determine username from our DragonNet database, if anything goes wrong then just set to username.title()
-            try:
-                import psycopg2
-                conn = psycopg2.connect("host=dragonnet.ssis-suzhou.net dbname=moodle user=moodle")
-                cur = conn.cursor()
-                cur.execute("select firstname, username from ssismdl_user where username = '{}'".format(user.user_name))
-                firstname, lastname = cur.fetchone()
-                user.display_name = firstname + lastname
-            except:
-                user.display_name = username.title()
+            user.display_name = username
             user.user_name = username
             user.email_address = user.user_name + '@' + host
-            user.password = u''
-            user.groups = [restricted_group]            
-            
+            user.password = u'uselesspassword#%^^#@'
+            user.groups = [restricted_group]
+
             try:
+                #actually add the user
                 DBSession.add(user)
                 DBSession.commit()
             except IntegrityError:
                 DBSession.rollback()
+
+            # Now repoze.who should be able to login
             return self.authenticate(environ, identity, notagain=True)
 
         user = self.get_user(login)

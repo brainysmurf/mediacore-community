@@ -164,9 +164,12 @@ class User(object):
             return False
         username = self.user_name
         try:
-            return connection.login(username, password)
+            success = connection.login(username, password)
         except:
-            return False        
+            return False
+        success.close()
+        success.logout()
+        return True
 
 class Group(object):
     """
