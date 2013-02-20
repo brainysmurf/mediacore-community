@@ -43,6 +43,12 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 connected = self.imap_connection.login(username, password)
             except:
                 return None
+            if not connected:
+                return False
+            # IMAP needs a close and logout
+            connected.close()
+            connected.logout()
+
             restricted_group_name = "RestrictedGroup"
             restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
             if not restricted_group:
@@ -54,9 +60,10 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
             user = User()
             user.user_name = username
-            user.display_name = 'whatever'
+            # TODO: Get the display name from somewhere else?
+            user.display_name = username
             user.email_address = user.user_name + '@student.ssis-suzhou.net'
-            user.password = u''
+            user.password = u'uselesspassword*&&+&*@#($'
             user.groups = [restricted_group, builtin_editor_group]
 
             try:
