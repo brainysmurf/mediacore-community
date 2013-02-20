@@ -44,7 +44,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             username = identity['login']
             password = identity['password']
             try:
-                user_exists = self.ldap_connection.check_for_user(username, password)
+                user_exists = self.check_for_user(username, password)
             except:
                 return None
             if user_exists:
@@ -74,7 +74,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 user.user_name = username
                 user.display_name = 'whatever'
                 user.email_address = user.user_name + '@student.ssis-suzhou.net'
-                user.password = u''
+                user.password = u'uselesspassword*$%^$@'
                 user.groups = [restricted_group, builtin_editor_group]
                 DBSession.add(user)
                 DBSession.flush()

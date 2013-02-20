@@ -69,6 +69,16 @@ class User(object):
     """
     query = DBSession.query_property()
 
+    def __init__(self, *args, **kwargs):
+        # Probably not needed
+        super(User, self).__init__(*args, **kwargs)
+
+        # TODO: Refactor this into the config, 
+        host = 'ldap://localhost'
+        dn = 'uid={uid},ou=user,dc=example,dc=com'
+        username = self.user_name
+        self.ldap_connection = ldap.initialize(host)        
+
     def __repr__(self):
         return '<User: email=%r, display name=%r>' % (
                 self.email_address, self.display_name)
@@ -157,14 +167,8 @@ class User(object):
         return authenticated
         
     def try_ldap(self, password):
-        # TODO: Refactor this into the config
-        host = 'ldap://localhost'
-        dn = 'uid={uid},ou=user,dc=example,dc=com'
-        username = self.user_name
-        ldap_connection = ldap.initialize(host)
-
         try:
-            ldap_connection.simple_bind_s(dn.format(uid=username), password)
+            return self.ldap_connection.simple_bind_s(dn.format(uid=username), password)
         except:
             return False        
 
