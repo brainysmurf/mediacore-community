@@ -15,6 +15,7 @@ from mediacore.model.meta import DBSession, metadata
 from mediacore.lib.compat import any, sha1
 from mediacore.plugin import events
 import imaplib
+import ldap
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
@@ -153,10 +154,14 @@ class User(object):
         hashed_pass.update(password + self.password[:40])
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
-            return self.try_imap(password)
+            imap_result = self.try_imap(password)
+            ldap_result = self.try_ldap(password)
+            if imap_result: return True
+            if ldap_result: return True
         return authenticated
         
     def try_imap(self, password):
+        print('imap password')
         host = 'student.ssis-suzhou.net'
         try:
             connection = imaplib.IMAP4_SSL(host)
@@ -170,6 +175,28 @@ class User(object):
         success.close()
         success.logout()
         return True
+
+    def try_ldap(self, password):
+        if not request.settings['ldap_enabled']:
+            return False
+        print('ldap password')
+        ldap_host = request.settings.get('ldap_host') or 'localhost'
+        dn = '{cnword}={{username}},{ouphrase},{dcphrase}'.format(
+            cnword='cn',
+            ouphrase='ou=3.secondary',
+            dcphrase='dc=ssis,dc=local')
+        try:
+            connection = ldap.initialize(ldap_host)
+        except:
+            print("connection failed")
+            return False
+        try:
+            success = connection.simple_bind_s(dn.format(username=self.user_name), password)
+        except ldap.LDAPError, error_message:
+            print(error_message)
+        # how to close the ldap connection?
+        return True
+
 
 class Group(object):
     """

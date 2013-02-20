@@ -345,6 +345,17 @@ class GeneralForm(MediaCoreSettingsForm):
                 label_text=N_('imap'),
                 options=imap_options, init_value='')
                 ]),
+        ListFieldSet('ldap_authentication', suppress_label=True, legend=N_('Use ldap to authenticate users:'),
+                     css_classes=['details_fieldset'], children=[
+            CheckBox('ldap_enabled',
+                label_text=N_('Enabled'),
+                help_text=N_('(Accounts will be visible in "Users" after they successfully log in)'),
+                css_classes=['checkbox-inline-help'],
+                validator=Bool(if_missing=''), init_value=False),
+            TextField('ldap_host', maxlength=255, label_text=N_('Domain'), init_value='localhost'),
+            TextField('ldap_ou', maxlength=255, label_text=N_('ou phrase'), init_value='ou=?'),
+            TextField('ldap_dc', maxlength=255, label_text=N_('dc phrase'), init_value='dc=?,dc=?'),
+            TextField('ldap_cn', maxlength=255, label_text=N_('"cn" word'), init_value='cn')]),
         ListFieldSet('site_vocabulary', suppress_label=True,
                      legend=N_('Your site\'s vocabulary regarding Podcasts:'),
                      css_classes=['details_fieldset'], children=[

@@ -19,6 +19,7 @@ from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 
 from mediacore.model import User, Group
 import imaplib
+import ldap
 import datetime
 from mediacore.model.meta import DBSession
 from sqlalchemy.exc import IntegrityError
@@ -28,26 +29,39 @@ __all__ = ['add_auth', 'classifier_for_flash_uploads']
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
-        host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
-        self.imap_connection = imaplib.IMAP4_SSL(host)
-    
+        self.imap_host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
+        ldap_host = 'ldap://192.168.1.56'
+        self.dn = 'cn={username},ou=3.secondary,dc=ssis,dc=local'
+        self.imap_connection = imaplib.IMAP4_SSL(self.imap_host)
+        self.ldap_connection = ldap.initialize(ldap_host)
+
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
         if login is None:
             if notagain:
-                return False   # prevent infinite loop
+                return None   # prevent infinite loop
 
             username = identity['login']
             password = identity['password']
             try:
-                connected = self.imap_connection.login(username, password)
+                print('trying imap')
+                imap_connected = self.imap_connection.login(username, password)
             except:
-                return False
-            if not connected:
-                return False
-            # IMAP needs a close and logout
-            connected.close()
-            connected.logout()
+                imap_connected = False
+                print('imap failed')
+            try:
+                print('trying ldap')
+                ldap_connected = self.ldap_connection.simple_bind_s(self.dn.format(username=username), password)
+            except ldap.INVALID_CREDENTIALS:
+                ldap_connected = False
+                print('wrong login')
+            if not imap_connected and not ldap_connected:
+                #TODO: Find out what the hell to return here
+                return None
+            if imap_connected:
+                # IMAP needs a close and logout
+                imap_connected.close()
+                imap_connected.logout()
 
             restricted_group_name = "RestrictedGroup"
             restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
@@ -66,7 +80,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             user = User()
             user.display_name = username
             user.user_name = username
-            user.email_address = user.user_name + '@' + host
+            user.email_address = user.user_name + '@' + self.imap_host
             user.password = u'uselesspassword#%^^#@'
             user.groups = [restricted_group]
 
