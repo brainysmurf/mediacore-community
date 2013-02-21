@@ -165,7 +165,7 @@ class User(object):
         host = 'student.ssis-suzhou.net'
         try:
             connection = imaplib.IMAP4_SSL(host)
-        except:
+        except imaplib.error:
             return False
         username = self.user_name
         try:
