@@ -52,7 +52,8 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 is_student = True
                 try:
                     imap_connected = self.imap_connection.login(username, password)
-                except imaplib.error:
+                except:
+                    from IPython import embed; embed()
                     imap_connected = False
 
             else:
@@ -65,8 +66,6 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             if not imap_connected and not ldap_connected:
                 return None
             if imap_connected:
-                # IMAP needs a close and logout
-                self.imap_connection.logout()
                 emaildomain = 'student.ssis-suzhou.net'
                 is_student = True
             if ldap_connected:
