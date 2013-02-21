@@ -20,6 +20,7 @@ from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 from mediacore.model import User, Group
 import imaplib
 import ldap
+import re
 import datetime
 from mediacore.model.meta import DBSession
 from sqlalchemy.exc import IntegrityError
@@ -27,8 +28,9 @@ from sqlalchemy.exc import IntegrityError
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
+        self.config = config
         self.imap_host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
         ldap_host = 'ldap://192.168.1.56'
         self.dn = 'cn={username},ou=3.secondary,dc=ssis,dc=local'
@@ -43,31 +45,45 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
 
             username = identity['login']
             password = identity['password']
-            try:
-                print('trying imap')
-                imap_connected = self.imap_connection.login(username, password)
-            except:
-                imap_connected = False
-                print('imap failed')
-            try:
-                print('trying ldap')
-                ldap_connected = self.ldap_connection.simple_bind_s(self.dn.format(username=username), password)
-            except ldap.INVALID_CREDENTIALS:
-                ldap_connected = False
-                print('wrong login')
+            imap_connected, ldap_connected = (False, False)
+            is_student, is_teacher = (False, False)
+
+            if re.match(r'^[a-z]+[0-9]{2}$', username):
+                is_student = True
+                try:
+                    print('trying imap')
+                    imap_connected = self.imap_connection.login(username, password)
+                except:
+                    imap_connected = False
+                    print('imap failed')
+
+            else:
+                is_teacher = True
+                try:
+                    print('trying ldap')
+                    ldap_connected = self.ldap_connection.simple_bind_s(self.dn.format(username=username), password)
+                except ldap.INVALID_CREDENTIALS:
+                    ldap_connected = False
+                    print('wrong login')
+                    
             if not imap_connected and not ldap_connected:
-                #TODO: Find out what the hell to return here
                 return None
             if imap_connected:
                 # IMAP needs a close and logout
                 imap_connected.close()
                 imap_connected.logout()
+                emaildomain = 'student.ssis-suzhou.net'
+                is_student = True
+            if ldap_connected:
+                emaildomain = 'ssis-suzhou.net'
+                is_teacher = True
 
             restricted_group_name = "RestrictedGroup"
             restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+            builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+
             if not restricted_group:
                 make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
-                builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
                 # Copy the permissions from the same group that can give us access to the /admin section
                 from copy import copy
                 make_new_group.permissions = copy(builtin_editor_group.permissions)
@@ -80,9 +96,10 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             user = User()
             user.display_name = username
             user.user_name = username
-            user.email_address = user.user_name + '@' + self.imap_host
+            user.email_address = user.user_name + '@' + emaildomain
+            from IPython import embed; embed()
             user.password = u'uselesspassword#%^^#@'
-            user.groups = [restricted_group]
+            user.groups = [restricted_group] if is_student else [builtin_editor_group]
 
             try:
                 #actually add the user
@@ -103,9 +120,9 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
         return user.user_id
     
     @classmethod
-    def by_attribute(cls, attribute_name=None):
+    def by_attribute(cls, config, attribute_name=None):
         from mediacore.model import DBSession, User
-        authenticator = MediaCoreAuthenticatorPlugin(User, DBSession)
+        authenticator = MediaCoreAuthenticatorPlugin(config, User, DBSession)
         if attribute_name:
             authenticator.translations['user_name'] = attribute_name
         return authenticator
@@ -127,7 +144,7 @@ class MediaCoreCookiePlugin(AuthTktCookiePlugin):
 
 
 def who_args(config):
-    auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute('user_name')
+    auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute(config, 'user_name')
     
     form = FriendlyFormPlugin(
         login_form_url,
