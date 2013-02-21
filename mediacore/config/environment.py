@@ -97,6 +97,15 @@ def load_environment(global_conf, app_conf):
         },
     }
 
+    config['ldap'] = {
+        'host': '192.168.1.56',
+        'dcphrase': 'dc=example,dc=org',
+        'ouphrase': 'ou=3.secondary',
+        'cnword': 'cn',
+        }
+    config['imap'] = {
+        'host': 'student.ssis-suzhou.net',
+        }
     # END CUSTOM CONFIGURATION OPTIONS
 
     events.Environment.loaded(config)
