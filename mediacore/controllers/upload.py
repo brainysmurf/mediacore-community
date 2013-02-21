@@ -21,6 +21,7 @@ from mediacore.model import Author, DBSession, get_available_slug, Media
 from mediacore.plugin import events
 from mediacore.model import User, Group, Category
 import datetime
+import re
 
 import logging
 log = logging.getLogger(__name__)
@@ -127,8 +128,11 @@ class UploadController(BaseController):
                 kwargs.setdefault('name')
 
                 apply_yourname = kwargs.get('name') or kwargs.get('email') or "To be determined"
-                apply_email = kwargs['email'] if not request.settings.get('restrict_single_domain_mode') \
-                                                 else kwargs['email'] + '@' + request.settings.get('legal_domains')
+                if re.match(r'^[a-z]+[0-9]{2}$', apply_yourname):
+                    apply_email = apply_yourname + '@student.ssis-suzhou.net'
+                else:
+                    apply_email = apply_yourname + '@ssis-suzhou.net'
+                
                 apply_title = kwargs['title']
                 apply_description = kwargs['description']
                 apply_tags = kwargs['tags']
@@ -169,11 +173,17 @@ class UploadController(BaseController):
         else:
             apply_categories = None
 
+        apply_username = kwargs.get('name') or kwargs.get('email') or "To be determined"
+        if re.match(r'^[a-z]+[0-9]{2}$', apply_username):
+            apply_email = apply_username + '@student.ssis-suzhou.net'
+            default_category = Category.query.filter(Category.name == 'StudentUploads').first()
+        else:
+            apply_email = apply_username + '@ssis-suzhou.net'
+            default_category = Category.query.filter(Category.name == 'TeacherUploads').first()
+
         # Save the media_obj!
         media_obj = self.save_media_obj(
-            kwargs.get('name') or kwargs.get('email') or "To be determined", \
-                 kwargs.get('email') if not request.settings.get('restrict_single_domain_mode') \
-                                     else kwargs['email'] + '@' + request.settings.get('legal_domains'),
+            apply_username, apply_email,
             kwargs['title'], kwargs['description'],
             kwargs['tags'], apply_categories, kwargs.get('file'), kwargs.get('url'),
         )
