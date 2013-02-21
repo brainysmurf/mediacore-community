@@ -52,7 +52,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 is_student = True
                 try:
                     imap_connected = self.imap_connection.login(username, password)
-                except:
+                except imaplib.error:
                     imap_connected = False
 
             else:
@@ -61,7 +61,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                     ldap_connected = self.ldap_connection.simple_bind_s(self.dn.format(username=username), password)
                 except ldap.INVALID_CREDENTIALS:
                     ldap_connected = False
-                    
+
             if not imap_connected and not ldap_connected:
                 return None
             if imap_connected:
