@@ -51,27 +51,22 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             if re.match(r'^[a-z]+[0-9]{2}$', username):
                 is_student = True
                 try:
-                    print('trying imap')
                     imap_connected = self.imap_connection.login(username, password)
                 except:
                     imap_connected = False
-                    print('imap failed')
 
             else:
                 is_teacher = True
                 try:
-                    print('trying ldap')
                     ldap_connected = self.ldap_connection.simple_bind_s(self.dn.format(username=username), password)
                 except ldap.INVALID_CREDENTIALS:
                     ldap_connected = False
-                    print('wrong login')
                     
             if not imap_connected and not ldap_connected:
                 return None
             if imap_connected:
                 # IMAP needs a close and logout
-                imap_connected.close()
-                imap_connected.logout()
+                self.imap_connection.logout()
                 emaildomain = 'student.ssis-suzhou.net'
                 is_student = True
             if ldap_connected:
@@ -97,7 +92,6 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             user.display_name = username
             user.user_name = username
             user.email_address = user.user_name + '@' + emaildomain
-            from IPython import embed; embed()
             user.password = u'uselesspassword#%^^#@'
             user.groups = [restricted_group] if is_student else [builtin_editor_group]
 
