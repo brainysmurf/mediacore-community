@@ -16,6 +16,7 @@ from mediacore.lib.compat import any, sha1
 from mediacore.plugin import events
 import imaplib
 import ldap
+import re
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
@@ -154,10 +155,10 @@ class User(object):
         hashed_pass.update(password + self.password[:40])
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
-            imap_result = self.try_imap(password)
-            ldap_result = self.try_ldap(password)
-            if imap_result: return True
-            if ldap_result: return True
+            if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
+                return True if self.try_imap(password) else False
+            else:
+                return True if self.try_ldap(password) else False
         return authenticated
         
     def try_imap(self, password):
@@ -172,15 +173,14 @@ class User(object):
             success = connection.login(username, password)
         except:
             return False
-        success.close()
-        success.logout()
+        connection.logout()
         return True
 
     def try_ldap(self, password):
-        if not request.settings['ldap_enabled']:
-            return False
+        #if not request.settings['ldap_enabled']:
+        #    return False
         print('ldap password')
-        ldap_host = request.settings.get('ldap_host') or 'localhost'
+        ldap_host = 'ldap://192.168.1.56'
         dn = '{cnword}={{username}},{ouphrase},{dcphrase}'.format(
             cnword='cn',
             ouphrase='ou=3.secondary',
