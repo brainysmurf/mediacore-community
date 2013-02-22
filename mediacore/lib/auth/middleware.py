@@ -22,12 +22,14 @@ import imaplib
 import datetime
 from mediacore.model.meta import DBSession
 import ldap
+from pylons import config as pylonsconfig
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
+        self.config = config
         host = 'ldap://localhost'   #TODO: Read this in from config
         self.dn = 'uid={uid},ou=user,dc=example,dc=com'
         self.ldap_connection = ldap.initialize(host)
@@ -47,6 +49,10 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             if notagain:
                 return user_does_not_exist_return_value   # prevent infinite loop
 
+            if not hasattr(self, 'ldap_auth'):
+                pylonsconfig['ldap'] = LDAPAuthentication(config['ldap'])
+                self.ldap_auth = pylonsconfig['ldap']
+
             username = identity['login']
             password = identity['password']
             emaildomain = "student.ssis-suzhou.net" #TODO put this in config
@@ -65,7 +71,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
 
                 # We have to put the user in a group, so use the built-in "Editors" group
                 # If you want to make specific permissions for this kind of user this is the place to do it
-                builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+                builtin_editor_group = DBSession.query(Group).filter_by(id=2).first()
                 user.groups = [builtin_editor_group]
                 try:
                     DBSession.add(user)
@@ -87,9 +93,9 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
         return user.user_id
     
     @classmethod
-    def by_attribute(cls, attribute_name=None):
+    def by_attribute(cls, config, attribute_name=None):
         from mediacore.model import DBSession, User
-        authenticator = MediaCoreAuthenticatorPlugin(User, DBSession)
+        authenticator = MediaCoreAuthenticatorPlugin(config, User, DBSession)
         if attribute_name:
             authenticator.translations['user_name'] = attribute_name
         return authenticator
@@ -111,7 +117,7 @@ class MediaCoreCookiePlugin(AuthTktCookiePlugin):
 
 
 def who_args(config):
-    auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute('user_name')
+    auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute(config, 'user_name')
     
     form = FriendlyFormPlugin(
         login_form_url,
