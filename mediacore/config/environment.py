@@ -97,6 +97,14 @@ def load_environment(global_conf, app_conf):
         },
     }
 
+    config['ldap'] = {
+        'host': 'ldap://localhost',
+        'ouphrase': 'ou=folder',
+        'dcphrase': 'dc=example,dc=org',
+        'cnword': 'cn',
+        'default_email_host': 'example.org'  # users need an email address by default, what should it be?
+    }
+
     # END CUSTOM CONFIGURATION OPTIONS
 
     events.Environment.loaded(config)
