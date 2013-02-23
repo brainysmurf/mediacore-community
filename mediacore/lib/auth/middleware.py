@@ -23,23 +23,63 @@ import datetime
 from mediacore.model.meta import DBSession
 import ldap
 from pylons import config as pylonsconfig
+from sqlalchemy.exc import IntegrityError
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
+
+class GeneralAuth(object):
+    def __init__(self, config):
+        """ Give this object whatever keys are in config: host, etc """
+        self.__dict__.update(config)
+
+    def __del__(self):
+        self.delete()
+
+    def auth(self, username, password):
+        if not hasattr(self, 'connection'):    
+            self.connection = self.init()
+        return bool(self.login(username, password))
+
+    def log(self, exception):
+        #TODO: Implement
+        print(str(exception))
+
+    def init(self):
+        """ Should return the connection object """
+        raise NotImplemented
+
+    def delete(self):
+        """ Should free self.connection """
+        raise NotImplemented
+
+    def login(self, username, password):
+        """ Return bool whether or not user username with password authenticates """
+        raise NotImplemented
+
+class LDAPAuthentication(GeneralAuth):
+
+    def init(self):
+        return ldap.initialize(self.host)
+
+    def delete(self):
+        self.connection.logout()
+
+    def login(self, username, password):
+        try:
+            return self.connection.simple_bind_s("{cnword}={uid},{ouphrase},{dcphrase}".format(
+                cnword=self.cnword, uid=username,
+                ouphrase=self.ouphrase, dcphrase=self.dcphrase), password)
+        except Exception, e:
+            self.log(e)
+            return False
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
         self.config = config
-        host = 'ldap://localhost'   #TODO: Read this in from config
-        self.dn = 'uid={uid},ou=user,dc=example,dc=com'
-        self.ldap_connection = ldap.initialize(host)
-
-    def check_for_user(self, username, password):
-        try:
-            return self.ldap_connection.simple_bind_s(self.dn.format(uid=username), password)
-        except ldap.LDAPError:
-            # TODO Log it somewhere
-            return None
+        pylonsconfig['ldap'] = LDAPAuthentication(self.config['ldap'])
+        self.ldap = pylonsconfig['ldap']
+        print('assigned ldap')
     
     def authenticate(self, environ, identity, notagain=False):
         user_does_not_exist_return_value = None
@@ -49,40 +89,33 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             if notagain:
                 return user_does_not_exist_return_value   # prevent infinite loop
 
-            if not hasattr(self, 'ldap_auth'):
-                pylonsconfig['ldap'] = LDAPAuthentication(config['ldap'])
-                self.ldap_auth = pylonsconfig['ldap']
-
             username = identity['login']
             password = identity['password']
             emaildomain = "student.ssis-suzhou.net" #TODO put this in config
-            try:
-                user_exists = self.check_for_user(username, password)
-            except:
+            user_exists = self.ldap.auth(username, password)
+            if not user_exists:
                 return user_does_not_exist_return_value
-            if user_exists:
-                # Now that we know the user exists on the auth server,
-                # go ahead and create it manually on this side.
-                user = User()
-                user.user_name = username
-                user.display_name = username.title()
-                user.email_address = "{username}@{domain}".format(username=user.user_name, domain=emaildomain)
-                user.password = u'uselesspassword*$%^$@'
+            # Now that we know the user exists on the auth server,
+            # go ahead and create it manually on this side.
+            user = User()
+            user.user_name = username
+            user.display_name = username.title()
+            user.email_address = "{username}@{domain}".format(username=user.user_name, domain=emaildomain)
+            user.password = u'uselesspassword*$%^$@'
 
-                # We have to put the user in a group, so use the built-in "Editors" group
-                # If you want to make specific permissions for this kind of user this is the place to do it
-                builtin_editor_group = DBSession.query(Group).filter_by(id=2).first()
-                user.groups = [builtin_editor_group]
-                try:
-                    DBSession.add(user)
-                    DBSession.commit()
-                except IntegrityError:
-                    DBSession.rollback()
-                    return user_does_not_exist_return_value   # TODO: log this
+            # We have to put the user in a group, so use the built-in "Editors" group
+            # If you want to make specific permissions for this kind of user this is the place to do it
+            builtin_editor_group = DBSession.query(Group).filter_by(id=2).first()
+            user.groups = [builtin_editor_group]
+            try:
+                DBSession.add(user)
+                DBSession.commit()
+            except IntegrityError:
+                DBSession.rollback()
+                return user_does_not_exist_return_value   # TODO: log this
 
-                # Now we should be able to login using the built-in methods, recurse to find out
-                return self.authenticate(environ, identity, notagain=True)
-            return None
+            # Now we should be able to login using the built-in methods, recurse to find out
+            return self.authenticate(environ, identity, notagain=True)
 
         user = self.get_user(login)
         # The return value of this method is used to identify the user later on.

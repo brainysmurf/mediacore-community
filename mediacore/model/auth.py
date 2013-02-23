@@ -163,14 +163,16 @@ class User(object):
         hashed_pass.update(password + self.password[:40])
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
-            return self.try_ldap(password)
+            if not hasattr(self, 'ldap'):
+                from pylons import config as pylonsconfig
+                if hasattr(pylonsconfig, 'ldap'):
+                    self.ldap = pylonsconfig['ldap']
+                else:
+                    # Shouldn't get here!
+                    print("LDAP not set up?")
+                    return False
+            return self.ldap.auth(self.user_name, password)
         return authenticated
-        
-    def try_ldap(self, password):
-        try:
-            return self.ldap_connection.simple_bind_s(dn.format(uid=username), password)
-        except ldap.LDAPError:
-            return False
 
 class Group(object):
     """

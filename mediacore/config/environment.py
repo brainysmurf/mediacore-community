@@ -98,7 +98,7 @@ def load_environment(global_conf, app_conf):
     }
 
     config['ldap'] = {
-        'host': 'ldap://localhost',
+        'host': 'ldap://192.168.1.56',
         'ouphrase': 'ou=folder',
         'dcphrase': 'dc=example,dc=org',
         'cnword': 'cn',
