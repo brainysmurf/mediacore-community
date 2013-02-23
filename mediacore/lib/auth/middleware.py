@@ -57,8 +57,8 @@ class GeneralAuth(object):
 
 class LDAPAuthentication(GeneralAuth):
 
-    def init(self):
-        return ldap.initialize(self.host)
+    def init(self, trace_level=0):
+        return ldap.initialize(self.host, trace_level=1)
 
     def delete(self):
         self.connection.logout()
@@ -76,7 +76,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
         self.config = config
-        pylonsconfig['ldap'] = LDAPAuthentication(self.config['ldap'])
+        pylonsconfig['ldap'] = LDAPAuthentication(self.config['ldap'], trace_level=1)
         self.ldap = pylonsconfig['ldap']
         print('assigned ldap')
     
