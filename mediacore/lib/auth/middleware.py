@@ -18,7 +18,6 @@ from mediacore.config.routing import login_form_url, login_handler_url, \
 from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 
 from mediacore.model import User, Group
-import imaplib
 import datetime
 from mediacore.model.meta import DBSession
 import ldap
