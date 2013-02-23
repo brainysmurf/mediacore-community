@@ -102,7 +102,7 @@ def load_environment(global_conf, app_conf):
         'ouphrase': 'ou=folder',
         'dcphrase': 'dc=example,dc=org',
         'cnword': 'cn',
-        'trace_level': 0,  # set to 1 for better debugging with ldap
+        'trace_level': 0,  # set to 1 for better debugging with ldap, optional
         'default_email_domain': 'example.org'  # users need an email address by default, what should it be?
     }
 
