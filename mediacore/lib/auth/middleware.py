@@ -62,7 +62,7 @@ class LDAPAuthentication(GeneralAuth):
         return ldap.initialize(self.host, trace_level=trace_level)
 
     def delete(self):
-        self.connection.logout()
+        self.connection.unbind()
 
     def login(self, username, password):
         try:
