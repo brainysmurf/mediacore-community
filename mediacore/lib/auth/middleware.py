@@ -90,7 +90,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
 
             username = identity['login']
             password = identity['password']
-            emaildomain = "student.ssis-suzhou.net" #TODO put this in config
+            emaildomain = self.ldap.default_email_domain
             user_exists = self.ldap.auth(username, password)
             if not user_exists:
                 return user_does_not_exist_return_value
