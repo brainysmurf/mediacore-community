@@ -58,7 +58,7 @@ class GeneralAuth(object):
 class LDAPAuthentication(GeneralAuth):
 
     def init(self):
-        trace_level = 1 if self.trace_level else 0
+        trace_level = 1 if hasattr(self, 'trace_level') and self.trace_level else 0
         return ldap.initialize(self.host, trace_level=trace_level)
 
     def delete(self):
