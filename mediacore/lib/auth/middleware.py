@@ -105,7 +105,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
 
             # We have to put the user in a group, so use the built-in "Editors" group
             # If you want to make specific permissions for this kind of user this is the place to do it
-            builtin_editor_group = DBSession.query(Group).filter_by(id=2).first()
+            builtin_editor_group = DBSession.query(Group).filter(Group.group_name.in_(["Editors"])).first()
             user.groups = [builtin_editor_group]
             try:
                 DBSession.add(user)
