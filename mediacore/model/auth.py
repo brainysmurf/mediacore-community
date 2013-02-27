@@ -161,45 +161,13 @@ class User(object):
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
             if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
+                if not hasattr(self, 'imap'): return None
                 auth_to_use = self.imap
             else:
+                if not hasattr(self, 'ldap'): return None
                 auth_to_use = self.ldap
             return auth_to_use.auth(self.user_name, password)
         return authenticated
-        
-    def try_imap(self, password):
-        host = 'student.ssis-suzhou.net'
-        try:
-            connection = imaplib.IMAP4_SSL(host)
-        except imaplib.error:
-            return False
-        username = self.user_name
-        try:
-            success = connection.login(username, password)
-        except imaplib.error:
-            return False
-        connection.logout()
-        return True
-
-    def try_ldap(self, password):
-        #if not request.settings['ldap_enabled']:
-        #    return False
-        ldap_host = 'ldap://192.168.1.56'
-        dn = '{cnword}={{username}},{ouphrase},{dcphrase}'.format(
-            cnword='cn',
-            ouphrase='ou=3.secondary',
-            dcphrase='dc=ssis,dc=local')
-        try:
-            connection = ldap.initialize(ldap_host)
-        except ldap.INVALID_CREDENTIALS:
-            return False
-        try:
-            success = connection.simple_bind_s(dn.format(username=self.user_name), password)
-        except ldap.LDAPError, error_message:
-            return False
-        # how to close the ldap connection?
-        return True
-
 
 class Group(object):
     """

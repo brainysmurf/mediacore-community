@@ -70,15 +70,18 @@ class GeneralAuth(object):
         raise NotImplemented
 
     def default_domain(self):
+        """ Return the email domain these accounts should use """
         raise NotImplemented
 
-    def default_group(self):
+    def default_groups(self):
+        """ Return list of group(s) these accounts should be in """
         raise NotImplemented
 
 class LDAPAuthentication(GeneralAuth):
 
     def init(self):
         trace_level = 1 if hasattr(self, 'trace_level') and self.trace_level else 0
+        print(trace_level)
         return ldap.initialize(self.host, trace_level=trace_level)
 
     def delete(self):
@@ -94,15 +97,15 @@ class LDAPAuthentication(GeneralAuth):
             return False
 
     def default_domain(self):
-        return self.default_email_domain if hasattr(self. 'default_email_domain') else "@example.org"
+        return self.default_email_domain if hasattr(self, 'default_email_domain') else "@example.org"
 
-    def default_group(self):
-        return self.builtin_editor_group
+    def default_groups(self):
+        return [self.builtin_editor_group]
 
 class IMAPAuthentication(GeneralAuth):
 
     def init(self):
-        return imaplib.IMAP4(self.host, trace_level=trace_level)
+        return imaplib.IMAP4(self.host)
 
     def delete(self):
         pass
@@ -117,15 +120,19 @@ class IMAPAuthentication(GeneralAuth):
     def default_domain(self):
         return "@{}".format(self.host)
 
-    def default_group(self):
-        return self.restricted_group
+    def default_groups(self):
+        return [self.restricted_group]
 
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
         self.config = config
-        self.imap_auth = self.config['imap']
-        self.ldap_auth = self.config['ldap']
+        
+        self.imap_auth = IMAPAuthentication(config['imap'])
+        self.ldap_auth = LDAPAuthentication(config['ldap'])
+        from pylons import config as pylonsconfig
+        pylonsconfig['imap'] = self.imap_auth
+        pylonsconfig['ldap'] = self.ldap_auth
 
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
@@ -153,7 +160,7 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                 user.user_name = username
                 user.email_address = "{}{}".format(user.user_name, auth_to_use.default_domain())
                 user.password = u'uselesspassword#%^^#@'
-                user.groups = auth_to_use.default_group()
+                user.groups = auth_to_use.default_groups()
 
                 try:
                     #actually add the user
