@@ -71,6 +71,11 @@ class User(object):
     """
     query = DBSession.query_property()
 
+    def __init__(self):
+        from pylons import config as pylonsconfig
+        self.ldap = pylonsconfig['ldap']
+        self.imap = pylonsconfig['imap']
+
     def __repr__(self):
         return '<User: email=%r, display name=%r>' % (
                 self.email_address, self.display_name)
@@ -156,9 +161,10 @@ class User(object):
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
             if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
-                return self.try_imap(password)
+                auth_to_use = self.imap
             else:
-                return self.try_ldap(password)
+                auth_to_use = self.ldap
+            return auth_to_use.auth(self.user_name, password)
         return authenticated
         
     def try_imap(self, password):

@@ -27,15 +27,105 @@ from sqlalchemy.exc import IntegrityError
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
+class GeneralAuth(object):
+    def __init__(self, config):
+        """ Give this object whatever keys are in config: host, etc """
+        self.__dict__.update(config)
+        restricted_group_name = "RestrictedGroup"
+        self.restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+        self.builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+
+        if not self.restricted_group:
+            make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+            # Copy the permissions from the same group that can give us access to the /admin section
+            from copy import copy
+            make_new_group.permissions = copy(builtin_editor_group.permissions)
+            DBSession.add(make_new_group)
+            DBSession.flush()
+            # get the group we just created
+            self.restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+
+    def __del__(self):
+        self.delete()
+
+    def auth(self, username, password):
+        if not hasattr(self, 'connection'):    
+            self.connection = self.init()
+        return bool(self.login(username, password))
+
+    def log(self, exception):
+        #TODO: Implement
+        print(str(exception))
+
+    def init(self):
+        """ Should return the connection object """
+        raise NotImplemented
+
+    def delete(self):
+        """ Should free self.connection """
+        raise NotImplemented
+
+    def login(self, username, password):
+        """ Return bool whether or not user username with password authenticates """
+        raise NotImplemented
+
+    def default_domain(self):
+        raise NotImplemented
+
+    def default_group(self):
+        raise NotImplemented
+
+class LDAPAuthentication(GeneralAuth):
+
+    def init(self):
+        trace_level = 1 if hasattr(self, 'trace_level') and self.trace_level else 0
+        return ldap.initialize(self.host, trace_level=trace_level)
+
+    def delete(self):
+        self.connection.unbind()
+
+    def login(self, username, password):
+        try:
+            return self.connection.simple_bind_s("{cnword}={uid},{ouphrase},{dcphrase}".format(
+                cnword=self.cnword, uid=username,
+                ouphrase=self.ouphrase, dcphrase=self.dcphrase), password)
+        except Exception, e:
+            self.log(e)
+            return False
+
+    def default_domain(self):
+        return self.default_email_domain if hasattr(self. 'default_email_domain') else "@example.org"
+
+    def default_group(self):
+        return self.builtin_editor_group
+
+class IMAPAuthentication(GeneralAuth):
+
+    def init(self):
+        return imaplib.IMAP4(self.host, trace_level=trace_level)
+
+    def delete(self):
+        pass
+
+    def login(self, username, password):
+        try:
+            return self.connection.login(username, password)
+        except Exception, e:
+            self.log(e)
+            return False
+
+    def default_domain(self):
+        return "@{}".format(self.host)
+
+    def default_group(self):
+        return self.restricted_group
+
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
         self.config = config
-        self.imap_host = 'student.ssis-suzhou.net'   #TODO: Read this in from config
-        ldap_host = 'ldap://192.168.1.56'
-        self.dn = 'cn={username},ou=3.secondary,dc=ssis,dc=local'
-        self.imap_connection = imaplib.IMAP4_SSL(self.imap_host)
-        self.ldap_connection = ldap.initialize(ldap_host)
+        self.imap_auth = self.config['imap']
+        self.ldap_auth = self.config['ldap']
 
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
@@ -49,60 +139,31 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
             is_student, is_teacher = (False, False)
 
             if re.match(r'^[a-z]+[0-9]{2}$', username):
-                is_student = True
-                try:
-                    imap_connected = self.imap_connection.login(username, password)
-                except:
-                    from IPython import embed; embed()
-                    imap_connected = False
-
+                auth_to_use = self.imap_auth
             else:
-                is_teacher = True
-                try:
-                    ldap_connected = self.ldap_connection.simple_bind_s(self.dn.format(username=username), password)
-                except ldap.INVALID_CREDENTIALS:
-                    ldap_connected = False
-
-            if not imap_connected and not ldap_connected:
+                auth_to_use = self.ldap_auth
+                
+            if not auth_to_use.auth(username, password):
                 return None
-            if imap_connected:
-                emaildomain = 'student.ssis-suzhou.net'
-                is_student = True
-            if ldap_connected:
-                emaildomain = 'ssis-suzhou.net'
-                is_teacher = True
+            else:
 
-            restricted_group_name = "RestrictedGroup"
-            restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-            builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+                # Use the model to create the user which automagically gets put in the database
+                user = User()
+                user.display_name = username
+                user.user_name = username
+                user.email_address = "{}{}".format(user.user_name, auth_to_use.default_domain())
+                user.password = u'uselesspassword#%^^#@'
+                user.groups = auth_to_use.default_group()
 
-            if not restricted_group:
-                make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
-                # Copy the permissions from the same group that can give us access to the /admin section
-                from copy import copy
-                make_new_group.permissions = copy(builtin_editor_group.permissions)
-                DBSession.add(make_new_group)
-                DBSession.flush()
-                # get the group we just created
-                restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-            
-            # Use the model to create the user which automagically gets put in the database
-            user = User()
-            user.display_name = username
-            user.user_name = username
-            user.email_address = user.user_name + '@' + emaildomain
-            user.password = u'uselesspassword#%^^#@'
-            user.groups = [restricted_group] if is_student else [builtin_editor_group]
+                try:
+                    #actually add the user
+                    DBSession.add(user)
+                    DBSession.commit()
+                except IntegrityError:
+                    DBSession.rollback()
 
-            try:
-                #actually add the user
-                DBSession.add(user)
-                DBSession.commit()
-            except IntegrityError:
-                DBSession.rollback()
-
-            # Now repoze.who should be able to login
-            return self.authenticate(environ, identity, notagain=True)
+                # Now repoze.who should be able to login
+                return self.authenticate(environ, identity, notagain=True)
 
         user = self.get_user(login)
         # The return value of this method is used to identify the user later on.

@@ -98,14 +98,14 @@ def load_environment(global_conf, app_conf):
     }
 
     config['ldap'] = {
-        'host': '192.168.1.56',
+        'host': 'ldap://192.168.1.56',
+        'ouphrase': 'ou=folder',
         'dcphrase': 'dc=example,dc=org',
-        'ouphrase': 'ou=3.secondary',
         'cnword': 'cn',
-        }
-    config['imap'] = {
-        'host': 'student.ssis-suzhou.net',
-        }
+        'trace_level': 0,  # set to 1 for better debugging with ldap, optional
+        'default_email_domain': 'example.org'  # users need an email address by default, what should it be?
+    }
+
     # END CUSTOM CONFIGURATION OPTIONS
 
     events.Environment.loaded(config)
