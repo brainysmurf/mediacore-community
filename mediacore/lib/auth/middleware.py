@@ -23,7 +23,8 @@ import ldap
 import re
 import datetime
 from mediacore.model.meta import DBSession
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from pylons import config as pylonsconfig
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
@@ -31,6 +32,7 @@ class GeneralAuth(object):
     def __init__(self, config):
         """ Give this object whatever keys are in config: host, etc """
         self.__dict__.update(config)
+
         restricted_group_name = "RestrictedGroup"
         self.restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
         self.builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
@@ -41,7 +43,7 @@ class GeneralAuth(object):
             from copy import copy
             make_new_group.permissions = copy(builtin_editor_group.permissions)
             DBSession.add(make_new_group)
-            DBSession.flush()
+            DBSession.commit()
             # get the group we just created
             self.restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
 
@@ -49,7 +51,8 @@ class GeneralAuth(object):
         self.delete()
 
     def auth(self, username, password):
-        if not hasattr(self, 'connection'):    
+        if not hasattr(self, 'connection'):
+            # lazy connection
             self.connection = self.init()
         return bool(self.login(username, password))
 
@@ -105,17 +108,26 @@ class LDAPAuthentication(GeneralAuth):
 class IMAPAuthentication(GeneralAuth):
 
     def init(self):
-        return imaplib.IMAP4(self.host)
+        if not hasattr(self, 'connection'):
+            return None
+        return imaplib.IMAP4_SSL(self.host)
 
     def delete(self):
         pass
 
     def login(self, username, password):
+        self.connection = self.init()
         try:
-            return self.connection.login(username, password)
+            authenticated = self.connection.login(username, password)
         except Exception, e:
             self.log(e)
             return False
+        if authenticated:
+            print("logging out")
+            self.connection.logout()
+        print("Authenticated?: ", authenticated)
+        self.connection = None  # release memory for this connection
+        return authenticated
 
     def default_domain(self):
         return "@{}".format(self.host)
@@ -126,13 +138,8 @@ class IMAPAuthentication(GeneralAuth):
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def __init__(self, config, *args, **kwargs):
         super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
-        self.config = config
-        
-        self.imap_auth = IMAPAuthentication(config['imap'])
-        self.ldap_auth = LDAPAuthentication(config['ldap'])
-        from pylons import config as pylonsconfig
-        pylonsconfig['imap'] = self.imap_auth
-        pylonsconfig['ldap'] = self.ldap_auth
+        pylonsconfig['imap'] = IMAPAuthentication(config['imap'])
+        pylonsconfig['ldap'] = LDAPAuthentication(config['ldap'])
 
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
@@ -142,23 +149,20 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
 
             username = identity['login']
             password = identity['password']
-            imap_connected, ldap_connected = (False, False)
-            is_student, is_teacher = (False, False)
 
             if re.match(r'^[a-z]+[0-9]{2}$', username):
-                auth_to_use = self.imap_auth
+                auth_to_use = pylonsconfig['imap']
             else:
-                auth_to_use = self.ldap_auth
+                auth_to_use = pylonsconfig['ldap']
                 
             if not auth_to_use.auth(username, password):
                 return None
             else:
-
                 # Use the model to create the user which automagically gets put in the database
                 user = User()
                 user.display_name = username
                 user.user_name = username
-                user.email_address = "{}{}".format(user.user_name, auth_to_use.default_domain())
+                user.email_address = "{}@{}".format(user.user_name, auth_to_use.default_domain())
                 user.password = u'uselesspassword#%^^#@'
                 user.groups = auth_to_use.default_groups()
 
@@ -166,8 +170,16 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
                     #actually add the user
                     DBSession.add(user)
                     DBSession.commit()
-                except IntegrityError:
+                except IntegrityError, e:
                     DBSession.rollback()
+                    return None
+                except InvalidRequestError, e:
+                    new_user = DBSession.merge(user)
+                    DBSession.add(new_user)
+                    DBSession.commit()
+                except Exception, e:
+                    DBSession.rollback()
+                    return None
 
                 # Now repoze.who should be able to login
                 return self.authenticate(environ, identity, notagain=True)

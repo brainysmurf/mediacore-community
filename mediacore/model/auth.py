@@ -17,6 +17,7 @@ from mediacore.plugin import events
 import imaplib
 import ldap
 import re
+from pylons import config as pylonsconfig
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
@@ -70,11 +71,6 @@ class User(object):
     Basic User definition
     """
     query = DBSession.query_property()
-
-    def __init__(self):
-        from pylons import config as pylonsconfig
-        self.ldap = pylonsconfig['ldap']
-        self.imap = pylonsconfig['imap']
 
     def __repr__(self):
         return '<User: email=%r, display name=%r>' % (
@@ -161,11 +157,11 @@ class User(object):
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
             if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
-                if not hasattr(self, 'imap'): return None
-                auth_to_use = self.imap
+                print('using imap')
+                auth_to_use = pylonsconfig['imap']
             else:
-                if not hasattr(self, 'ldap'): return None
-                auth_to_use = self.ldap
+                print('using ldap')
+                auth_to_use = pylonsconfig['ldap']
             return auth_to_use.auth(self.user_name, password)
         return authenticated
 
