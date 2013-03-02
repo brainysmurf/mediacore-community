@@ -100,7 +100,7 @@ class LDAPAuthentication(GeneralAuth):
             return False
 
     def default_domain(self):
-        return self.default_email_domain if hasattr(self, 'default_email_domain') else "@example.org"
+        return self.default_email_domain if hasattr(self, 'default_email_domain') else "example.org"
 
     def default_groups(self):
         return [self.builtin_editor_group]
@@ -130,7 +130,7 @@ class IMAPAuthentication(GeneralAuth):
         return authenticated
 
     def default_domain(self):
-        return "@{}".format(self.host)
+        return self.host
 
     def default_groups(self):
         return [self.restricted_group]
