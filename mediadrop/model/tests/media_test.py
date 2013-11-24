@@ -5,14 +5,14 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.model import DBSession, Media
-from mediacore.lib.filetypes import VIDEO
-from mediacore.lib.players import AbstractFlashPlayer, FlowPlayer
-from mediacore.lib.storage.api import add_new_media_file
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.plugin import events
-from mediacore.plugin.events import observes
+from mediadrop.model import DBSession, Media
+from mediadrop.lib.filetypes import VIDEO
+from mediadrop.lib.players import AbstractFlashPlayer, FlowPlayer
+from mediadrop.lib.storage.api import add_new_media_file
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.plugin import events
+from mediadrop.plugin.events import observes
 
 
 class MediaTest(DBTestCase):

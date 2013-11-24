@@ -20,8 +20,8 @@ from pylons.decorators.cache import create_cache_key, _make_dict_from_args
 from pylons.decorators.util import get_pylons
 from webob.exc import HTTPException, HTTPMethodNotAllowed
 
-from mediacore.lib.paginate import paginate
-from mediacore.lib.templating import render
+from mediadrop.lib.paginate import paginate
+from mediadrop.lib.templating import render
 
 __all__ = [
     'ValidationState',
@@ -120,7 +120,7 @@ def _expose_wrapper(f, template, request_method=None, permission=None):
         return render(tmpl, tmpl_vars=result, method='auto')
 
     if permission:
-        from mediacore.lib.auth import FunctionProtector, has_permission
+        from mediadrop.lib.auth import FunctionProtector, has_permission
         wrapped_f = FunctionProtector(has_permission(permission)).wrap(wrapped_f)
 
     return wrapped_f
@@ -211,7 +211,7 @@ class ValidationState(object):
     """
     @staticmethod
     def _(msgid):
-        """Get a translated string from the mediacore or FormEncode domains.
+        """Get a translated string from the 'mediadrop' or FormEncode domains.
 
         This allows us to "merge" localized error messages from built-in
         FormEncode's validators with application-specific validators.
@@ -539,7 +539,7 @@ def beaker_cache(key="cache_default", expire="never", type=None,
 def observable(event):
     """Filter the result of the decorated action through the events observers.
 
-    :param event: An instance of :class:`mediacore.plugin.events.Event`
+    :param event: An instance of :class:`mediadrop.plugin.events.Event`
         whose observers are called.
     :returns: A decorator function.
     """
@@ -620,7 +620,7 @@ def autocommit(func, *args, **kwargs):
         return result
 
 def _autocommit_commit(req):
-    from mediacore.model.meta import DBSession
+    from mediadrop.model.meta import DBSession
     try:
         DBSession.commit()
     except:
@@ -630,7 +630,7 @@ def _autocommit_commit(req):
         _autocommit_fire_callbacks(req, req.commit_callbacks)
 
 def _autocommit_rollback(req):
-    from mediacore.model.meta import DBSession
+    from mediadrop.model.meta import DBSession
     DBSession.rollback()
     _autocommit_fire_callbacks(req, req.rollback_callbacks)
 

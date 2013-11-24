@@ -8,9 +8,9 @@
 from tw.forms.validators import NotEmpty
 from tw.api import WidgetsList
 
-from mediacore.forms import ListForm, ResetButton, SubmitButton, TextArea
-from mediacore.lib.i18n import N_
-from mediacore.plugin import events
+from mediadrop.forms import ListForm, ResetButton, SubmitButton, TextArea
+from mediadrop.lib.i18n import N_
+from mediadrop.plugin import events
 
 class EditCommentForm(ListForm):
     template = 'admin/comments/edit.html'

@@ -10,9 +10,9 @@ import re
 from tw.forms import HiddenField
 from tw.forms.validators import FancyValidator, NotEmpty
 
-from mediacore.forms import Form, ListForm, SubmitButton, ResetButton, TextField
-from mediacore.lib.i18n import N_
-from mediacore.plugin import events
+from mediadrop.forms import Form, ListForm, SubmitButton, ResetButton, TextField
+from mediadrop.lib.i18n import N_
+from mediadrop.plugin import events
 
 excess_whitespace = re.compile('\s\s+', re.M)
 

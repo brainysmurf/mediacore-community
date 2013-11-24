@@ -30,7 +30,7 @@ def ipython():
     This only works with the Pylons paster server, and obviously ipython
     must be installed as well. Usage::
 
-        from mediacore import ipython
+        from mediadrop import ipython
         ipython()()
 
     """

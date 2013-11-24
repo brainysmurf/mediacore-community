@@ -7,9 +7,9 @@
 # See LICENSE.txt in the main project directory, for more information.
 
 
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.lib.test.request_mixin import RequestMixin
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.lib.test.request_mixin import RequestMixin
 
 
 class DefaultPageTitleTest(DBTestCase, RequestMixin):
@@ -18,9 +18,9 @@ class DefaultPageTitleTest(DBTestCase, RequestMixin):
         self.init_fake_request()
     
     def test_default_page_title_ignores_default_if_not_specified(self):
-        # mediacore.lib.helpers imports 'pylons.request' on class load time
+        # mediadrop.lib.helpers imports 'pylons.request' on class load time
         # so we import the symbol locally after we injected a fake request
-        from mediacore.lib.helpers import default_page_title
+        from mediadrop.lib.helpers import default_page_title
         assert_equals('MediaDrop', default_page_title())
 
 

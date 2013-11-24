@@ -10,10 +10,10 @@ import re
 from pylons.controllers.util import abort
 from sqlalchemy import or_
 
-from mediacore.lib.auth.api import PermissionSystem, UserPermissions
-from mediacore.lib.auth.query_result_proxy import QueryResultProxy, StaticQuery
-from mediacore.model import DBSession, Group, User
-from mediacore.plugin.abc import AbstractClass, abstractmethod
+from mediadrop.lib.auth.api import PermissionSystem, UserPermissions
+from mediadrop.lib.auth.query_result_proxy import QueryResultProxy, StaticQuery
+from mediadrop.model import DBSession, Group, User
+from mediadrop.plugin.abc import AbstractClass, abstractmethod
 
 
 __all__ = ['MediaDropPermissionSystem', 'PermissionPolicies']

@@ -10,14 +10,14 @@ import logging
 from pylons import tmpl_context
 from webob.exc import HTTPException
 
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import autocommit, expose, observable, validate
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.lib.players import update_enabled_players
-from mediacore.model import (DBSession, PlayerPrefs, fetch_row,
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import autocommit, expose, observable, validate
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.lib.players import update_enabled_players
+from mediadrop.model import (DBSession, PlayerPrefs, fetch_row,
     cleanup_players_table)
-from mediacore.plugin import events
+from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class PlayersController(BaseController):
         :rtype: Dict
         :returns:
             players
-                The list of :class:`~mediacore.model.players.PlayerPrefs`
+                The list of :class:`~mediadrop.model.players.PlayerPrefs`
                 instances for this page.
 
         """
@@ -46,7 +46,7 @@ class PlayersController(BaseController):
     @expose('admin/players/edit.html')
     @observable(events.Admin.PlayersController.edit)
     def edit(self, id, name=None, **kwargs):
-        """Display the :class:`~mediacore.model.players.PlayerPrefs` for editing or adding.
+        """Display the :class:`~mediadrop.model.players.PlayerPrefs` for editing or adding.
 
         :param id: PlayerPrefs ID
         :type id: ``int`` or ``"new"``

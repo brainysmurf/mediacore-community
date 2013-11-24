@@ -13,11 +13,11 @@ import shutil
 from PIL import Image
 # XXX: note that pylons.url is imported here. Make sure to only use it with
 #      absolute paths (ie. those starting with a /) to avoid differences in
-#      behavior from mediacore.lib.helpers.url_for
+#      behavior from mediadrop.lib.helpers.url_for
 from pylons import config, url as url_for
 
-import mediacore
-from mediacore.lib.util import delete_files
+import mediadrop
+from mediadrop.lib.util import delete_files
 
 __all__ = [
     'create_default_thumbs_for', 'create_thumbs_for', 'delete_thumbs',
@@ -40,7 +40,7 @@ def thumb_path(item, size, exists=False, ext='jpg'):
         can be extracted automatically.
     :type item: ``tuple`` or mapped class instance
     :param size: Size key to display, see ``thumb_sizes`` in
-        :mod:`mediacore.config.app_config`
+        :mod:`mediadrop.config.app_config`
     :type size: str
     :param exists: If enabled, checks to see if the file actually exists.
         If it doesn't exist, ``None`` is returned.
@@ -94,7 +94,7 @@ def thumb_url(item, size, qualified=False, exists=False):
         can be extracted automatically.
     :type item: ``tuple`` or mapped class instance
     :param size: Size key to display, see ``thumb_sizes`` in
-        :mod:`mediacore.config.app_config`
+        :mod:`mediadrop.config.app_config`
     :type size: str
     :param qualified: If ``True`` return the full URL including the domain.
     :type qualified: bool
@@ -135,7 +135,7 @@ def thumb(item, size, qualified=False, exists=False):
         can be extracted automatically.
     :type item: ``tuple`` or mapped class instance
     :param size: Size key to display, see ``thumb_sizes`` in
-        :mod:`mediacore.config.app_config`
+        :mod:`mediadrop.config.app_config`
     :type size: str
     :param qualified: If ``True`` return the full URL including the domain.
     :type qualified: bool
@@ -252,12 +252,12 @@ def create_default_thumbs_for(item):
         can be extracted automatically.
     :type item: ``tuple`` or mapped class instance
     """
-    mediacore_dir = os.path.join(os.path.dirname(mediacore.__file__), '..')
+    mediadrop_dir = os.path.join(os.path.dirname(mediadrop.__file__), '..')
     image_dir, item_id = _normalize_thumb_item(item)
     for key in config['thumb_sizes'][image_dir].iterkeys():
         src_file = thumb_path((image_dir, 'new'), key)
         if not os.path.exists(src_file):
-            default_image_dir = os.path.join(mediacore_dir, 'data', 'images', image_dir)
+            default_image_dir = os.path.join(mediadrop_dir, 'data', 'images', image_dir)
             src_file = thumb_path((default_image_dir, 'new'), key)
         dst_file = thumb_path(item, key)
         shutil.copyfile(src_file, dst_file)

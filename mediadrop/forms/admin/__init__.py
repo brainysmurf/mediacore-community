@@ -7,9 +7,9 @@
 
 from tw.forms.validators import FieldStorageUploadConverter
 
-from mediacore.forms import FileField, Form, ListForm, SubmitButton, TextField
-from mediacore.lib.i18n import N_
-from mediacore.plugin import events
+from mediadrop.forms import FileField, Form, ListForm, SubmitButton, TextField
+from mediadrop.lib.i18n import N_
+from mediadrop.plugin import events
 
 class SearchForm(ListForm):
     template = 'admin/search-form.html'

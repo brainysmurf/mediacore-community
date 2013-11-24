@@ -10,12 +10,12 @@ import re
 from pylons.controllers.util import Request
 from routes.util import URLGenerator
 
-from mediacore.config.routing import add_routes, create_mapper
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.lib.test.request_mixin import RequestMixin
-from mediacore.lib.test.support import create_wsgi_environ
-from mediacore.lib.util import current_url
+from mediadrop.config.routing import add_routes, create_mapper
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.lib.test.request_mixin import RequestMixin
+from mediadrop.lib.test.support import create_wsgi_environ
+from mediadrop.lib.util import current_url
 
 
 class CurrentURLTest(DBTestCase, RequestMixin):

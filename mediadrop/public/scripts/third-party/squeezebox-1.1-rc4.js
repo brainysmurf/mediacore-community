@@ -434,7 +434,7 @@ SqueezeBox.handlers.url = SqueezeBox.handlers.ajax;
 SqueezeBox.parsers.url = SqueezeBox.parsers.ajax;
 SqueezeBox.parsers.adopt = SqueezeBox.parsers.clone;
 
-// MediaCore extension
+// MediaDrop extension
 SqueezeBox.handlers.extend({
 	// Unhide cloned elements automatically
 	clone: function(el) {

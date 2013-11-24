@@ -9,11 +9,11 @@ from tw.api import WidgetsList
 from tw.forms import CheckBoxList, HiddenField, SingleSelectField
 from tw.forms.validators import NotEmpty
 
-from mediacore.model.categories import Category
-from mediacore.forms import Form, ListForm, ResetButton, SubmitButton, TextField
-from mediacore.lib import helpers
-from mediacore.lib.i18n import N_
-from mediacore.plugin import events
+from mediadrop.model.categories import Category
+from mediadrop.forms import Form, ListForm, ResetButton, SubmitButton, TextField
+from mediadrop.lib import helpers
+from mediadrop.lib.i18n import N_
+from mediadrop.plugin import events
 
 def option_tree(cats):
     indent = helpers.decode_entities(u'&nbsp;') * 4

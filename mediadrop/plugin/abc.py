@@ -7,7 +7,7 @@
 
 from itertools import chain
 
-from mediacore.lib.compat import defaultdict
+from mediadrop.lib.compat import defaultdict
 
 class AbstractMetaClass(type):
     """

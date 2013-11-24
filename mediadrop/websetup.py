@@ -16,14 +16,14 @@ from genshi.template import NewTextTemplate
 from genshi.template.loader import TemplateLoader
 from PIL import Image
 
-from mediacore.config.environment import load_environment
-from mediacore.lib.i18n import N_
-from mediacore.lib.storage import (BlipTVStorage, DailyMotionStorage,
+from mediadrop.config.environment import load_environment
+from mediadrop.lib.i18n import N_
+from mediadrop.lib.storage import (BlipTVStorage, DailyMotionStorage,
     LocalFileStorage, RemoteURLStorage, VimeoStorage, YoutubeStorage)
-from mediacore.migrations.util import MediaDropMigrator
-from mediacore.plugin import events
+from mediadrop.migrations.util import MediaDropMigrator
+from mediadrop.plugin import events
 
-from mediacore.model import (Author, AuthorWithIP, Category, Comment,
+from mediadrop.model import (Author, AuthorWithIP, Category, Comment,
     DBSession, Group, Media, MediaFile, Permission, Podcast, Setting,
     User, metadata, cleanup_players_table)
 
@@ -98,9 +98,9 @@ def setup_app(command, conf, vars):
     
     engine = metadata.bind
     db_connection = engine.connect()
-    # simplistic check to see if MediaCore tables are present, just check for
+    # simplistic check to see if MediaDrop tables are present, just check for
     # the media_files table and assume that all other tables are there as well
-    from mediacore.model.media import media_files
+    from mediadrop.model.media import media_files
     mediadrop_tables_exist = engine.dialect.has_table(db_connection, media_files.name)
     
     run_migrations = True
@@ -115,7 +115,7 @@ def setup_app(command, conf, vars):
             migrator.init_db()
         events.Environment.database_initialized()
     elif not mediadrop_migrator.migrate_table_exists():
-        log.error('No migration table found, probably your MediaCore install '
+        log.error('No migration table found, probably your MediaDrop install '
             'is too old (< 0.9?). Please upgrade to MediaCore CE 0.9 first.')
         raise AssertionError('no migration table found')
     elif not mediadrop_migrator.alembic_table_exists():
@@ -433,7 +433,7 @@ def generate_appearance_css(settings, cache_dir=None):
             vars['appearance_logo'] = False
 
     # Create a simple template loader instead of using
-    # mediacore.lib.templating.render because that function only works
+    # mediadrop.lib.templating.render because that function only works
     # within the context of a request, when the pylons magic globals
     # have been populated.
     tmpl_loader = TemplateLoader([os.path.join(here, 'templates')])

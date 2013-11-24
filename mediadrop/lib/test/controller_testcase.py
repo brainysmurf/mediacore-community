@@ -11,9 +11,9 @@ import pylons
 from pylons.controllers.util import Response
 from webob.exc import HTTPFound
 
-from mediacore.lib.test.request_mixin import RequestMixin
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
+from mediadrop.lib.test.request_mixin import RequestMixin
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
 
 
 __all__ = ['ControllerTestCase']

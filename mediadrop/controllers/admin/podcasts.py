@@ -10,19 +10,19 @@ import os
 from pylons import request, tmpl_context
 from sqlalchemy import orm
 
-from mediacore.forms.admin import ThumbForm
-from mediacore.forms.admin.podcasts import PodcastForm
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
+from mediadrop.forms.admin import ThumbForm
+from mediadrop.forms.admin.podcasts import PodcastForm
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate)
-from mediacore.lib.helpers import redirect, url_for, in_restricted_group
-from mediacore.lib.i18n import _
-from mediacore.lib.thumbnails import (create_default_thumbs_for,
+from mediadrop.lib.helpers import redirect, url_for, in_restricted_group
+from mediadrop.lib.i18n import _
+from mediadrop.lib.thumbnails import (create_default_thumbs_for,
     create_thumbs_for, delete_thumbs)
-from mediacore.model import Author, Podcast, fetch_row, get_available_slug
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
+from mediadrop.model import Author, Podcast, fetch_row, get_available_slug
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 
 import logging
 log = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class PodcastsController(BaseController):
         :rtype: Dict
         :returns:
             podcasts
-                The list of :class:`~mediacore.model.podcasts.Podcast`
+                The list of :class:`~mediadrop.model.podcasts.Podcast`
                 instances for this page.
         """
         podcasts = DBSession.query(Podcast)\
@@ -67,15 +67,15 @@ class PodcastsController(BaseController):
         :param \*\*kwargs: Extra args populate the form for ``"new"`` podcasts
         :returns:
             podcast
-                :class:`~mediacore.model.podcasts.Podcast` instance
+                :class:`~mediadrop.model.podcasts.Podcast` instance
             form
-                :class:`~mediacore.forms.admin.podcasts.PodcastForm` instance
+                :class:`~mediadrop.forms.admin.podcasts.PodcastForm` instance
             form_action
                 ``str`` form submit url
             form_values
                 ``dict`` form values
             thumb_form
-                :class:`~mediacore.forms.admin.ThumbForm` instance
+                :class:`~mediadrop.forms.admin.ThumbForm` instance
             thumb_action
                 ``str`` form submit url
 
@@ -130,10 +130,10 @@ class PodcastsController(BaseController):
     @observable(events.Admin.PodcastsController.save)
     def save(self, id, slug, title, subtitle, author_name, author_email,
              description, details, feed, delete=None, **kwargs):
-        """Save changes or create a new :class:`~mediacore.model.podcasts.Podcast` instance.
+        """Save changes or create a new :class:`~mediadrop.model.podcasts.Podcast` instance.
 
         Form handler the :meth:`edit` action and the
-        :class:`~mediacore.forms.admin.podcasts.PodcastForm`.
+        :class:`~mediadrop.forms.admin.podcasts.PodcastForm`.
 
         Redirects back to :meth:`edit` after successful editing
         and :meth:`index` after successful deletion.
@@ -173,7 +173,7 @@ class PodcastsController(BaseController):
     @validate(thumb_form, error_handler=edit)
     @observable(events.Admin.PodcastsController.save_thumb)
     def save_thumb(self, id, thumb, **values):
-        """Save a thumbnail uploaded with :class:`~mediacore.forms.admin.ThumbForm`.
+        """Save a thumbnail uploaded with :class:`~mediadrop.forms.admin.ThumbForm`.
 
         :param id: Media ID. If ``"new"`` a new Podcast stub is created.
         :type id: ``int`` or ``"new"``
@@ -186,7 +186,7 @@ class PodcastsController(BaseController):
             message
                 Error message, if unsuccessful
             id
-                The :attr:`~mediacore.model.podcasts.Podcast.id` which is
+                The :attr:`~mediadrop.model.podcasts.Podcast.id` which is
                 important if a new podcast has just been created.
 
         """

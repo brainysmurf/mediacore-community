@@ -5,8 +5,8 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.forms import ListFieldSet, ListForm, SubmitButton, TextField
-from mediacore.lib.i18n import N_
+from mediadrop.forms import ListFieldSet, ListForm, SubmitButton, TextField
+from mediadrop.lib.i18n import N_
 
 class StorageForm(ListForm):
     template = 'admin/box-form.html'
@@ -43,12 +43,12 @@ class StorageForm(ListForm):
 
         If the value dict is not fully populated, populate any missing entries
         with the values from the given StorageEngine's
-        :attr:`_data <mediacore.lib.storage.StorageEngine._data>` dict.
+        :attr:`_data <mediadrop.lib.storage.StorageEngine._data>` dict.
 
         :param value: A (sparse) dict of values to populate the form with.
         :type value: dict
         :param engine: An instance of the storage engine implementation.
-        :type engine: :class:`mediacore.lib.storage.StorageEngine` subclass
+        :type engine: :class:`mediadrop.lib.storage.StorageEngine` subclass
 
         """
         general = value.setdefault('general', {})
@@ -60,10 +60,10 @@ class StorageForm(ListForm):
         """Map validated field values to engine data.
 
         Since form widgets may be nested or named differently than the keys
-        in the :attr:`mediacore.lib.storage.StorageEngine._data` dict, it is
+        in the :attr:`mediadrop.lib.storage.StorageEngine._data` dict, it is
         necessary to manually map field values to the data dictionary.
 
-        :type engine: :class:`mediacore.lib.storage.StorageEngine` subclass
+        :type engine: :class:`mediadrop.lib.storage.StorageEngine` subclass
         :param engine: An instance of the storage engine implementation.
         :param \*\*kwargs: Validated and filtered form values.
         :raises formencode.Invalid: If some post-validation error is detected

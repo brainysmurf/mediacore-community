@@ -8,11 +8,11 @@
 
 from pylons import config
 
-from mediacore.controllers.login import LoginController
-from mediacore.lib.auth.permission_system import MediaDropPermissionSystem
-from mediacore.lib.test import ControllerTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.model import DBSession, Group, User, Permission
+from mediadrop.controllers.login import LoginController
+from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
+from mediadrop.lib.test import ControllerTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.model import DBSession, Group, User, Permission
 
 
 class LoginControllerTest(ControllerTestCase):
@@ -37,7 +37,7 @@ class LoginControllerTest(ControllerTestCase):
         response = self.call_post_login(editor)
         assert_equals('http://server.example:80/admin', response.location)
     
-    def test_uses_correct_redirect_url_if_mediacore_is_mounted_in_subdirectory(self):
+    def test_uses_correct_redirect_url_if_mediadrop_is_mounted_in_subdirectory(self):
         user = User.example()
         
         request = self.init_fake_request(server_name='server.example',

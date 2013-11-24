@@ -8,12 +8,12 @@
 from formencode import Invalid
 from pylons import request, tmpl_context
 
-from mediacore.forms.login import LoginForm
-from mediacore.lib.base import BaseController
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.lib.i18n import _
-from mediacore.lib.decorators import expose, observable
-from mediacore.plugin import events
+from mediadrop.forms.login import LoginForm
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.lib.i18n import _
+from mediadrop.lib.decorators import expose, observable
+from mediadrop.plugin import events
 
 import logging
 log = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class LoginController(BaseController):
 
         Without a dummy method, Routes will throw a NotImplemented exception.
         Calls that would route to this method are intercepted by
-        repoze.who, as defined in mediacore.lib.auth
+        repoze.who, as defined in mediadrop.lib.auth
         """
         pass
 
@@ -63,7 +63,7 @@ class LoginController(BaseController):
 
         Without a dummy method, Routes will throw a NotImplemented exception.
         Calls that would route to this method are intercepted by
-        repoze.who, as defined in mediacore.lib.auth
+        repoze.who, as defined in mediadrop.lib.auth
         """
         pass
 

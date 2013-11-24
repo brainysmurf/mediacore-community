@@ -15,23 +15,21 @@ from formencode import Invalid, validators
 from pylons import request, tmpl_context
 from sqlalchemy import orm
 
-from mediacore.forms.admin import SearchForm, ThumbForm
-from mediacore.forms.admin.media import AddFileForm, EditFileForm, MediaForm, UpdateStatusForm
-from mediacore.lib import helpers
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
+from mediadrop.forms.admin import SearchForm, ThumbForm
+from mediadrop.forms.admin.media import AddFileForm, EditFileForm, MediaForm, UpdateStatusForm
+from mediadrop.lib import helpers
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate, validate_xhr)
-from mediacore.lib.helpers import redirect, url_for, in_restricted_group
-from mediacore.lib.i18n import _
-from mediacore.lib.storage import add_new_media_file
-from mediacore.lib.templating import render
-from mediacore.lib.thumbnails import thumb_path, thumb_paths, create_thumbs_for, create_default_thumbs_for, has_thumbs, has_default_thumbs, delete_thumbs
-from mediacore.model import Author, Category, Media, Podcast, Tag, fetch_row, get_available_slug
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
-from mediacore.model.authors import Author
-
+from mediadrop.lib.helpers import redirect, url_for, in_restricted_group
+from mediadrop.lib.i18n import _
+from mediadrop.lib.storage import add_new_media_file
+from mediadrop.lib.templating import render
+from mediadrop.lib.thumbnails import thumb_path, thumb_paths, create_thumbs_for, create_default_thumbs_for, has_thumbs, has_default_thumbs, delete_thumbs
+from mediadrop.model import Author, Category, Media, Podcast, Tag, fetch_row, get_available_slug
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 import logging
 log = logging.getLogger(__name__)
 
@@ -61,12 +59,12 @@ class MediaController(BaseController):
         :rtype: dict
         :returns:
             media
-                The list of :class:`~mediacore.model.media.Media` instances
+                The list of :class:`~mediadrop.model.media.Media` instances
                 for this page.
             search
                 The given search term, if any
             search_form
-                The :class:`~mediacore.forms.admin.SearchForm` instance
+                The :class:`~mediadrop.forms.admin.SearchForm` instance
             podcast
                 The podcast object for rendering if filtering by podcast.
 
@@ -133,27 +131,27 @@ class MediaController(BaseController):
         :param \*\*kwargs: Extra args populate the form for ``"new"`` media
         :returns:
             media
-                :class:`~mediacore.model.media.Media` instance
+                :class:`~mediadrop.model.media.Media` instance
             media_form
-                The :class:`~mediacore.forms.admin.media.MediaForm` instance
+                The :class:`~mediadrop.forms.admin.media.MediaForm` instance
             media_action
                 ``str`` form submit url
             media_values
                 ``dict`` form values
             file_add_form
-                The :class:`~mediacore.forms.admin.media.AddFileForm` instance
+                The :class:`~mediadrop.forms.admin.media.AddFileForm` instance
             file_add_action
                 ``str`` form submit url
             file_edit_form
-                The :class:`~mediacore.forms.admin.media.EditFileForm` instance
+                The :class:`~mediadrop.forms.admin.media.EditFileForm` instance
             file_edit_action
                 ``str`` form submit url
             thumb_form
-                The :class:`~mediacore.forms.admin.ThumbForm` instance
+                The :class:`~mediadrop.forms.admin.ThumbForm` instance
             thumb_action
                 ``str`` form submit url
             update_status_form
-                The :class:`~mediacore.forms.admin.media.UpdateStatusForm` instance
+                The :class:`~mediadrop.forms.admin.media.UpdateStatusForm` instance
             update_status_action
                 ``str`` form submit url
 
@@ -216,10 +214,10 @@ class MediaController(BaseController):
     def save(self, id, slug, title, author_name, author_email,
              description, notes, podcast, tags, categories,
              delete=None, **kwargs):
-        """Save changes or create a new :class:`~mediacore.model.media.Media` instance.
+        """Save changes or create a new :class:`~mediadrop.model.media.Media` instance.
 
         Form handler the :meth:`edit` action and the
-        :class:`~mediacore.forms.admin.media.MediaForm`.
+        :class:`~mediadrop.forms.admin.media.MediaForm`.
 
         Redirects back to :meth:`edit` after successful editing
         and :meth:`index` after successful deletion.
@@ -273,9 +271,9 @@ class MediaController(BaseController):
     @autocommit
     @observable(events.Admin.MediaController.add_file)
     def add_file(self, id, file=None, url=None, **kwargs):
-        """Save action for the :class:`~mediacore.forms.admin.media.AddFileForm`.
+        """Save action for the :class:`~mediadrop.forms.admin.media.AddFileForm`.
 
-        Creates a new :class:`~mediacore.model.media.MediaFile` from the
+        Creates a new :class:`~mediadrop.model.media.MediaFile` from the
         uploaded file or the local or remote URL.
 
         :param id: Media ID. If ``"new"`` a new Media stub is created.
@@ -291,16 +289,16 @@ class MediaController(BaseController):
             message
                 Error message, if unsuccessful
             media_id
-                The :attr:`~mediacore.model.media.Media.id` which is
+                The :attr:`~mediadrop.model.media.Media.id` which is
                 important if new media has just been created.
             file_id
-                The :attr:`~mediacore.model.media.MediaFile.id` for the newly
+                The :attr:`~mediadrop.model.media.MediaFile.id` for the newly
                 created file.
             edit_form
-                The rendered XHTML :class:`~mediacore.forms.admin.media.EditFileForm`
+                The rendered XHTML :class:`~mediadrop.forms.admin.media.EditFileForm`
                 for this file.
             status_form
-                The rendered XHTML :class:`~mediacore.forms.admin.media.UpdateStatusForm`
+                The rendered XHTML :class:`~mediadrop.forms.admin.media.UpdateStatusForm`
 
         """
         if id == 'new':
@@ -357,9 +355,9 @@ class MediaController(BaseController):
     @autocommit
     @observable(events.Admin.MediaController.edit_file)
     def edit_file(self, id, file_id, file_type=None, duration=None, delete=None, bitrate=None, width_height=None, **kwargs):
-        """Save action for the :class:`~mediacore.forms.admin.media.EditFileForm`.
+        """Save action for the :class:`~mediadrop.forms.admin.media.EditFileForm`.
 
-        Changes or deletes a :class:`~mediacore.model.media.MediaFile`.
+        Changes or deletes a :class:`~mediadrop.model.media.MediaFile`.
 
         XXX: We do NOT use the @validate decorator due to complications with
              partial validation. The JS sends only the value it wishes to
@@ -530,7 +528,7 @@ class MediaController(BaseController):
     @autocommit
     @observable(events.Admin.MediaController.save_thumb)
     def save_thumb(self, id, thumb, **kwargs):
-        """Save a thumbnail uploaded with :class:`~mediacore.forms.admin.ThumbForm`.
+        """Save a thumbnail uploaded with :class:`~mediadrop.forms.admin.ThumbForm`.
 
         :param id: Media ID. If ``"new"`` a new Media stub is created.
         :type id: ``int`` or ``"new"``
@@ -543,7 +541,7 @@ class MediaController(BaseController):
             message
                 Error message, if unsuccessful
             id
-                The :attr:`~mediacore.model.media.Media.id` which is
+                The :attr:`~mediadrop.model.media.Media.id` which is
                 important if a new media has just been created.
 
         """
@@ -601,13 +599,13 @@ class MediaController(BaseController):
         :param id: Media ID
         :type id: ``int``
         :param update_status: The text of the submit button which indicates
-            that the :attr:`~mediacore.model.media.Media.status` should change.
+            that the :attr:`~mediadrop.model.media.Media.status` should change.
         :type update_status: ``unicode`` or ``None``
         :param publish_on: A date to set to
-            :attr:`~mediacore.model.media.Media.publish_on`
+            :attr:`~mediadrop.model.media.Media.publish_on`
         :type publish_on: :class:`datetime.datetime` or ``None``
         :param publish_until: A date to set to
-            :attr:`~mediacore.model.media.Media.publish_until`
+            :attr:`~mediadrop.model.media.Media.publish_until`
         :type publish_until: :class:`datetime.datetime` or ``None``
         :rtype: JSON dict
         :returns:

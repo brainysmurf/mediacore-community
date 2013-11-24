@@ -8,15 +8,15 @@
 from pylons import request, response
 from sqlalchemy import orm
 
-from mediacore.lib.auth.util import viewable_media
-from mediacore.lib import helpers
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (beaker_cache, expose, observable, 
+from mediadrop.lib.auth.util import viewable_media
+from mediadrop.lib import helpers
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (beaker_cache, expose, observable, 
     paginate, validate)
-from mediacore.lib.helpers import content_type_for_response, url_for, redirect
-from mediacore.model import Media, Podcast, fetch_row
-from mediacore.plugin import events
-from mediacore.validation import LimitFeedItemsValidator
+from mediadrop.lib.helpers import content_type_for_response, url_for, redirect
+from mediadrop.model import Media, Podcast, fetch_row
+from mediadrop.plugin import events
+from mediadrop.validation import LimitFeedItemsValidator
 
 import logging
 log = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class PodcastsController(BaseController):
     Podcast Series Controller
 
     This handles episode collections, individual episodes are handled as
-    regular media by :mod:`mediacore.controllers.media`.
+    regular media by :mod:`mediadrop.controllers.media`.
     """
 
     @expose('podcasts/index.html')
@@ -37,7 +37,7 @@ class PodcastsController(BaseController):
         :rtype: dict
         :returns:
             podcasts
-                The :class:`~mediacore.model.podcasts.Podcast` instance
+                The :class:`~mediadrop.model.podcasts.Podcast` instance
 
         """
         podcasts = Podcast.query\
@@ -64,15 +64,15 @@ class PodcastsController(BaseController):
     def view(self, slug, page=1, show='latest', **kwargs):
         """View a podcast and the media that belongs to it.
 
-        :param slug: A :attr:`~mediacore.model.podcasts.Podcast.slug`
+        :param slug: A :attr:`~mediadrop.model.podcasts.Podcast.slug`
         :param page: Page number, defaults to 1.
         :type page: int
         :rtype: dict
         :returns:
             podcast
-                A :class:`~mediacore.model.podcasts.Podcast` instance.
+                A :class:`~mediadrop.model.podcasts.Podcast` instance.
             episodes
-                A list of :class:`~mediacore.model.media.Media` instances
+                A list of :class:`~mediadrop.model.media.Media` instances
                 that belong to the ``podcast``.
             podcasts
                 A list of all the other podcasts
@@ -104,7 +104,7 @@ class PodcastsController(BaseController):
     def feed(self, slug, limit=None, **kwargs):
         """Serve the feed as RSS 2.0.
 
-        If :attr:`~mediacore.model.podcasts.Podcast.feedburner_url` is
+        If :attr:`~mediadrop.model.podcasts.Podcast.feedburner_url` is
         specified for this podcast, we redirect there if the useragent
         does not contain 'feedburner', as described here:
         http://www.google.com/support/feedburner/bin/answer.py?hl=en&answer=78464
@@ -113,9 +113,9 @@ class PodcastsController(BaseController):
         :rtype: Dict
         :returns:
             podcast
-                A :class:`~mediacore.model.podcasts.Podcast` instance.
+                A :class:`~mediadrop.model.podcasts.Podcast` instance.
             episodes
-                A list of :class:`~mediacore.model.media.Media` instances
+                A list of :class:`~mediadrop.model.media.Media` instances
                 that belong to the ``podcast``.
 
         Renders: :data:`podcasts/feed.xml` XML

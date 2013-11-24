@@ -7,7 +7,7 @@
 
 import socket
 import struct
-from mediacore.lib.compat import inet_aton
+from mediadrop.lib.compat import inet_aton
 
 
 class Author(object):

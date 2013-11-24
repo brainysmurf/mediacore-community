@@ -13,14 +13,14 @@ from formencode.validators import FancyValidator
 from tw.forms import HiddenField, SingleSelectField
 from tw.forms.validators import Int, DateTimeConverter, FieldStorageUploadConverter, OneOf
 
-from mediacore.lib import helpers
-from mediacore.lib.filetypes import registered_media_types
-from mediacore.lib.i18n import N_, _
-from mediacore.forms import FileField, Form, ListForm, SubmitButton, TextArea, TextField, XHTMLTextArea, email_validator
-from mediacore.forms.admin.categories import CategoryCheckBoxList
-from mediacore.model import Category, DBSession, Podcast
-from mediacore.plugin import events
-from mediacore.validation import URIValidator
+from mediadrop.lib import helpers
+from mediadrop.lib.filetypes import registered_media_types
+from mediadrop.lib.i18n import N_, _
+from mediadrop.forms import FileField, Form, ListForm, SubmitButton, TextArea, TextField, XHTMLTextArea, email_validator
+from mediadrop.forms.admin.categories import CategoryCheckBoxList
+from mediadrop.model import Category, DBSession, Podcast
+from mediadrop.plugin import events
+from mediadrop.validation import URIValidator
 
 class DurationValidator(FancyValidator):
     """

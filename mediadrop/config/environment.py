@@ -15,13 +15,13 @@ from pylons import translator
 from pylons.configuration import PylonsConfig
 from sqlalchemy import engine_from_config
 
-import mediacore.lib.app_globals as app_globals
-import mediacore.lib.helpers
+import mediadrop.lib.app_globals as app_globals
+import mediadrop.lib.helpers
 
-from mediacore.config.routing import create_mapper, add_routes
-from mediacore.lib.templating import TemplateLoader
-from mediacore.model import Media, Podcast, init_model
-from mediacore.plugin import PluginManager, events
+from mediadrop.config.routing import create_mapper, add_routes
+from mediadrop.lib.templating import TemplateLoader
+from mediadrop.model import Media, Podcast, init_model
+from mediadrop.plugin import PluginManager, events
 
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config`` object"""
@@ -35,7 +35,7 @@ def load_environment(global_conf, app_conf):
                  templates=[os.path.join(root, 'templates')])
 
     # Initialize config with the basic options
-    config.init_app(global_conf, app_conf, package='mediacore', paths=paths)
+    config.init_app(global_conf, app_conf, package='mediadrop', paths=paths)
 
     # Initialize the plugin manager to load all active plugins
     plugin_mgr = PluginManager(config)
@@ -48,14 +48,14 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'] = app_globals.Globals(config)
     config['pylons.app_globals'].plugin_mgr = plugin_mgr
     config['pylons.app_globals'].events = events
-    config['pylons.h'] = mediacore.lib.helpers
+    config['pylons.h'] = mediadrop.lib.helpers
 
     # Setup cache object as early as possible
     pylons.cache._push_object(config['pylons.app_globals'].cache)
 
     config['locale_dirs'] = plugin_mgr.locale_dirs()
     config['locale_dirs'].update({
-        'mediacore': os.path.join(root, 'i18n'),
+        'mediadrop': os.path.join(root, 'i18n'),
         'FormEncode': get_formencode_localedir(),
     })
 

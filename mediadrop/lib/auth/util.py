@@ -7,7 +7,7 @@
 
 from pylons import config, request
 
-from mediacore.lib.auth.permission_system import MediaDropPermissionSystem
+from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
 
 
 __all__ = ['viewable_media']

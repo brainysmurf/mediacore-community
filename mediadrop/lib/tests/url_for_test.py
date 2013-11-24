@@ -5,10 +5,10 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.lib.test.request_mixin import RequestMixin
-from mediacore.lib.util import url_for
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.lib.test.request_mixin import RequestMixin
+from mediadrop.lib.util import url_for
 
 
 class URLForTest(DBTestCase, RequestMixin):

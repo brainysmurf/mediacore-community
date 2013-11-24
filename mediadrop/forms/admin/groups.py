@@ -9,11 +9,11 @@ from pylons import request
 from tw.forms import CheckBoxList
 from tw.forms.validators import All, FancyValidator, Invalid, PlainText
 
-from mediacore.forms import ListForm, SubmitButton, TextField
-from mediacore.lib.i18n import N_, _
-from mediacore.model import DBSession
-from mediacore.model.auth import Group, Permission
-from mediacore.plugin import events
+from mediadrop.forms import ListForm, SubmitButton, TextField
+from mediadrop.lib.i18n import N_, _
+from mediadrop.model import DBSession
+from mediadrop.model.auth import Group, Permission
+from mediadrop.plugin import events
 
 
 class UniqueGroupname(FancyValidator):

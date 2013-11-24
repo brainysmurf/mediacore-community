@@ -7,14 +7,14 @@
 
 from pylons import request, tmpl_context
 
-from mediacore.forms.admin.groups import GroupForm
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, observable, paginate, validate)
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.model import fetch_row, Group, Permission
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
+from mediadrop.forms.admin.groups import GroupForm
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, observable, paginate, validate)
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.model import fetch_row, Group, Permission
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 
 group_form = GroupForm()
 
@@ -34,7 +34,7 @@ class GroupsController(BaseController):
         :rtype: Dict
         :returns:
             users
-                The list of :class:`~mediacore.model.auth.Group`
+                The list of :class:`~mediadrop.model.auth.Group`
                 instances for this page.
 
         """
@@ -46,16 +46,16 @@ class GroupsController(BaseController):
     @expose('admin/groups/edit.html')
     @observable(events.Admin.GroupsController.edit)
     def edit(self, id, **kwargs):
-        """Display the :class:`~mediacore.forms.admin.groups.GroupForm` for editing or adding.
+        """Display the :class:`~mediadrop.forms.admin.groups.GroupForm` for editing or adding.
 
         :param id: Group ID
         :type id: ``int`` or ``"new"``
         :rtype: dict
         :returns:
             user
-                The :class:`~mediacore.model.auth.Group` instance we're editing.
+                The :class:`~mediadrop.model.auth.Group` instance we're editing.
             user_form
-                The :class:`~mediacore.forms.admin.groups.GroupForm` instance.
+                The :class:`~mediadrop.forms.admin.groups.GroupForm` instance.
             user_action
                 ``str`` form submit url
             group_values
@@ -88,7 +88,7 @@ class GroupsController(BaseController):
     @autocommit
     @observable(events.Admin.GroupsController.save)
     def save(self, id, display_name, group_name, permissions, delete=None, **kwargs):
-        """Save changes or create a new :class:`~mediacore.model.auth.Group` instance.
+        """Save changes or create a new :class:`~mediadrop.model.auth.Group` instance.
 
         :param id: Group ID. If ``"new"`` a new group is created.
         :type id: ``int`` or ``"new"``

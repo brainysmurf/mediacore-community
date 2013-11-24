@@ -6,8 +6,8 @@
 # the GPLv3 or (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.css_delivery import StyleSheet, StyleSheets
-from mediacore.lib.test.pythonic_testcase import *
+from mediadrop.lib.css_delivery import StyleSheet, StyleSheets
+from mediadrop.lib.test.pythonic_testcase import *
 
 
 class StyleSheetTest(PythonicTestCase):

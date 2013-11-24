@@ -9,8 +9,8 @@
 from formencode.schema import Schema
 from pylons import app_globals
 
-from mediacore.lib.test import *
-from mediacore.validation import LimitFeedItemsValidator
+from mediadrop.lib.test import *
+from mediadrop.validation import LimitFeedItemsValidator
 
 
 __all__ = ['LimitFeedItemsValidator']

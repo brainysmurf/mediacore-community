@@ -11,8 +11,8 @@ from sqlalchemy import asc, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from mediacore.lib.auth.query_result_proxy import QueryResultProxy
-from mediacore.lib.test.pythonic_testcase import *
+from mediadrop.lib.auth.query_result_proxy import QueryResultProxy
+from mediadrop.lib.test.pythonic_testcase import *
 
 
 Base = declarative_base()

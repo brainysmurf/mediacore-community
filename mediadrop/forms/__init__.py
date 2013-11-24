@@ -14,11 +14,11 @@ from tw.api import JSLink, JSSource
 from tw.forms import FileField, TextArea as tw_TA, TextField as tw_TF
 from tw.forms.validators import Email
 
-from mediacore.lib.i18n import N_, _
-from mediacore.lib.xhtml import clean_xhtml, decode_entities, line_break_xhtml
-from mediacore.lib.templating import tmpl_globals
-from mediacore.lib.util import url_for
-from mediacore.plugin import events
+from mediadrop.lib.i18n import N_, _
+from mediadrop.lib.xhtml import clean_xhtml, decode_entities, line_break_xhtml
+from mediadrop.lib.templating import tmpl_globals
+from mediadrop.lib.util import url_for
+from mediadrop.plugin import events
 
 def leniant_schema():
     return forms.validators.Schema(
@@ -134,7 +134,7 @@ class XHTMLValidator(FancyValidator):
         """Convert the given plain text or HTML into valid XHTML.
 
         Invalid elements are stripped or converted.
-        Essentially a wapper for :func:`~mediacore.helpers.clean_xhtml`.
+        Essentially a wapper for :func:`~mediadrop.helpers.clean_xhtml`.
         """
         return clean_xhtml(value)
 

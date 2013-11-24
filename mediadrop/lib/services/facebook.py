@@ -7,7 +7,7 @@
 
 __all__ = ['Facebook']
 
-from mediacore.lib.js_delivery import InlineJS, Script, Scripts
+from mediadrop.lib.js_delivery import InlineJS, Script, Scripts
 
 class FacebookSDKScript(InlineJS):
     def __init__(self, app_id, extra_code=None):

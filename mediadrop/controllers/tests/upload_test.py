@@ -10,11 +10,11 @@ from StringIO import StringIO
 
 import simplejson
 
-from mediacore.lib.attribute_dict import AttrDict
-from mediacore.lib.players import AbstractFlashPlayer, FlowPlayer
-from mediacore.lib.test import ControllerTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.model import fetch_row, Media
+from mediadrop.lib.attribute_dict import AttrDict
+from mediadrop.lib.players import AbstractFlashPlayer, FlowPlayer
+from mediadrop.lib.test import ControllerTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.model import fetch_row, Media
 
 
 class UploadControllerTest(ControllerTestCase):
@@ -29,7 +29,7 @@ class UploadControllerTest(ControllerTestCase):
         assert_equals(200, response.status_int)
     
     def _upload(self, request):
-        from mediacore.controllers.upload import UploadController
+        from mediadrop.controllers.upload import UploadController
         response = self.call_controller(UploadController, request)
         return response
     

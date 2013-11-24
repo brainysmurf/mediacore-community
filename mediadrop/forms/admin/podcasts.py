@@ -10,9 +10,9 @@ from formencode.validators import URL
 from tw.forms import SingleSelectField
 from tw.forms.validators import NotEmpty
 
-from mediacore.forms import ListForm, ListFieldSet, SubmitButton, TextField, XHTMLTextArea, email_validator
-from mediacore.lib.i18n import N_, _
-from mediacore.plugin import events
+from mediadrop.forms import ListForm, ListFieldSet, SubmitButton, TextField, XHTMLTextArea, email_validator
+from mediadrop.lib.i18n import N_, _
+from mediadrop.plugin import events
 
 class PodcastForm(ListForm):
     template = 'admin/box-form.html'

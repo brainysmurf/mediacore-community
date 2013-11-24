@@ -5,10 +5,10 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.attribute_dict import AttrDict
-from mediacore.lib.auth.api import IPermissionPolicy, PermissionSystem, Resource,\
+from mediadrop.lib.attribute_dict import AttrDict
+from mediadrop.lib.auth.api import IPermissionPolicy, PermissionSystem, Resource,\
     UserPermissions
-from mediacore.lib.test.pythonic_testcase import *
+from mediadrop.lib.test.pythonic_testcase import *
 
 
 class PermissionSystemTest(PythonicTestCase):

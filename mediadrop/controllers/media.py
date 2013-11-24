@@ -20,20 +20,20 @@ from sqlalchemy import orm, sql
 from sqlalchemy.exc import OperationalError
 from webob.exc import HTTPNotAcceptable, HTTPNotFound
 
-from mediacore import USER_AGENT
-from mediacore.forms.comments import PostCommentSchema
-from mediacore.lib import helpers
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import expose, expose_xhr, observable, paginate, validate_xhr, autocommit
-from mediacore.lib.email import send_comment_notification
-from mediacore.lib.helpers import (filter_vulgarity, redirect, url_for, 
+from mediadrop import USER_AGENT
+from mediadrop.forms.comments import PostCommentSchema
+from mediadrop.lib import helpers
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import expose, expose_xhr, observable, paginate, validate_xhr, autocommit
+from mediadrop.lib.email import send_comment_notification
+from mediadrop.lib.helpers import (filter_vulgarity, redirect, url_for, 
     viewable_media)
-from mediacore.lib.i18n import _
-from mediacore.lib.services import Facebook
-from mediacore.lib.templating import render
-from mediacore.model import (DBSession, fetch_row, Media, MediaFile, Comment, 
+from mediadrop.lib.i18n import _
+from mediadrop.lib.services import Facebook
+from mediadrop.lib.templating import render
+from mediadrop.model import (DBSession, fetch_row, Media, MediaFile, Comment, 
     Tag, Category, AuthorWithIP, Podcast)
-from mediacore.plugin import events
+from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class MediaController(BaseController):
         :rtype: dict
         :returns:
             media
-                The list of :class:`~mediacore.model.media.Media` instances
+                The list of :class:`~mediadrop.model.media.Media` instances
                 for this page.
             result_count
                 The total number of media items for this query
@@ -177,8 +177,8 @@ class MediaController(BaseController):
     def view(self, slug, podcast_slug=None, **kwargs):
         """Display the media player, info and comments.
 
-        :param slug: The :attr:`~mediacore.models.media.Media.slug` to lookup
-        :param podcast_slug: The :attr:`~mediacore.models.podcasts.Podcast.slug`
+        :param slug: The :attr:`~mediadrop.models.media.Media.slug` to lookup
+        :param podcast_slug: The :attr:`~mediadrop.models.podcasts.Podcast.slug`
             for podcast this media belongs to. Although not necessary for
             looking up the media, it tells us that the podcast slug was
             specified in the URL and therefore we reached this action by the
@@ -186,12 +186,12 @@ class MediaController(BaseController):
         :rtype dict:
         :returns:
             media
-                The :class:`~mediacore.model.media.Media` instance for display.
+                The :class:`~mediadrop.model.media.Media` instance for display.
             related_media
-                A list of :class:`~mediacore.model.media.Media` instances that
+                A list of :class:`~mediadrop.model.media.Media` instances that
                 rank as topically related to the given media item.
             comments
-                A list of :class:`~mediacore.model.comments.Comment` instances
+                A list of :class:`~mediadrop.model.comments.Comment` instances
                 associated with the selected media item.
             comment_form_action
                 ``str`` comment form action
@@ -199,7 +199,7 @@ class MediaController(BaseController):
                 ``dict`` form values
             next_episode
                 The next episode in the podcast series, if this media belongs to
-                a podcast, another :class:`~mediacore.model.media.Media`
+                a podcast, another :class:`~mediadrop.model.media.Media`
                 instance.
 
         """
@@ -248,7 +248,7 @@ class MediaController(BaseController):
     def rate(self, slug, up=None, down=None, **kwargs):
         """Say 'I like this' for the given media.
 
-        :param slug: The media :attr:`~mediacore.model.media.Media.slug`
+        :param slug: The media :attr:`~mediadrop.model.media.Media.slug`
         :rtype: unicode
         :returns:
             The new number of likes
@@ -276,9 +276,9 @@ class MediaController(BaseController):
     @autocommit
     @observable(events.MediaController.comment)
     def comment(self, slug, name='', email=None, body='', **kwargs):
-        """Post a comment from :class:`~mediacore.forms.comments.PostCommentForm`.
+        """Post a comment from :class:`~mediadrop.forms.comments.PostCommentForm`.
 
-        :param slug: The media :attr:`~mediacore.model.media.Media.slug`
+        :param slug: The media :attr:`~mediadrop.model.media.Media.slug`
         :returns: Redirect to :meth:`view` page for media.
 
         """
@@ -342,7 +342,7 @@ class MediaController(BaseController):
 
     @expose()
     def serve(self, id, download=False, **kwargs):
-        """Serve a :class:`~mediacore.model.media.MediaFile` binary.
+        """Serve a :class:`~mediadrop.model.media.MediaFile` binary.
 
         :param id: File ID
         :type id: ``int``

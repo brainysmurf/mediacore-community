@@ -5,9 +5,9 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.auth.api import IPermissionPolicy
-from mediacore.lib.auth.permission_system import PermissionPolicies
-from mediacore.model import DBSession, Permission
+from mediadrop.lib.auth.api import IPermissionPolicy
+from mediadrop.lib.auth.permission_system import PermissionPolicies
+from mediadrop.model import DBSession, Permission
 
 
 __all__ = ['GroupBasedPermissionsPolicy']

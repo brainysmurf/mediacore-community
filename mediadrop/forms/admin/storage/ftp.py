@@ -7,14 +7,14 @@
 
 from formencode.validators import Int
 
-from mediacore.forms import ListFieldSet, TextField
-from mediacore.forms.admin.storage import StorageForm
-from mediacore.lib.i18n import N_
-from mediacore.lib.storage.ftp import (FTP_SERVER,
+from mediadrop.forms import ListFieldSet, TextField
+from mediadrop.forms.admin.storage import StorageForm
+from mediadrop.lib.i18n import N_
+from mediadrop.lib.storage.ftp import (FTP_SERVER,
     FTP_USERNAME, FTP_PASSWORD,
     FTP_UPLOAD_DIR, FTP_MAX_INTEGRITY_RETRIES,
     HTTP_DOWNLOAD_URI, RTMP_SERVER_URI)
-from mediacore.plugin import events
+from mediadrop.plugin import events
 
 class FTPStorageForm(StorageForm):
     event = events.Admin.Storage.FTPStorageForm
@@ -40,12 +40,12 @@ class FTPStorageForm(StorageForm):
 
         If the value dict is not fully populated, populate any missing entries
         with the values from the given StorageEngine's
-        :attr:`_data <mediacore.lib.storage.StorageEngine._data>` dict.
+        :attr:`_data <mediadrop.lib.storage.StorageEngine._data>` dict.
 
         :param value: A (sparse) dict of values to populate the form with.
         :type value: dict
         :param engine: An instance of the storage engine implementation.
-        :type engine: :class:`mediacore.lib.storage.StorageEngine` subclass
+        :type engine: :class:`mediadrop.lib.storage.StorageEngine` subclass
 
         """
         data = engine._data
@@ -63,10 +63,10 @@ class FTPStorageForm(StorageForm):
         """Map validated field values to engine data.
 
         Since form widgets may be nested or named differently than the keys
-        in the :attr:`mediacore.lib.storage.StorageEngine._data` dict, it is
+        in the :attr:`mediadrop.lib.storage.StorageEngine._data` dict, it is
         necessary to manually map field values to the data dictionary.
 
-        :type engine: :class:`mediacore.lib.storage.StorageEngine` subclass
+        :type engine: :class:`mediadrop.lib.storage.StorageEngine` subclass
         :param engine: An instance of the storage engine implementation.
         :param \*\*kwargs: Validated and filtered form values.
         :raises formencode.Invalid: If some post-validation error is detected

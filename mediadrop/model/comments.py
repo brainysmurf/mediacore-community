@@ -19,9 +19,9 @@ from sqlalchemy import Table, ForeignKey, Column, sql
 from sqlalchemy.types import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import mapper, relation, backref, synonym, composite, column_property, validates, interfaces, Query
 
-from mediacore.model import AuthorWithIP
-from mediacore.model.meta import DBSession, metadata
-from mediacore.plugin import events
+from mediadrop.model import AuthorWithIP
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.plugin import events
 
 
 comments = Table('comments', metadata,
@@ -76,7 +76,7 @@ class Comment(object):
 
     .. attribute:: author
 
-        An instance of :class:`mediacore.model.author.AuthorWithIP`.
+        An instance of :class:`mediadrop.model.author.AuthorWithIP`.
 
     """
 

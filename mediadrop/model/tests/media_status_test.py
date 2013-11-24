@@ -7,15 +7,15 @@
 
 from ddt import ddt as DataDrivenTestCase, data
 
-from mediacore.model import DBSession, Media
-from mediacore.lib.filetypes import (guess_media_type_map, AUDIO, AUDIO_DESC, 
+from mediadrop.model import DBSession, Media
+from mediadrop.lib.filetypes import (guess_media_type_map, AUDIO, AUDIO_DESC, 
     CAPTIONS, VIDEO)
-from mediacore.lib.players import AbstractFlashPlayer, FlowPlayer
-from mediacore.lib.storage.api import add_new_media_file
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.plugin import events
-from mediacore.plugin.events import observes
+from mediadrop.lib.players import AbstractFlashPlayer, FlowPlayer
+from mediadrop.lib.storage.api import add_new_media_file
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.plugin import events
+from mediadrop.plugin.events import observes
 
 #import logging
 #logging.basicConfig(level=logging.DEBUG)
@@ -29,7 +29,7 @@ class MediaStatusUpdatesTypeTest(DBTestCase):
     def setUp(self):
         super(MediaStatusUpdatesTypeTest, self).setUp()
         # prevent warning about missing handlers for logger 
-        # "mediacore.model.players" ("fetch_enabled_players()")
+        # "mediadrop.model.players" ("fetch_enabled_players()")
         self.init_flowplayer()
         self.media = Media.example()
     

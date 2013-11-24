@@ -104,7 +104,7 @@ use = egg:MediaDrop
 full_stack = true
 static_files = true
 app_instance_uuid = ${app_instance_uuid}
-beaker.session.key = mediacore
+beaker.session.key = mediadrop
 
 # WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
 # Debug mode will enable the interactive debugging tool, allowing ANYONE to

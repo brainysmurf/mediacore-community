@@ -48,7 +48,7 @@ class TestController(TestCase):
 
     def _new_publishable_media(self, slug, name):
         from datetime import datetime
-        from mediacore.model import Author, Media
+        from mediadrop.model import Author, Media
         media = Media()
         media.slug = slug
         media.title = name

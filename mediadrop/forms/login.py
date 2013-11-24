@@ -7,10 +7,10 @@
 
 from tw.forms import PasswordField
 
-from mediacore.forms import ListForm, TextField, SubmitButton
+from mediadrop.forms import ListForm, TextField, SubmitButton
 
-from mediacore.lib.i18n import N_
-from mediacore.plugin import events
+from mediadrop.lib.i18n import N_
+from mediadrop.plugin import events
 
 __all__ = ['LoginForm']
 

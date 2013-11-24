@@ -26,21 +26,21 @@ from webhelpers.html import tags
 from webhelpers.html.builder import literal
 from webhelpers.html.converters import format_paragraphs
 
-from mediacore.lib.auth import viewable_media
-from mediacore.lib.compat import any, md5
-from mediacore.lib.i18n import (N_, _, format_date, format_datetime, 
+from mediadrop.lib.auth import viewable_media
+from mediadrop.lib.compat import any, md5
+from mediadrop.lib.i18n import (N_, _, format_date, format_datetime, 
     format_decimal, format_time)
-from mediacore.lib.players import (embed_player, embed_iframe, media_player,
+from mediadrop.lib.players import (embed_player, embed_iframe, media_player,
     pick_any_media_file, pick_podcast_media_file)
-from mediacore.lib.thumbnails import thumb, thumb_url
-from mediacore.lib.uri import (best_link_uri, download_uri, file_path,
+from mediadrop.lib.thumbnails import thumb, thumb_url
+from mediadrop.lib.uri import (best_link_uri, download_uri, file_path,
     pick_uri, pick_uris, web_uri)
-from mediacore.lib.util import (current_url, delete_files, merge_dicts, 
+from mediadrop.lib.util import (current_url, delete_files, merge_dicts, 
     redirect, url, url_for, url_for_media)
-from mediacore.lib.xhtml import (clean_xhtml, decode_entities, encode_entities,
+from mediadrop.lib.xhtml import (clean_xhtml, decode_entities, encode_entities,
     excerpt_xhtml, line_break_xhtml, list_acceptable_xhtml, strip_xhtml,
     truncate_xhtml)
-from mediacore.plugin.events import (meta_description, meta_keywords,
+from mediadrop.plugin.events import (meta_description, meta_keywords,
     meta_robots_noindex, observes, page_title)
 
 __all__ = [
@@ -66,18 +66,18 @@ __all__ = [
     'list_acceptable_xhtml',
     'literal',
     'meta_description',
-    'meta_keywords', # XXX: imported from mediacore.plugin.events
+    'meta_keywords', # XXX: imported from mediadrop.plugin.events
     'meta_robots_noindex',
     'misc',
     'number',
-    'page_title', # XXX: imported from mediacore.plugin.events
+    'page_title', # XXX: imported from mediadrop.plugin.events
     'paginate',
     'quote',
     'strip_xhtml',
     'tags',
     'text',
-    'thumb', # XXX: imported from  mediacore.lib.thumbnails, for template use.
-    'thumb_url', # XXX: imported from  mediacore.lib.thumbnails, for template use.
+    'thumb', # XXX: imported from  mediadrop.lib.thumbnails, for template use.
+    'thumb_url', # XXX: imported from  mediadrop.lib.thumbnails, for template use.
     'truncate_xhtml',
     'unquote',
     'url',
@@ -128,8 +128,8 @@ def js(source):
     return url_for(js_sources[source])
 
 def mediadrop_version():
-    import mediacore
-    return mediacore.__version__
+    import mediadrop
+    return mediadrop.__version__
 
 def duration_from_seconds(total_sec, shortest=True):
     """Return the HH:MM:SS duration for a given number of seconds.
@@ -282,7 +282,7 @@ def append_class_attr(attrs, class_name):
 spaces_between_tags = re.compile('>\s+<', re.M)
 
 def get_featured_category():
-    from mediacore.model import Category
+    from mediadrop.model import Category
     feat_id = request.settings['featured_category']
     if not feat_id:
         return None
@@ -290,7 +290,7 @@ def get_featured_category():
     return Category.query.get(feat_id)
 
 def filter_library_controls(query, show='latest'):
-    from mediacore.model import Media
+    from mediadrop.model import Media
     if show == 'latest':
         query = query.order_by(Media.publish_on.desc())
     elif show == 'popular':

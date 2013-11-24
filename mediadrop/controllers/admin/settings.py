@@ -12,17 +12,17 @@ from cgi import FieldStorage
 from babel.core import Locale
 from pylons import config, request, tmpl_context as c
 
-from mediacore.forms.admin.settings import (AdvertisingForm, AppearanceForm,
+from mediadrop.forms.admin.settings import (AdvertisingForm, AppearanceForm,
     APIForm, AnalyticsForm, CommentsForm, GeneralForm,
     NotificationsForm, PopularityForm, SiteMapsForm, UploadForm)
-from mediacore.lib.base import BaseSettingsController
-from mediacore.lib.decorators import autocommit, expose, observable, validate
-from mediacore.lib.helpers import filter_vulgarity, redirect, url_for
-from mediacore.lib.i18n import LanguageError, Translator
-from mediacore.model import Comment, Media
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
-from mediacore.websetup import appearance_settings, generate_appearance_css
+from mediadrop.lib.base import BaseSettingsController
+from mediadrop.lib.decorators import autocommit, expose, observable, validate
+from mediadrop.lib.helpers import filter_vulgarity, redirect, url_for
+from mediadrop.lib.i18n import LanguageError, Translator
+from mediadrop.model import Comment, Media
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
+from mediadrop.websetup import appearance_settings, generate_appearance_css
 
 import logging
 log = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ class SettingsController(BaseSettingsController):
     """
     Dumb controller for display and saving basic settings forms.
 
-    See :class:`mediacore.lib.base.BaseSettingsController` for more details.
+    See :class:`mediadrop.lib.base.BaseSettingsController` for more details.
 
     """
     @expose()
@@ -78,7 +78,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.notifications_save)
     def notifications_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.NotificationsForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.NotificationsForm`."""
         return self._save(notifications_form, 'notifications', values=kwargs)
 
     @expose('admin/settings/comments.html')
@@ -90,7 +90,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.comments_save)
     def comments_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.CommentsForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.CommentsForm`."""
         old_vulgarity_filter = c.settings['vulgarity_filtered_words'].value
 
         self._save(comments_form, values=kwargs)
@@ -111,7 +111,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.save_api)
     def save_api(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.APIForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.APIForm`."""
         return self._save(api_form, 'api', values=kwargs)
 
     @expose('admin/settings/popularity.html')
@@ -123,7 +123,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.popularity_save)
     def popularity_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.PopularityForm`.
+        """Save :class:`~mediadrop.forms.admin.settings.PopularityForm`.
 
         Updates the popularity for every media item based on the submitted
         values.
@@ -150,7 +150,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.upload_save)
     def upload_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.UploadForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.UploadForm`."""
         return self._save(upload_form, 'upload', values=kwargs)
 
     @expose('admin/settings/analytics.html')
@@ -162,7 +162,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.analytics_save)
     def analytics_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.AnalyticsForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.AnalyticsForm`."""
         return self._save(analytics_form, 'analytics', values=kwargs)
 
     @expose('admin/settings/general.html')
@@ -176,14 +176,14 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.general_save)
     def general_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.GeneralForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.GeneralForm`."""
         # Ensure this translation actually works before saving it
         lang = kwargs.get('general', {}).get('primary_language')
         if lang:
             locale = Locale.parse(lang)
             t = Translator(locale, config['locale_dirs'])
             try:
-                t._load_domain('mediacore')
+                t._load_domain('mediadrop')
             except LanguageError:
                 # TODO: Show an error message on the language field
                 kwargs['primary_language'] = None
@@ -198,7 +198,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.sitemaps_save)
     def sitemaps_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.SiteMapsForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.SiteMapsForm`."""
         return self._save(sitemaps_form, 'sitemaps', values=kwargs)
 
     @expose('admin/settings/appearance.html')
@@ -210,7 +210,7 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.appearance_save)
     def appearance_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.appearanceForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.appearanceForm`."""
         settings = request.settings
         accepted_extensions = ('.png', '.jpg', '.jpeg', '.gif')
         upload_field_filenames = [
@@ -258,6 +258,6 @@ class SettingsController(BaseSettingsController):
     @autocommit
     @observable(events.Admin.SettingsController.advertising_save)
     def advertising_save(self, **kwargs):
-        """Save :class:`~mediacore.forms.admin.settings.AdvertisingForm`."""
+        """Save :class:`~mediadrop.forms.admin.settings.AdvertisingForm`."""
         return self._save(advertising_form, 'advertising', values=kwargs)
 

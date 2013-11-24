@@ -9,20 +9,18 @@ import simplejson as json
 
 from pylons import request, tmpl_context
 from pylons.controllers.util import abort
-
-from mediacore.forms.uploader import UploadForm
-from mediacore.lib import email
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import autocommit, expose, observable, validate
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.lib.storage import add_new_media_file
-from mediacore.lib.thumbnails import create_default_thumbs_for, has_thumbs
-from mediacore.model import Author, DBSession, get_available_slug, Media
-from mediacore.plugin import events
-from mediacore.model import User, Group, Category
+from mediadrop.forms.uploader import UploadForm
+from mediadrop.lib import email
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import autocommit, expose, observable, validate
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.lib.storage import add_new_media_file
+from mediadrop.lib.thumbnails import create_default_thumbs_for, has_thumbs
+from mediadrop.model import Author, DBSession, get_available_slug, Media
+from mediadrop.plugin import events
+from mediadrop.model import User, Group, Category
 import datetime
 import re
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -57,7 +55,7 @@ class UploadController(BaseController):
             support_email
                 An help contact address
             upload_form
-                The :class:`~mediacore.forms.uploader.UploadForm` instance
+                The :class:`~mediadrop.forms.uploader.UploadForm` instance
             form_values
                 ``dict`` form values, if any
 
@@ -80,7 +78,7 @@ class UploadController(BaseController):
     def submit_async(self, **kwargs):
         """Ajax form validation and/or submission.
 
-        This is the save handler for :class:`~mediacore.forms.media.UploadForm`.
+        This is the save handler for :class:`~mediadrop.forms.media.UploadForm`.
 
         When ajax is enabled this action is called for each field as the user
         fills them in. Although the entire form is validated, the JS only

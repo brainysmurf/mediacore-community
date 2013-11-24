@@ -612,7 +612,7 @@ var FileManager = new Class({
 	},
 
 	_createQueueRow: function(file){
-		/* XXX: The form DOM created below mimics that in .../mediacore/templates/admin/media/file-edit-form.html */
+		/* XXX: The form DOM created below mimics that in .../mediadrop/templates/admin/media/file-edit-form.html */
 		var cancelBtn = new Element('button', this.options.uploadCancelBtn);
 		file.ui = new Hash({
 			name: new Element('td', {headers: 'thf-name', text: file.name}),

@@ -11,9 +11,9 @@ from sqlalchemy import Table, ForeignKey, Column, not_
 from sqlalchemy.types import Unicode, Integer, DateTime
 from sqlalchemy.orm import mapper, relation, synonym
 
-from mediacore.model.meta import DBSession, metadata
-from mediacore.lib.compat import any, sha1
-from mediacore.plugin import events
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.lib.compat import any, sha1
+from mediadrop.plugin import events
 import imaplib
 import ldap
 import re

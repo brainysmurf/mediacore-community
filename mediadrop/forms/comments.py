@@ -7,8 +7,8 @@
 
 from formencode import Schema
 
-from mediacore.forms import TextField, XHTMLValidator, email_validator
-from mediacore.lib.i18n import N_
+from mediadrop.forms import TextField, XHTMLValidator, email_validator
+from mediadrop.lib.i18n import N_
 
 class PostCommentSchema(Schema):
     name = TextField.validator(not_empty=True, maxlength=50,

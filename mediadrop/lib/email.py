@@ -26,9 +26,9 @@ import smtplib
 
 from pylons import config, request
 
-from mediacore.lib.helpers import (line_break_xhtml, strip_xhtml, url_for, 
+from mediadrop.lib.helpers import (line_break_xhtml, strip_xhtml, url_for, 
     url_for_media)
-from mediacore.lib.i18n import _
+from mediadrop.lib.i18n import _
 
 def parse_email_string(string):
     """
@@ -89,7 +89,7 @@ def send_media_notification(media_obj):
     if one has been created.
 
     :param media_obj: The media object to send a notification about.
-    :type media_obj: :class:`~mediacore.model.media.Media` instance
+    :type media_obj: :class:`~mediadrop.model.media.Media` instance
     """
     send_to = []
     
@@ -136,10 +136,10 @@ def send_comment_notification(media_obj, comment):
     if it is configured.
 
     :param media_obj: The media object to send a notification about.
-    :type media_obj: :class:`~mediacore.model.media.Media` instance
+    :type media_obj: :class:`~mediadrop.model.media.Media` instance
 
     :param comment: The newly posted comment.
-    :type comment: :class:`~mediacore.model.comments.Comment` instance
+    :type comment: :class:`~mediadrop.model.comments.Comment` instance
     """
     send_to = request.settings['email_comment_posted']
     if not send_to:

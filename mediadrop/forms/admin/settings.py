@@ -14,16 +14,16 @@ from tw.forms.fields import CheckBox
 from tw.forms.validators import (Bool, FieldStorageUploadConverter,
     Int, OneOf, Regex, StringBool)
 
-from mediacore.forms import (FileField, ListFieldSet, ListForm,
+from mediadrop.forms import (FileField, ListFieldSet, ListForm,
     SubmitButton, TextArea, TextField, XHTMLTextArea,
     email_validator, email_list_validator)
-from mediacore.forms.admin.categories import category_options
-from mediacore.lib.i18n import N_, _, get_available_locales
+from mediadrop.forms.admin.categories import category_options
+from mediadrop.lib.i18n import N_, _, get_available_locales
+from mediadrop.plugin import events
 from mediacore.plugin import events
-from mediacore.model.settings import insert_settings
-
-from mediacore.model.settings import insert_settings
-from mediacore.model import Category
+from mediadrop.model.settings import insert_settings
+from mediadrop.model.settings import insert_settings
+from mediadrop.model import Category
 
 comments_enable_disable = lambda: (
     ('builtin', _("Built-in comments")),

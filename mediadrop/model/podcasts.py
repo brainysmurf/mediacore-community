@@ -21,10 +21,10 @@ from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean, F
 from sqlalchemy.orm import mapper, relation, backref, synonym, composite, validates, dynamic_loader, column_property
 from pylons import request
 
-from mediacore.model import Author, SLUG_LENGTH, slugify, get_available_slug
-from mediacore.model.meta import DBSession, metadata
-from mediacore.model.media import Media, MediaQuery, media
-from mediacore.plugin import events
+from mediadrop.model import Author, SLUG_LENGTH, slugify, get_available_slug
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.model.media import Media, MediaQuery, media
+from mediadrop.plugin import events
 
 
 podcasts = Table('podcasts', metadata,
@@ -34,7 +34,7 @@ podcasts = Table('podcasts', metadata,
     Column('slug', Unicode(SLUG_LENGTH), unique=True, nullable=False, doc=\
         """A unique URL-friendly permalink string for looking up this object.
 
-        Be sure to call :func:`mediacore.model.get_available_slug` to ensure
+        Be sure to call :func:`mediadrop.model.get_available_slug` to ensure
         the slug is unique."""),
 
     Column('created_on', DateTime, default=datetime.now, nullable=False, doc=\
@@ -109,14 +109,14 @@ mapper(Podcast, podcasts, order_by=podcasts.c.title, extension=events.MapperObse
     'author': composite(Author,
         podcasts.c.author_name,
         podcasts.c.author_email,
-        doc="""An instance of :class:`mediacore.model.authors.Author`.
+        doc="""An instance of :class:`mediadrop.model.authors.Author`.
                Although not actually a relation, it is implemented as if it were.
                This was decision was made to make it easier to integrate with
-               :class:`mediacore.model.auth.User` down the road."""),
+               :class:`mediadrop.model.auth.User` down the road."""),
 
     'media': dynamic_loader(Media, backref='podcast', query_class=MediaQuery, passive_deletes=True, doc=\
         """A query pre-filtered to media published under this podcast.
-        Returns :class:`mediacore.model.media.MediaQuery`."""),
+        Returns :class:`mediadrop.model.media.MediaQuery`."""),
 
     'media_count':
         column_property(
@@ -125,7 +125,7 @@ mapper(Podcast, podcasts, order_by=podcasts.c.title, extension=events.MapperObse
                 media.c.podcast_id == podcasts.c.id,
             ).label('media_count'),
             deferred=True,
-            doc="The total number of :class:`mediacore.model.media.Media` episodes."
+            doc="The total number of :class:`mediadrop.model.media.Media` episodes."
         ),
     'media_count_published':
         column_property(
@@ -144,6 +144,6 @@ mapper(Podcast, podcasts, order_by=podcasts.c.title, extension=events.MapperObse
                 )
             ).label('media_count_published'),
             deferred=True,
-            doc="The number of :class:`mediacore.model.media.Media` episodes that are currently published."
+            doc="The number of :class:`mediadrop.model.media.Media` episodes that are currently published."
         )
 })

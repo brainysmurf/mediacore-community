@@ -32,7 +32,7 @@ class Globals(object):
     @property
     def settings(self):
         def fetch_settings():
-            from mediacore.model import DBSession, Setting
+            from mediadrop.model import DBSession, Setting
             settings_dict = dict(DBSession.query(Setting.key, Setting.value))
             return settings_dict
         return self.settings_cache.get(createfunc=fetch_settings, key=None)

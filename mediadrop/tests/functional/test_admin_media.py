@@ -9,8 +9,8 @@ import os
 import pylons
 import simplejson
 import webob.exc
-from mediacore.tests import *
-from mediacore.model import DBSession, Media, MediaFile, fetch_row
+from mediadrop.tests import *
+from mediadrop.model import DBSession, Media, MediaFile, fetch_row
 from sqlalchemy.exc import SQLAlchemyError
 
 class TestMediaController(TestController):

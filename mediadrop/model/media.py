@@ -14,7 +14,7 @@ SQLAlchemy ORM definitions for:
 * :class:`MediaFile`: a single audio or video file.
 
 Additionally, :class:`Media` may be considered at podcast episode if it
-belongs to a :class:`mediacore.model.podcasts.Podcast`.
+belongs to a :class:`mediadrop.model.podcasts.Podcast`.
 
 .. moduleauthor:: Nathan Wright <nathan@mediacore.com>
 
@@ -30,20 +30,20 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.schema import DDL
 from sqlalchemy.types import Boolean, DateTime, Integer, Unicode, UnicodeText
 
-from mediacore.lib.auth import Resource
-from mediacore.lib.compat import any
-from mediacore.lib.filetypes import AUDIO, AUDIO_DESC, VIDEO, guess_mimetype
-from mediacore.lib.players import pick_any_media_file, pick_podcast_media_file
-from mediacore.lib.util import calculate_popularity
-from mediacore.lib.xhtml import line_break_xhtml, strip_xhtml
-from mediacore.model import (get_available_slug, SLUG_LENGTH, 
+from mediadrop.lib.auth import Resource
+from mediadrop.lib.compat import any
+from mediadrop.lib.filetypes import AUDIO, AUDIO_DESC, VIDEO, guess_mimetype
+from mediadrop.lib.players import pick_any_media_file, pick_podcast_media_file
+from mediadrop.lib.util import calculate_popularity
+from mediadrop.lib.xhtml import line_break_xhtml, strip_xhtml
+from mediadrop.model import (get_available_slug, SLUG_LENGTH, 
     _mtm_count_property, _properties_dict_from_labels, MatchAgainstClause)
-from mediacore.model.meta import DBSession, metadata
-from mediacore.model.authors import Author
-from mediacore.model.categories import Category, CategoryList
-from mediacore.model.comments import Comment, CommentQuery, comments
-from mediacore.model.tags import Tag, TagList, extract_tags, fetch_and_create_tags
-from mediacore.plugin import events
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.model.authors import Author
+from mediadrop.model.categories import Category, CategoryList
+from mediadrop.model.comments import Comment, CommentQuery, comments
+from mediadrop.model.tags import Tag, TagList, extract_tags, fetch_and_create_tags
+from mediadrop.plugin import events
 
 
 media = Table('media', metadata,
@@ -59,7 +59,7 @@ media = Table('media', metadata,
     Column('slug', Unicode(SLUG_LENGTH), unique=True, nullable=False, doc=\
         """A unique URL-friendly permalink string for looking up this object.
 
-        Be sure to call :func:`mediacore.model.get_available_slug` to ensure
+        Be sure to call :func:`mediadrop.model.get_available_slug` to ensure
         the slug is unique."""),
 
     Column('podcast_id', Integer, ForeignKey('podcasts.id', onupdate='CASCADE', ondelete='SET NULL'), doc=\
@@ -613,7 +613,7 @@ class MediaFile(object):
         """Return a list all possible playback URIs for this file.
 
         :rtype: list
-        :returns: :class:`mediacore.lib.storage.StorageURI` instances.
+        :returns: :class:`mediadrop.lib.storage.StorageURI` instances.
 
         """
         return self.storage.get_uris(self)
@@ -651,10 +651,10 @@ _media_mapper = mapper(
             Author,
             media.c.author_name,
             media.c.author_email,
-            doc="""An instance of :class:`mediacore.model.authors.Author`.
+            doc="""An instance of :class:`mediadrop.model.authors.Author`.
                    Although not actually a relation, it is implemented as if it were.
                    This was decision was made to make it easier to integrate with
-                   :class:`mediacore.model.auth.User` down the road."""
+                   :class:`mediadrop.model.auth.User` down the road."""
         ),
         'files': relation(
             MediaFile,
@@ -669,7 +669,7 @@ _media_mapper = mapper(
             backref=backref('media', lazy='dynamic', query_class=MediaQuery),
             collection_class=TagList,
             passive_deletes=True,
-            doc="""A list of :class:`mediacore.model.tags.Tag`."""
+            doc="""A list of :class:`mediadrop.model.tags.Tag`."""
         ),
         'categories': relation(
             Category,
@@ -677,7 +677,7 @@ _media_mapper = mapper(
             backref=backref('media', lazy='dynamic', query_class=MediaQuery),
             collection_class=CategoryList,
             passive_deletes=True,
-            doc="""A list of :class:`mediacore.model.categories.Category`."""
+            doc="""A list of :class:`mediadrop.model.categories.Category`."""
         ),
         '_meta': relation(
             MediaMeta,
@@ -690,7 +690,7 @@ _media_mapper = mapper(
             query_class=CommentQuery,
             passive_deletes=True,
             doc="""A query pre-filtered for associated comments.
-                   Returns :class:`mediacore.model.comments.CommentQuery`."""
+                   Returns :class:`mediadrop.model.comments.CommentQuery`."""
         ),
         'comment_count': column_property(
             sql.select(

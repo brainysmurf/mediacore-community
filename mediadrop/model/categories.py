@@ -10,10 +10,10 @@ from sqlalchemy.types import Unicode, Integer
 from sqlalchemy.orm import mapper, relation, backref, validates, Query
 from sqlalchemy.orm.attributes import set_committed_value
 
-from mediacore.lib.compat import defaultdict
-from mediacore.model import get_available_slug, SLUG_LENGTH, slugify
-from mediacore.model.meta import DBSession, metadata
-from mediacore.plugin import events
+from mediadrop.lib.compat import defaultdict
+from mediadrop.model import get_available_slug, SLUG_LENGTH, slugify
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.plugin import events
 
 
 categories = Table('categories', metadata,

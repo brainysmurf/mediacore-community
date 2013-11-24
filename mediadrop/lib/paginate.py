@@ -13,9 +13,9 @@ from webhelpers.paginate import get_wrapper
 from webob.multidict import MultiDict
 from webhelpers.paginate import Page
 
-from mediacore.lib.compat import wraps
+from mediadrop.lib.compat import wraps
 
-# TODO: Move the paginate decorator to mediacore.lib.decorators,
+# TODO: Move the paginate decorator to mediadrop.lib.decorators,
 #       and rework it to use the decorators module. This whole
 #       module could be greatly simplified, and my CustomPage
 #       class can be removed since it is no longer used as of

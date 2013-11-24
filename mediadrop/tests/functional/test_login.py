@@ -5,7 +5,7 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.tests import *
+from mediadrop.tests import *
 
 test_user = 'admin'
 test_password = 'admin'

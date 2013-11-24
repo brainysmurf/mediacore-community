@@ -30,12 +30,12 @@ from sqlalchemy.exc import DisconnectionError
 from tw.core.view import EngineManager
 import tw.api
 
-from mediacore import monkeypatch_method
-from mediacore.config.environment import load_environment
-from mediacore.lib.auth import add_auth
-from mediacore.migrations.util import MediaDropMigrator
-from mediacore.model import DBSession
-from mediacore.plugin import events
+from mediadrop import monkeypatch_method
+from mediadrop.config.environment import load_environment
+from mediadrop.lib.auth import add_auth
+from mediadrop.migrations.util import MediaDropMigrator
+from mediadrop.model import DBSession
+from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class PylonsApp(_PylonsApp):
             # documentation, so we're not guaranteed to have a database
             # connection with which to get the settings.
             request.settings = {
-                'intentionally_empty': 'see mediacore.config.middleware',
+                'intentionally_empty': 'see mediadrop.config.middleware',
             }
         else:
             request.settings = self.globals.settings
@@ -90,7 +90,7 @@ class FastCGIScriptStripperMiddleware(object):
     Useful for the default FastCGI deployment, where mod_rewrite is used to
     avoid having to put the .fcgi file name into the URL.
     """
-    def __init__(self, app, fcgi_script_name='/mediacore.fcgi'):
+    def __init__(self, app, fcgi_script_name='/mediadrop.fcgi'):
         self.app = app
         self.fcgi_script_name = fcgi_script_name
         self.cut = len(fcgi_script_name)

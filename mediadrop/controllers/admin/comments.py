@@ -11,16 +11,16 @@ Comment Moderation Controller
 from pylons import request
 from sqlalchemy import orm
 
-from mediacore.forms.admin import SearchForm
-from mediacore.forms.admin.comments import EditCommentForm
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
+from mediadrop.forms.admin import SearchForm
+from mediadrop.forms.admin.comments import EditCommentForm
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate)
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.model import Comment, Media, fetch_row
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.model import Comment, Media, fetch_row
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 
 import logging
 log = logging.getLogger(__name__)
@@ -48,15 +48,15 @@ class CommentsController(BaseController):
         :rtype: dict
         :returns:
             comments
-                The list of :class:`~mediacore.model.comments.Comment` instances
+                The list of :class:`~mediadrop.model.comments.Comment` instances
                 for this page.
             edit_form
-                The :class:`mediacore.forms.admin.comments.EditCommentForm` instance,
+                The :class:`mediadrop.forms.admin.comments.EditCommentForm` instance,
                 to be rendered for each instance in ``comments``.
             search
                 The given search term, if any
             search_form
-                The :class:`~mediacore.forms.admin.SearchForm` instance
+                The :class:`~mediadrop.forms.admin.SearchForm` instance
             media_filter
                 The given podcast ID to filter by, if any
             media_filter_title
@@ -95,7 +95,7 @@ class CommentsController(BaseController):
     def save_status(self, id, status, ids=None, **kwargs):
         """Approve or delete a comment or comments.
 
-        :param id: A :attr:`~mediacore.model.comments.Comment.id` if we are
+        :param id: A :attr:`~mediadrop.model.comments.Comment.id` if we are
             acting on a single comment, or ``"bulk"`` if we should refer to
             ``ids``.
         :type id: ``int`` or ``"bulk"``
@@ -108,7 +108,7 @@ class CommentsController(BaseController):
             success
                 bool
             ids
-                A list of :attr:`~mediacore.model.comments.Comment.id`
+                A list of :attr:`~mediadrop.model.comments.Comment.id`
                 that have changed.
 
         """
@@ -143,7 +143,7 @@ class CommentsController(BaseController):
     @autocommit
     @observable(events.Admin.CommentsController.save_edit)
     def save_edit(self, id, body, **kwargs):
-        """Save an edit from :class:`~mediacore.forms.admin.comments.EditCommentForm`.
+        """Save an edit from :class:`~mediadrop.forms.admin.comments.EditCommentForm`.
 
         :param id: Comment ID
         :type id: ``int``

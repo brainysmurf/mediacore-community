@@ -13,10 +13,10 @@ import tempfile
 import pylons
 from pylons.configuration import config
 
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.lib.test.support import setup_environment_and_database
-from mediacore.model.meta import DBSession, metadata
-from mediacore.websetup import add_default_data
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.lib.test.support import setup_environment_and_database
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.websetup import add_default_data
 
 
 class DBTestCase(PythonicTestCase):

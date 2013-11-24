@@ -5,11 +5,11 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.auth.permission_system import MediaDropPermissionSystem
-from mediacore.lib.test.db_testcase import DBTestCase
-from mediacore.lib.test.pythonic_testcase import *
-from mediacore.model.auth import Group, User
-from mediacore.model.meta import DBSession
+from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
+from mediadrop.lib.test.db_testcase import DBTestCase
+from mediadrop.lib.test.pythonic_testcase import *
+from mediadrop.model.auth import Group, User
+from mediadrop.model.meta import DBSession
 
 
 class MediaDropPermissionSystemTest(DBTestCase):

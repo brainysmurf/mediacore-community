@@ -13,7 +13,7 @@ import re
 from BeautifulSoup import BeautifulSoup
 from webhelpers import text
 
-from mediacore.lib.xhtml.htmlsanitizer import (Cleaner,
+from mediadrop.lib.xhtml.htmlsanitizer import (Cleaner,
     entities_to_unicode as decode_entities,
     encode_xhtml_entities as encode_entities)
 
@@ -64,7 +64,7 @@ def clean_xhtml(string, p_wrap=True, _cleaner_settings=None):
     :param p_wrap: Wrap the output in <p></p> tags?
     :type p_wrap: bool
     :param _cleaner_settings: Constructor kwargs for
-        :class:`mediacore.lib.htmlsanitizer.Cleaner`
+        :class:`mediadrop.lib.htmlsanitizer.Cleaner`
     :type _cleaner_settings: dict
     :returns: XHTML
     :rtype: unicode

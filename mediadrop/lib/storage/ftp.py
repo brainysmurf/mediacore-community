@@ -14,10 +14,10 @@ from urllib2 import HTTPError, urlopen
 
 from formencode import Invalid
 
-from mediacore.lib.compat import sha1
-from mediacore.lib.i18n import N_, _
-from mediacore.lib.storage.api import FileStorageEngine, safe_file_name
-from mediacore.lib.uri import StorageURI
+from mediadrop.lib.compat import sha1
+from mediadrop.lib.i18n import N_, _
+from mediadrop.lib.storage.api import FileStorageEngine, safe_file_name
+from mediadrop.lib.uri import StorageURI
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ FTP_MAX_INTEGRITY_RETRIES = 'ftp_max_integrity_retries'
 HTTP_DOWNLOAD_URI = 'http_download_uri'
 RTMP_SERVER_URI = 'rtmp_server_uri'
 
-from mediacore.forms.admin.storage.ftp import FTPStorageForm
+from mediadrop.forms.admin.storage.ftp import FTPStorageForm
 
 class FTPUploadError(Invalid):
     pass
@@ -58,7 +58,7 @@ class FTPStorage(FileStorageEngine):
     def store(self, media_file, file=None, url=None, meta=None):
         """Store the given file or URL and return a unique identifier for it.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
 
         :type file: :class:`cgi.FieldStorage` or None
@@ -127,7 +127,7 @@ class FTPStorage(FileStorageEngine):
     def get_uris(self, media_file):
         """Return a list of URIs from which the stored file can be accessed.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
         :rtype: list
         :returns: All :class:`StorageURI` tuples for this file.

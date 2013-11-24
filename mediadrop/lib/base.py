@@ -19,12 +19,12 @@ from pylons.controllers import WSGIController
 from pylons.controllers.util import abort
 from tw.forms.fields import ContainerMixin as _ContainerMixin
 
-from mediacore.lib import helpers
-from mediacore.lib.auth import ControllerProtector, has_permission, Predicate
-from mediacore.lib.css_delivery import StyleSheets
-from mediacore.lib.i18n import Translator
-from mediacore.lib.js_delivery import Scripts
-from mediacore.model import DBSession, Setting
+from mediadrop.lib import helpers
+from mediadrop.lib.auth import ControllerProtector, has_permission, Predicate
+from mediadrop.lib.css_delivery import StyleSheets
+from mediadrop.lib.i18n import Translator
+from mediadrop.lib.js_delivery import Scripts
+from mediadrop.model import DBSession, Setting
 
 __all__ = [
     'BareBonesController',
@@ -183,7 +183,7 @@ class BaseController(BareBonesController):
 
         try:
             # If the tmpl_tmp_path file exists
-            # That means that another instance of mediacore is writing to it
+            # That means that another instance of MediaDrop is writing to it
             # Return immediately
             os.stat(tmpl_tmp_path)
             return False
@@ -210,8 +210,8 @@ class BaseSettingsController(BaseController):
     """
     Dumb controller for display and saving basic settings forms
 
-    This maps forms from :class:`mediacore.forms.admin.settings` to our
-    model :class:`~mediacore.model.settings.Setting`. This controller
+    This maps forms from :class:`mediadrop.forms.admin.settings` to our
+    model :class:`~mediadrop.model.settings.Setting`. This controller
     doesn't care what settings are used, the form dictates everything.
     The form field names should exactly match the name in the model,
     regardless of it's nesting in the form.
@@ -226,7 +226,7 @@ class BaseSettingsController(BaseController):
     def __before__(self, *args, **kwargs):
         """Load all our settings before each request."""
         BaseController.__before__(self, *args, **kwargs)
-        from mediacore.model import Setting
+        from mediadrop.model import Setting
         tmpl_context.settings = dict(DBSession.query(Setting.key, Setting))
 
     def _update_settings(self, values):

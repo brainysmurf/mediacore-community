@@ -6,8 +6,8 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.helpers import clean_xhtml, line_break_xhtml
-from mediacore.lib.test.pythonic_testcase import *
+from mediadrop.lib.helpers import clean_xhtml, line_break_xhtml
+from mediadrop.lib.test.pythonic_testcase import *
 
 
 class XHTMLNormalizationTest(PythonicTestCase):

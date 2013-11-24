@@ -12,11 +12,11 @@ from urlparse import urlunsplit
 
 from pylons import config
 
-from mediacore.forms.admin.storage.localfiles import LocalFileStorageForm
-from mediacore.lib.i18n import N_
-from mediacore.lib.storage.api import safe_file_name, FileStorageEngine
-from mediacore.lib.uri import StorageURI
-from mediacore.lib.util import delete_files, url_for
+from mediadrop.forms.admin.storage.localfiles import LocalFileStorageForm
+from mediadrop.lib.i18n import N_
+from mediadrop.lib.storage.api import safe_file_name, FileStorageEngine
+from mediadrop.lib.uri import StorageURI
+from mediadrop.lib.util import delete_files, url_for
 
 class LocalFileStorage(FileStorageEngine):
 
@@ -26,7 +26,7 @@ class LocalFileStorage(FileStorageEngine):
     default_name = N_(u'Local File Storage')
 
     settings_form_class = LocalFileStorageForm
-    """Your :class:`mediacore.forms.Form` class for changing :attr:`_data`."""
+    """Your :class:`mediadrop.forms.Form` class for changing :attr:`_data`."""
 
     _default_data = {
         'path': None,
@@ -36,7 +36,7 @@ class LocalFileStorage(FileStorageEngine):
     def store(self, media_file, file=None, url=None, meta=None):
         """Store the given file or URL and return a unique identifier for it.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
         :type file: :class:`cgi.FieldStorage` or None
         :param file: A freshly uploaded file object.
@@ -75,7 +75,7 @@ class LocalFileStorage(FileStorageEngine):
     def get_uris(self, media_file):
         """Return a list of URIs from which the stored file can be accessed.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
         :rtype: list
         :returns: All :class:`StorageURI` tuples for this file.

@@ -7,12 +7,12 @@
 
 import webhelpers.paginate
 
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import expose, observable
-from mediacore.model import Comment, Media
-from mediacore.plugin import events
-from mediacore.lib.helpers import redirect, in_restricted_group
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import expose, observable
+from mediadrop.model import Comment, Media
+from mediadrop.plugin import events
+from mediadrop.lib.helpers import redirect, in_restricted_group
 
 import logging
 log = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class IndexController(BaseController):
     def index(self, **kwargs):
         """List recent and important items that deserve admin attention.
 
-        We do not use the :func:`mediacore.lib.helpers.paginate` decorator
+        We do not use the :func:`mediadrop.lib.helpers.paginate` decorator
         because its somewhat incompatible with the way we handle ajax
         fetching with :meth:`video_table`. This should be refactored and
         fixed at a later date.
@@ -35,16 +35,16 @@ class IndexController(BaseController):
         :returns:
             review_page
                 A :class:`webhelpers.paginate.Page` instance containing
-                :term:`unreviewed` :class:`~mediacore.model.media.Media`.
+                :term:`unreviewed` :class:`~mediadrop.model.media.Media`.
             encode_page
                 A :class:`webhelpers.paginate.Page` instance containing
-                :term:`unencoded` :class:`~mediacore.model.media.Media`.
+                :term:`unencoded` :class:`~mediadrop.model.media.Media`.
             publish_page
                 A :class:`webhelpers.paginate.Page` instance containing
-                :term:`draft` :class:`~mediacore.model.media.Media`.
+                :term:`draft` :class:`~mediadrop.model.media.Media`.
             recent_media
                 A list of recently published
-                :class:`~mediacore.model.media.Media`.
+                :class:`~mediadrop.model.media.Media`.
             comment_count
                 Total num comments
             comment_count_published
@@ -85,7 +85,7 @@ class IndexController(BaseController):
         :rtype: dict
         :returns:
             media
-                A list of :class:`~mediacore.model.media.Media` instances.
+                A list of :class:`~mediadrop.model.media.Media` instances.
 
         """
         return dict(

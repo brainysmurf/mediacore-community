@@ -10,11 +10,11 @@ import re
 
 from urllib2 import urlopen, URLError
 
-from mediacore.lib.filetypes import VIDEO
-from mediacore.lib.i18n import N_
-from mediacore.lib.storage.api import EmbedStorageEngine
-from mediacore.lib.uri import StorageURI
-from mediacore.lib.xhtml import decode_entities
+from mediadrop.lib.filetypes import VIDEO
+from mediadrop.lib.i18n import N_
+from mediadrop.lib.storage.api import EmbedStorageEngine
+from mediadrop.lib.uri import StorageURI
+from mediadrop.lib.xhtml import decode_entities
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class GoogleVideoStorage(EmbedStorageEngine):
     def get_uris(self, media_file):
         """Return a list of URIs from which the stored file can be accessed.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
         :rtype: list
         :returns: All :class:`StorageURI` tuples for this file.

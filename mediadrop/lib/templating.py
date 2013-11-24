@@ -15,7 +15,7 @@ from genshi.template.loader import (directory,
     TemplateLoader as _TemplateLoader, TemplateNotFound)
 from pylons import app_globals, config, request, response, tmpl_context, translator
 
-from mediacore.lib.i18n import N_
+from mediadrop.lib.i18n import N_
 
 __all__ = [
     'TemplateLoader',

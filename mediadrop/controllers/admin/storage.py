@@ -10,13 +10,13 @@ import logging
 from pylons import tmpl_context
 from sqlalchemy import orm
 
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import autocommit, expose, observable, validate
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.lib.storage import sort_engines, StorageEngine
-from mediacore.model import DBSession, fetch_row
-from mediacore.plugin import events
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import autocommit, expose, observable, validate
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.lib.storage import sort_engines, StorageEngine
+from mediadrop.model import DBSession, fetch_row
+from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class StorageController(BaseController):
         :rtype: Dict
         :returns:
             engines
-                The list of :class:`~mediacore.lib.storage.StorageEngine`
+                The list of :class:`~mediadrop.lib.storage.StorageEngine`
                 instances for this page.
 
         """
@@ -56,7 +56,7 @@ class StorageController(BaseController):
     @expose('admin/storage/edit.html')
     @observable(events.Admin.StorageController.edit)
     def edit(self, id, engine_type=None, **kwargs):
-        """Display the :class:`~mediacore.lib.storage.StorageEngine` for editing or adding.
+        """Display the :class:`~mediadrop.lib.storage.StorageEngine` for editing or adding.
 
         :param id: Storage ID
         :type id: ``int`` or ``"new"``

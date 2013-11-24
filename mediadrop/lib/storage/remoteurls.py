@@ -8,12 +8,12 @@
 import logging
 import os
 
-from mediacore.forms.admin.storage.remoteurls import RemoteURLStorageForm
-from mediacore.lib.filetypes import guess_container_format, guess_media_type
-from mediacore.lib.i18n import N_, _
-from mediacore.lib.storage.api import (EmbedStorageEngine, StorageEngine,
+from mediadrop.forms.admin.storage.remoteurls import RemoteURLStorageForm
+from mediadrop.lib.filetypes import guess_container_format, guess_media_type
+from mediadrop.lib.i18n import N_, _
+from mediadrop.lib.storage.api import (EmbedStorageEngine, StorageEngine,
     UnsuitableEngineError, UserStorageError)
-from mediacore.lib.uri import StorageURI
+from mediadrop.lib.uri import StorageURI
 
 log = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class RemoteURLStorage(StorageEngine):
     def get_uris(self, media_file):
         """Return a list of URIs from which the stored file can be accessed.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
         :rtype: list
         :returns: All :class:`StorageURI` tuples for this file.

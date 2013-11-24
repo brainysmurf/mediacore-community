@@ -9,7 +9,7 @@ Player Preferences
 
 The :attr:`players` table defined here is used to persist the user's
 preferences for, and the relative priority of, the different players
-that MediaCore should try to play media with.
+that MediaDrop should try to play media with.
 
 """
 
@@ -20,11 +20,11 @@ from sqlalchemy import Column, sql, Table
 from sqlalchemy.orm import mapper
 from sqlalchemy.types import Boolean, DateTime, Integer, Unicode
 
-from mediacore.lib.decorators import memoize
-from mediacore.lib.i18n import _
-from mediacore.lib.players import AbstractPlayer
-from mediacore.model.meta import DBSession, metadata
-from mediacore.model.util import JSONType
+from mediadrop.lib.decorators import memoize
+from mediadrop.lib.i18n import _
+from mediadrop.lib.players import AbstractPlayer
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.model.util import JSONType
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ players = Table('players', metadata,
     Column('name', Unicode(30), nullable=False, doc=\
         """The internal name used to identify this player.
 
-        Maps to :attr:`mediacore.lib.players.AbstractPlayer.name`.
+        Maps to :attr:`mediadrop.lib.players.AbstractPlayer.name`.
         """),
 
     Column('enabled', Boolean, nullable=False, default=True, doc=\
@@ -55,8 +55,8 @@ players = Table('players', metadata,
         """The user preferences for this player (if any).
 
         This dictionary is passed as `data` kwarg when
-        :func:`mediacore.lib.players.media_player` instantiates the
-        :class:`mediacore.lib.players.AbstractPlayer` class associated
+        :func:`mediadrop.lib.players.media_player` instantiates the
+        :class:`mediadrop.lib.players.AbstractPlayer` class associated
         with this row.
 
         """),
@@ -70,7 +70,7 @@ class PlayerPrefs(object):
     Player Preferences
 
     A wrapper containing the administrator's preferences for an individual
-    player. Each row maps to a :class:`mediacore.lib.players.AbstractPlayer`
+    player. Each row maps to a :class:`mediadrop.lib.players.AbstractPlayer`
     implementation.
 
     """
@@ -89,7 +89,7 @@ class PlayerPrefs(object):
         """Return the user-friendly display name for this player class.
 
         This string is expected to be i18n-ready. Simply wrap it in a
-        call to :func:`mediacore.lib.i18n._`.
+        call to :func:`mediadrop.lib.i18n._`.
 
         :rtype: unicode
         :returns: A i18n-ready string name.
@@ -127,7 +127,7 @@ def fetch_enabled_players():
     be raised if there are no players configured/enabled.
 
     :rtype: list of tuples
-    :returns: :class:`~mediacore.lib.players.AbstractPlayer` subclasses
+    :returns: :class:`~mediadrop.lib.players.AbstractPlayer` subclasses
         and the configured data associated with them.
 
     """
@@ -154,7 +154,7 @@ def cleanup_players_table(enabled=False):
     :param enabled: Should the default players be enabled upon creation?
     :type enabled: bool
     """
-    from mediacore.lib.players import (BlipTVFlashPlayer,
+    from mediadrop.lib.players import (BlipTVFlashPlayer,
         DailyMotionEmbedPlayer, GoogleVideoFlashPlayer, JWPlayer,
         VimeoUniversalEmbedPlayer, YoutubePlayer)
 

@@ -15,16 +15,16 @@ from genshi.core import Markup
 import simplejson
 from sqlalchemy import sql
 
-from mediacore.forms.admin import players as player_forms
-from mediacore.lib.compat import any
-from mediacore.lib.filetypes import AUDIO, VIDEO, AUDIO_DESC, CAPTIONS
-from mediacore.lib.i18n import N_
-from mediacore.lib.templating import render
-from mediacore.lib.thumbnails import thumb_url
-from mediacore.lib.uri import pick_uris
-from mediacore.lib.util import url_for
-#from mediacore.model.players import fetch_players XXX: Import at EOF
-from mediacore.plugin.abc import AbstractClass, abstractmethod, abstractproperty
+from mediadrop.forms.admin import players as player_forms
+from mediadrop.lib.compat import any
+from mediadrop.lib.filetypes import AUDIO, VIDEO, AUDIO_DESC, CAPTIONS
+from mediadrop.lib.i18n import N_
+from mediadrop.lib.templating import render
+from mediadrop.lib.thumbnails import thumb_url
+from mediadrop.lib.uri import pick_uris
+from mediadrop.lib.util import url_for
+#from mediadrop.model.players import fetch_players XXX: Import at EOF
+from mediadrop.plugin.abc import AbstractClass, abstractmethod, abstractproperty
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class AbstractPlayer(AbstractClass):
     """A unicode display name for the class, to be used in the settings UI."""
 
     settings_form_class = None
-    """An optional :class:`mediacore.forms.admin.players.PlayerPrefsForm`."""
+    """An optional :class:`mediadrop.forms.admin.players.PlayerPrefsForm`."""
 
     default_data = {}
     """An optional default data dictionary for user preferences."""
@@ -86,7 +86,7 @@ class AbstractPlayer(AbstractClass):
 
         Each player has a client-side component to provide a consistent
         way of initializing and interacting with the player. For more
-        information see :file:`mediacore/public/scripts/mcore/players/`.
+        information see :file:`mediadrop/public/scripts/mcore/players/`.
 
         :rtype: ``unicode``
         :returns: A javascript string which will evaluate to an instance
@@ -98,7 +98,7 @@ class AbstractPlayer(AbstractClass):
                  autoplay=False, autobuffer=False, qualified=False, **kwargs):
         """Initialize the player with the media that it will be playing.
 
-        :type media: :class:`mediacore.model.media.Media` instance
+        :type media: :class:`mediadrop.model.media.Media` instance
         :param media: The media object that will be rendered.
         :type uris: list
         :param uris: The StorageURIs this player has said it :meth:`can_play`.
@@ -136,15 +136,15 @@ class AbstractPlayer(AbstractClass):
         """Return a subset of the :attr:`uris` for this player.
 
         This allows for easy filtering of URIs by feeding any number of
-        kwargs to this function. See :func:`mediacore.lib.uri.pick_uris`.
+        kwargs to this function. See :func:`mediadrop.lib.uri.pick_uris`.
 
         """
         return pick_uris(self.uris, **kwargs)
     
     @classmethod
     def inject_in_db(cls, enable_player=False):
-        from mediacore.model import DBSession
-        from mediacore.model.players import players as players_table, PlayerPrefs
+        from mediadrop.model import DBSession
+        from mediadrop.model.players import players as players_table, PlayerPrefs
         
         prefs = PlayerPrefs()
         prefs.name = cls.name
@@ -234,7 +234,7 @@ class FlashRenderMixin(object):
 
         Each player has a client-side component to provide a consistent
         way of initializing and interacting with the player. For more
-        information see ``mediacore/public/scripts/mcore/players/``.
+        information see ``mediadrop/public/scripts/mcore/players/``.
 
         :rtype: ``unicode``
         :returns: A javascript string which will evaluate to an instance
@@ -337,10 +337,10 @@ class AbstractEmbedPlayer(AbstractPlayer):
 
     Typically embed players will play only their own content, and that is
     the only way such content can be played. Therefore each embed type has
-    been given its own :attr:`~mediacore.lib.uri.StorageURI.scheme` which
+    been given its own :attr:`~mediadrop.lib.uri.StorageURI.scheme` which
     uniquely identifies it.
 
-    For example, :meth:`mediacore.lib.storage.YoutubeStorage.get_uris`
+    For example, :meth:`mediadrop.lib.storage.YoutubeStorage.get_uris`
     returns URIs with a scheme of `'youtube'`, and the special
     :class:`YoutubePlayer` would overload :attr:`scheme` to also be
     `'youtube'`. This would allow the Youtube player to play only those URIs.
@@ -373,7 +373,7 @@ class AbstractIframeEmbedPlayer(AbstractEmbedPlayer):
 
         Each player has a client-side component to provide a consistent
         way of initializing and interacting with the player. For more
-        information see ``mediacore/public/scripts/mcore/players/``.
+        information see ``mediadrop/public/scripts/mcore/players/``.
 
         :rtype: ``unicode``
         :returns: A javascript string which will evaluate to an instance
@@ -405,7 +405,7 @@ class VimeoUniversalEmbedPlayer(AbstractIframeEmbedPlayer):
     Vimeo Universal Player
 
     This simple player handles media with files that stored using
-    :class:`mediacore.lib.storage.VimeoStorage`.
+    :class:`mediadrop.lib.storage.VimeoStorage`.
 
     This player has seamless HTML5 and Flash support.
 
@@ -441,7 +441,7 @@ class DailyMotionEmbedPlayer(AbstractIframeEmbedPlayer):
     Daily Motion Universal Player
 
     This simple player handles media with files that stored using
-    :class:`mediacore.lib.storage.DailyMotionStorage`.
+    :class:`mediadrop.lib.storage.DailyMotionStorage`.
 
     This player has seamless HTML5 and Flash support.
 
@@ -490,7 +490,7 @@ class YoutubePlayer(AbstractIframeEmbedPlayer):
     YouTube Player
 
     This simple player handles media with files that stored using
-    :class:`mediacore.lib.storage.YoutubeStorage`.
+    :class:`mediadrop.lib.storage.YoutubeStorage`.
 
     """
     name = u'youtube'
@@ -503,7 +503,7 @@ class YoutubePlayer(AbstractIframeEmbedPlayer):
     """The `StorageURI.scheme` which uniquely identifies this embed type."""
 
     settings_form_class = player_forms.YoutubePlayerPrefsForm
-    """An optional :class:`mediacore.forms.admin.players.PlayerPrefsForm`."""
+    """An optional :class:`mediadrop.forms.admin.players.PlayerPrefsForm`."""
 
     default_data = {
         'version': 3,
@@ -568,7 +568,7 @@ class GoogleVideoFlashPlayer(AbstractFlashEmbedPlayer):
     Google Video Player
 
     This simple player handles media with files that stored using
-    :class:`mediacore.lib.storage.GoogleVideoStorage`.
+    :class:`mediadrop.lib.storage.GoogleVideoStorage`.
 
     """
     name = u'googlevideo'
@@ -590,7 +590,7 @@ class BlipTVFlashPlayer(AbstractFlashEmbedPlayer):
     BlipTV Player
 
     This simple player handles media with files that stored using
-    :class:`mediacore.lib.storage.BlipTVStorage`.
+    :class:`mediadrop.lib.storage.BlipTVStorage`.
 
     """
     name = u'bliptv'
@@ -702,7 +702,7 @@ class HTML5PlusFlowPlayer(AbstractHTML5Player):
     """A unicode display name for the class, to be used in the settings UI."""
 
     settings_form_class = player_forms.HTML5OrFlashPrefsForm
-    """An optional :class:`mediacore.forms.admin.players.PlayerPrefsForm`."""
+    """An optional :class:`mediadrop.forms.admin.players.PlayerPrefsForm`."""
 
     default_data = {'prefer_flash': False}
     """An optional default data dictionary for user preferences."""
@@ -905,7 +905,7 @@ class SublimePlayer(AbstractHTML5Player):
     """A unicode display name for the class, to be used in the settings UI."""
 
     settings_form_class = player_forms.SublimePlayerPrefsForm
-    """An optional :class:`mediacore.forms.admin.players.PlayerPrefsForm`."""
+    """An optional :class:`mediadrop.forms.admin.players.PlayerPrefsForm`."""
 
     default_data = {'script_tag': ''}
     """An optional default data dictionary for user preferences."""
@@ -962,7 +962,7 @@ class iTunesPlayer(FileSupportMixin, AbstractPlayer):
 def preferred_player_for_media(media, **kwargs):
     uris = media.get_uris()
 
-    from mediacore.model.players import fetch_enabled_players
+    from mediadrop.model.players import fetch_enabled_players
     # Find the first player that can play any uris
     for player_cls, player_data in fetch_enabled_players():
         can_play = player_cls.can_play(uris)
@@ -989,10 +989,10 @@ def media_player(media, is_widescreen=False, show_like=True, show_dislike=True,
     preferences wisely.
 
     Player preferences are fetched from the database and the
-    :attr:`mediacore.model.players.c.data` dict is passed as kwargs to
+    :attr:`mediadrop.model.players.c.data` dict is passed as kwargs to
     :meth:`AbstractPlayer.__init__`.
 
-    :type media: :class:`mediacore.model.media.Media`
+    :type media: :class:`mediadrop.model.media.Media`
     :param media: A media instance to play.
 
     :param js_init: Optional function to call after the javascript player
@@ -1027,8 +1027,8 @@ def media_player(media, is_widescreen=False, show_like=True, show_dislike=True,
 def pick_podcast_media_file(media):
     """Return a file playable in the most podcasting client: iTunes.
 
-    :param media: A :class:`~mediacore.model.media.Media` instance.
-    :returns: A :class:`~mediacore.model.media.MediaFile` object or None
+    :param media: A :class:`~mediadrop.model.media.Media` instance.
+    :returns: A :class:`~mediadrop.model.media.MediaFile` object or None
     """
     uris = media.get_uris()
     for i, plays in enumerate(iTunesPlayer.can_play(uris)):
@@ -1039,11 +1039,11 @@ def pick_podcast_media_file(media):
 def pick_any_media_file(media):
     """Return a file playable in at least one of the configured players.
 
-    :param media: A :class:`~mediacore.model.media.Media` instance.
-    :returns: A :class:`~mediacore.model.media.MediaFile` object or None
+    :param media: A :class:`~mediadrop.model.media.Media` instance.
+    :returns: A :class:`~mediadrop.model.media.MediaFile` object or None
     """
     uris = media.get_uris()
-    from mediacore.model.players import fetch_enabled_players
+    from mediadrop.model.players import fetch_enabled_players
     for player_cls, player_data in fetch_enabled_players():
         for i, plays in enumerate(player_cls.can_play(uris)):
             if plays:
@@ -1058,7 +1058,7 @@ def update_enabled_players():
     enabled player that supports that format. Call this method after changing
     the set of enabled players, to ensure encoding statuses are up to date.
     """
-    from mediacore.model import DBSession, Media
+    from mediadrop.model import DBSession, Media
     media = DBSession.query(Media)
     for m in media:
         m.update_status()
@@ -1066,7 +1066,7 @@ def update_enabled_players():
 def embed_iframe(media, width=400, height=225, frameborder=0, **kwargs):
     """Return an <iframe> tag that loads our universal player.
 
-    :type media: :class:`mediacore.model.media.Media`
+    :type media: :class:`mediadrop.model.media.Media`
     :param media: The media object that is being rendered, to be passed
         to all instantiated player objects.
     :rtype: :class:`genshi.builder.Element`

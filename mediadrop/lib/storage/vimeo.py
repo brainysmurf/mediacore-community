@@ -11,11 +11,11 @@ import simplejson
 
 from urllib2 import Request, urlopen, URLError
 
-from mediacore import USER_AGENT
-from mediacore.lib.filetypes import VIDEO
-from mediacore.lib.i18n import N_
-from mediacore.lib.storage.api import EmbedStorageEngine
-from mediacore.lib.uri import StorageURI
+from mediadrop import USER_AGENT
+from mediadrop.lib.filetypes import VIDEO
+from mediadrop.lib.i18n import N_
+from mediadrop.lib.storage.api import EmbedStorageEngine
+from mediadrop.lib.uri import StorageURI
 
 log = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class VimeoStorage(EmbedStorageEngine):
     def get_uris(self, media_file):
         """Return a list of URIs from which the stored file can be accessed.
 
-        :type media_file: :class:`~mediacore.model.media.MediaFile`
+        :type media_file: :class:`~mediadrop.model.media.MediaFile`
         :param media_file: The associated media file object.
         :rtype: list
         :returns: All :class:`StorageURI` tuples for this file.

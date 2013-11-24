@@ -19,9 +19,9 @@ from sqlalchemy import Table, Column, sql, func
 from sqlalchemy.types import Unicode, Integer
 from sqlalchemy.orm import mapper, validates
 
-from mediacore.model import SLUG_LENGTH, slugify
-from mediacore.model.meta import DBSession, metadata
-from mediacore.plugin import events
+from mediadrop.model import SLUG_LENGTH, slugify
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.plugin import events
 
 
 tags = Table('tags', metadata,

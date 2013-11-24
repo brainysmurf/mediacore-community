@@ -8,15 +8,15 @@
 from pylons import request, tmpl_context
 import webob.exc
 
-from mediacore.forms.admin.users import UserForm
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
+from mediadrop.forms.admin.users import UserForm
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate)
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.model import Group, User, fetch_row
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.model import Group, User, fetch_row
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 
 user_form = UserForm()
 
@@ -36,7 +36,7 @@ class UsersController(BaseController):
         :rtype: Dict
         :returns:
             users
-                The list of :class:`~mediacore.model.auth.User`
+                The list of :class:`~mediadrop.model.auth.User`
                 instances for this page.
 
         """
@@ -48,16 +48,16 @@ class UsersController(BaseController):
     @expose('admin/users/edit.html')
     @observable(events.Admin.UsersController.edit)
     def edit(self, id, **kwargs):
-        """Display the :class:`~mediacore.forms.admin.users.UserForm` for editing or adding.
+        """Display the :class:`~mediadrop.forms.admin.users.UserForm` for editing or adding.
 
         :param id: User ID
         :type id: ``int`` or ``"new"``
         :rtype: dict
         :returns:
             user
-                The :class:`~mediacore.model.auth.User` instance we're editing.
+                The :class:`~mediadrop.model.auth.User` instance we're editing.
             user_form
-                The :class:`~mediacore.forms.admin.users.UserForm` instance.
+                The :class:`~mediadrop.forms.admin.users.UserForm` instance.
             user_action
                 ``str`` form submit url
             user_values
@@ -98,7 +98,7 @@ class UsersController(BaseController):
     @observable(events.Admin.UsersController.save)
     def save(self, id, email_address, display_name, login_details,
              delete=None, **kwargs):
-        """Save changes or create a new :class:`~mediacore.model.auth.User` instance.
+        """Save changes or create a new :class:`~mediadrop.model.auth.User` instance.
 
         :param id: User ID. If ``"new"`` a new user is created.
         :type id: ``int`` or ``"new"``

@@ -20,7 +20,7 @@ See LICENSE.txt in the main project directory, for more information.
 	      href="${h.url_for(controller='/sitemaps', action='latest')}" />
 </head>
 <body class="nav-media-on">
-	<div class="mediacore-content">
+	<div class="mediadrop-content">
 		<h3 py:choose="">
 			<py:when test="search_query"><span i18n:msg="result_count, search_query" class="mcore-heading">Showing ${result_count} results for '${search_query}'</span></py:when>
 			<py:when test="tag"><span i18n:msg="result_count, tag_name" class="mcore-heading">Showing ${result_count} results tagged with '${tag.name}'</span></py:when>
@@ -29,7 +29,7 @@ See LICENSE.txt in the main project directory, for more information.
 		${library_controls(show, paginator=c.paginators.media, search_query=search_query, tag=tag and tag.slug or None)}
 		<ul py:replace="media_grid(media, id='library', thumb_size='m', desc_len=145)" />
 	</div>
-	<div py:if="c.paginators" class="mediacore-content clearfix">
+	<div py:if="c.paginators" class="mediadrop-content clearfix">
 		<div py:replace="pager(c.paginators.media)" />
 	</div>
 </body>

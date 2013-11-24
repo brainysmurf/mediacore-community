@@ -6,7 +6,7 @@
 # the GPLv3 or (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.js_delivery import ResourcesCollection
+from mediadrop.lib.js_delivery import ResourcesCollection
 
 __all__ = ['StyleSheet', 'StyleSheets']
 

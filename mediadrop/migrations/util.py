@@ -12,7 +12,7 @@ from alembic.environment import EnvironmentContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import Column, Integer, MetaData, Table, Unicode, UnicodeText
 
-from mediacore.model import metadata, DBSession
+from mediadrop.model import metadata, DBSession
 
 __all__ = ['MediaDropMigrator', 'PluginDBMigrator']
 
@@ -53,7 +53,7 @@ class AlembicMigrator(object):
     @classmethod
     def init_environment_context(cls, conf):
         file_template = conf.get('alembic.file_template', '%%(day).3d-%%(rev)s-%%(slug)s')
-        script_location = conf.get('alembic.script_location', 'mediacore:migrations')
+        script_location = conf.get('alembic.script_location', 'mediadrop:migrations')
         version_table = conf.get('alembic.version_table', 'alembic_migrations')
         
         alembic_cfg = Config(ini_section='main')

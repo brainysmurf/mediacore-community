@@ -9,14 +9,14 @@ from pylons import request, response, tmpl_context as c
 from pylons.controllers.util import abort
 from sqlalchemy import orm
 
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (beaker_cache, expose, observable, 
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (beaker_cache, expose, observable, 
     paginate, validate)
-from mediacore.lib.helpers import content_type_for_response, url_for, viewable_media
-from mediacore.lib.i18n import _
-from mediacore.model import Category, Media, fetch_row
-from mediacore.plugin import events
-from mediacore.validation import LimitFeedItemsValidator
+from mediadrop.lib.helpers import content_type_for_response, url_for, viewable_media
+from mediadrop.lib.i18n import _
+from mediadrop.model import Category, Media, fetch_row
+from mediadrop.plugin import events
+from mediadrop.validation import LimitFeedItemsValidator
 
 import logging
 log = logging.getLogger(__name__)

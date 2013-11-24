@@ -10,10 +10,10 @@ from formencode.validators import Int
 from tw.forms import CheckBox, RadioButtonList
 from tw.forms.validators import StringBool
 
-from mediacore.forms import ListFieldSet, ListForm, SubmitButton, TextField
-from mediacore.lib.i18n import N_, _
-from mediacore.lib.util import merge_dicts
-from mediacore.plugin import events
+from mediadrop.forms import ListFieldSet, ListForm, SubmitButton, TextField
+from mediadrop.lib.i18n import N_, _
+from mediadrop.lib.util import merge_dicts
+from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
 
@@ -52,13 +52,13 @@ class PlayerPrefsForm(ListForm):
 
         If the value dict is not fully populated, populate any missing entries
         with the values from the given player's
-        :attr:`_data <mediacore.model.player.PlayerPrefs._data>` dict.
+        :attr:`_data <mediadrop.model.player.PlayerPrefs._data>` dict.
 
         :param value: A (sparse) dict of values to populate the form with.
         :type value: dict
         :param player: The player prefs mapped object to retrieve the default
             values from.
-        :type player: :class:`mediacore.model.player.PlayerPrefs` subclass
+        :type player: :class:`mediadrop.model.player.PlayerPrefs` subclass
 
         """
         return ListForm.display(self, value, **kwargs)
@@ -67,10 +67,10 @@ class PlayerPrefsForm(ListForm):
         """Map validated field values to `PlayerPrefs.data`.
 
         Since form widgets may be nested or named differently than the keys
-        in the :attr:`mediacore.lib.storage.StorageEngine._data` dict, it is
+        in the :attr:`mediadrop.lib.storage.StorageEngine._data` dict, it is
         necessary to manually map field values to the data dictionary.
 
-        :type player: :class:`mediacore.model.player.PlayerPrefs` subclass
+        :type player: :class:`mediadrop.model.player.PlayerPrefs` subclass
         :param player: The player prefs mapped object to store the data in.
         :param \*\*kwargs: Validated and filtered form values.
         :raises formencode.Invalid: If some post-validation error is detected

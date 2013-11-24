@@ -42,8 +42,8 @@ class MediaDropPlugin(object):
         self.controllers = controllers or self._default_controllers()
         self.locale_dirs = self._default_locale_dirs()
         # migrations.util imports model and that causes all kind of recursive
-        # import trouble with mediacore.plugin (events)
-        from mediacore.migrations import PluginDBMigrator
+        # import trouble with mediadrop.plugin (events)
+        from mediadrop.migrations import PluginDBMigrator
         self.migrator_class = PluginDBMigrator
 
     def _package_name(self):

@@ -5,12 +5,12 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib import email as libemail
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import expose, observable
-from mediacore.lib.helpers import redirect, clean_xhtml
-from mediacore.lib.i18n import _
-from mediacore.plugin import events
+from mediadrop.lib import email as libemail
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import expose, observable
+from mediadrop.lib.helpers import redirect, clean_xhtml
+from mediadrop.lib.i18n import _
+from mediadrop.plugin import events
 
 class ErrorsController(BaseController):
     """Generates error documents as and when they are required.

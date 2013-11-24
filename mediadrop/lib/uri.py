@@ -9,18 +9,18 @@ import os
 
 from urlparse import urlsplit
 
-from mediacore.lib.compat import all
+from mediadrop.lib.compat import all
 
 class StorageURI(object):
     """
-    An access point for a :class:`mediacore.model.media.MediaFile`.
+    An access point for a :class:`mediadrop.model.media.MediaFile`.
 
     A single file may be accessed in several different ways. Each `StorageURI`
     represents one such access point.
 
     .. attribute:: file
 
-        The :class:`mediacore.model.media.MediaFile` this URI points to.
+        The :class:`mediadrop.model.media.MediaFile` this URI points to.
 
     .. attribute:: scheme
 
@@ -78,7 +78,7 @@ class StorageURI(object):
 
         This method is called when an attribute lookup fails on this StorageURI
         instance. Before throwing an AttributeError, we first try the lookup
-        on our :class:`~mediacore.model.media.MediaFile` instance.
+        on our :class:`~mediadrop.model.media.MediaFile` instance.
 
         For example::
 
@@ -99,14 +99,14 @@ def pick_uris(uris, **kwargs):
     """Return a subset of the given URIs whose attributes match the kwargs.
 
     This function attempts to simplify the somewhat unwieldly process of
-    filtering a list of :class:`mediacore.lib.storage.StorageURI` instances
+    filtering a list of :class:`mediadrop.lib.storage.StorageURI` instances
     for a specific type, protocol, container, etc::
 
         pick_uris(uris, scheme='rtmp', container='mp4', type='video')
 
-    :type uris: iterable or :class:`~mediacore.model.media.Media` or
-        :class:`~mediacore.model.media.MediaFile` instance
-    :params uris: A collection of :class:`~mediacore.lib.storage.StorageURI`
+    :type uris: iterable or :class:`~mediadrop.model.media.Media` or
+        :class:`~mediadrop.model.media.MediaFile` instance
+    :params uris: A collection of :class:`~mediadrop.lib.storage.StorageURI`
         instances, including Media and MediaFile objects.
     :param \*\*kwargs: Required attribute values. These attributes can be
         on the `StorageURI` instance or, failing that, on the `StorageURI.file`
@@ -116,7 +116,7 @@ def pick_uris(uris, **kwargs):
 
     """
     if not isinstance(uris, (list, tuple)):
-        from mediacore.model.media import Media, MediaFile
+        from mediadrop.model.media import Media, MediaFile
         if isinstance(uris, (Media, MediaFile)):
             uris = uris.get_uris()
     if not uris or not kwargs:
@@ -130,7 +130,7 @@ def pick_uri(uris, **kwargs):
 
     See: :func:`pick_uris`.
 
-    :returns: A :class:`mediacore.lib.storage.StorageURI` instance or None.
+    :returns: A :class:`mediadrop.lib.storage.StorageURI` instance or None.
     """
     uris = pick_uris(uris, **kwargs)
     if uris:
@@ -140,7 +140,7 @@ def pick_uri(uris, **kwargs):
 def download_uri(uris):
     """Pick out the best possible URI for downloading purposes.
 
-    :returns: A :class:`mediacore.lib.storage.StorageURI` instance or None.
+    :returns: A :class:`mediadrop.lib.storage.StorageURI` instance or None.
     """
     uris = pick_uris(uris, scheme='download')\
         or pick_uris(uris, scheme='http')
@@ -152,7 +152,7 @@ def download_uri(uris):
 def web_uri(uris):
     """Pick out the web link URI for viewing an embed in its original context.
 
-    :returns: A :class:`mediacore.lib.storage.StorageURI` instance or None.
+    :returns: A :class:`mediadrop.lib.storage.StorageURI` instance or None.
     """
     return pick_uri(uris, scheme='www')\
         or None
@@ -160,7 +160,7 @@ def web_uri(uris):
 def best_link_uri(uris):
     """Pick out the best general purpose URI from those given.
 
-    :returns: A :class:`mediacore.lib.storage.StorageURI` instance or None.
+    :returns: A :class:`mediadrop.lib.storage.StorageURI` instance or None.
     """
     return pick_uri(uris, scheme='www')\
         or pick_uri(uris, scheme='download')\
@@ -172,7 +172,7 @@ def file_path(uris):
     """Pick out the local file path from the given list of URIs.
 
     Local file paths are passed around as urlencoded strings in
-    :class:`mediacore.lib.storage.StorageURI`. The form is:
+    :class:`mediadrop.lib.storage.StorageURI`. The form is:
 
         file:///path/to/file
 

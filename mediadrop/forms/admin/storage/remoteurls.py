@@ -10,10 +10,10 @@ from formencode.validators import FancyValidator
 from tw.api import JSSource
 from tw.forms import FormFieldRepeater
 
-from mediacore.forms import ListFieldSet, TextField
-from mediacore.forms.admin.storage import StorageForm
-from mediacore.lib.i18n import N_, _
-from mediacore.plugin import events
+from mediadrop.forms import ListFieldSet, TextField
+from mediadrop.forms.admin.storage import StorageForm
+from mediadrop.lib.i18n import N_, _
+from mediadrop.plugin import events
 
 
 # Sure this could be abstracted into something more reusable.
@@ -81,12 +81,12 @@ class RemoteURLStorageForm(StorageForm):
 
         If the value dict is not fully populated, populate any missing entries
         with the values from the given StorageEngine's
-        :attr:`_data <mediacore.lib.storage.StorageEngine._data>` dict.
+        :attr:`_data <mediadrop.lib.storage.StorageEngine._data>` dict.
 
         :param value: A (sparse) dict of values to populate the form with.
         :type value: dict
         :param engine: An instance of the storage engine implementation.
-        :type engine: :class:`mediacore.lib.storage.StorageEngine` subclass
+        :type engine: :class:`mediadrop.lib.storage.StorageEngine` subclass
 
         """
         rtmp = value.setdefault('rtmp', {})
@@ -97,10 +97,10 @@ class RemoteURLStorageForm(StorageForm):
         """Map validated field values to engine data.
 
         Since form widgets may be nested or named differently than the keys
-        in the :attr:`mediacore.lib.storage.StorageEngine._data` dict, it is
+        in the :attr:`mediadrop.lib.storage.StorageEngine._data` dict, it is
         necessary to manually map field values to the data dictionary.
 
-        :type engine: :class:`mediacore.lib.storage.StorageEngine` subclass
+        :type engine: :class:`mediadrop.lib.storage.StorageEngine` subclass
         :param engine: An instance of the storage engine implementation.
         :param \*\*kwargs: Validated and filtered form values.
         :raises formencode.Invalid: If some post-validation error is detected

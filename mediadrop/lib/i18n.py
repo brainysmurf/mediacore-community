@@ -24,7 +24,7 @@ __all__ = ['_', 'N_', 'format_date', 'format_datetime', 'format_decimal',
 
 log = logging.getLogger(__name__)
 
-MEDIACORE = 'mediacore'
+MEDIACORE = 'mediadrop'
 """The primary MediaDrop domain name."""
 
 class LanguageError(Exception):
@@ -50,7 +50,7 @@ class Translator(object):
         :raises DomainError: If no locale dir has been configured for this
             domain and the fallback is off.
         :raises LanguageError: If no translations could be found for this
-            locale in the 'mediacore' domain and the fallback is off.
+            locale in the 'mediadrop' domain and the fallback is off.
         """
         self.locale = locale = Locale.parse(locale)
 
@@ -65,8 +65,8 @@ class Translator(object):
         # Storage for all message catalogs keyed by their domain name
         self._domains = {}
 
-        # Fetch the mediacore domain immediately & cache a direct ref for perf
-        self._mediacore = self._load_domain(MEDIACORE)
+        # Fetch the 'mediadrop' domain immediately & cache a direct ref for perf
+        self._mediadrop = self._load_domain(MEDIACORE)
 
     def install_pylons_global(self):
         """Replace the current pylons.translator SOP with this instance.
@@ -119,7 +119,7 @@ class Translator(object):
         :type msgid: ``str``
         :param msgid: A byte string to retrieve translations for.
         :type domain: ``str``
-        :param domain: An optional domain to use, if not 'mediacore'.
+        :param domain: An optional domain to use, if not 'mediadrop'.
         :rtype: ``unicode``
         :returns: The translated string, or the original msgid if no
             translation was found.
@@ -129,7 +129,7 @@ class Translator(object):
         if domain is None and isinstance(msgid, _TranslateableUnicode):
             domain = msgid.domain
         if domain is None or domain == MEDIACORE:
-            t = self._mediacore
+            t = self._mediadrop
         else:
             try:
                 t = self._domains[domain]
@@ -147,13 +147,13 @@ class Translator(object):
         :type n: ``int``
         :param n: The number of items.
         :type domain: ``str``
-        :param domain: An optional domain to use, if not 'mediacore'.
+        :param domain: An optional domain to use, if not 'mediadrop'.
         :rtype: ``unicode``
         :returns: The translated string, or the original msgid if no
             translation was found.
         """
         if domain is None or domain == MEDIACORE:
-            t = self._mediacore
+            t = self._mediadrop
         else:
             try:
                 t = self._domains[domain]
@@ -186,7 +186,7 @@ def gettext(msgid, domain=None):
     :type msgid: ``str``
     :param msgid: A byte string to retrieve translations for.
     :type domain: ``str``
-    :param domain: An optional domain to use, if not 'mediacore'.
+    :param domain: An optional domain to use, if not 'mediadrop'.
     :rtype: ``unicode``
     :returns: The translated string, or the original msgid if no
         translation was found.
@@ -214,7 +214,7 @@ def ngettext(singular, plural, n, domain=None):
     :type n: ``int``
     :param n: The number of items.
     :type domain: ``str``
-    :param domain: An optional domain to use, if not 'mediacore'.
+    :param domain: An optional domain to use, if not 'mediadrop'.
     :rtype: ``unicode``
     :returns: The pluralized translation.
     """
@@ -316,10 +316,10 @@ def format_time(time=None, format='medium', tzinfo=None):
 def get_available_locales():
     """Yield all the locale names for which we have translations.
 
-    Considers only the 'mediacore' domain, not plugins.
+    Considers only the 'mediadrop' domain, not plugins.
     """
     i18n_dir = os.path.join(config['pylons.paths']['root'], 'i18n')
     for name in os.listdir(i18n_dir):
-        mo_path = os.path.join(i18n_dir, name, 'LC_MESSAGES/mediacore.mo')
+        mo_path = os.path.join(i18n_dir, name, 'LC_MESSAGES/mediadrop.mo')
         if os.path.exists(mo_path):
             yield name

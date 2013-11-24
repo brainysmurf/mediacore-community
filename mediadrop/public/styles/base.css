@@ -124,14 +124,14 @@ a:hover {
 #mcore-credits strong {
 	text-transform: uppercase;
 }
-.mediacore-content {
+.mediadrop-content {
 	width: 920px;
 	margin: 0 auto;
 }
 
 /* Login bar */
 .mcore-login-box {
-    width: 920px;       /* same as .mediacore-content */
+    width: 920px;       /* same as .mediadrop-content */
     position: relative;
     
     /* don't reserve any space, we use relative/absolute positioning with negative margins anyway */

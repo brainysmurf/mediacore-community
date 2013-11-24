@@ -8,8 +8,8 @@
 
 from formencode.api import Invalid
 
-from mediacore.lib.test import *
-from mediacore.validation import URIValidator
+from mediadrop.lib.test import *
+from mediadrop.validation import URIValidator
 
 
 __all__ = ['URIValidatorTest']

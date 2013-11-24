@@ -13,10 +13,10 @@ from sqlalchemy import Column, sql, Table
 from sqlalchemy.orm import column_property, dynamic_loader, mapper
 from sqlalchemy.types import Boolean, DateTime, Integer, Unicode
 
-from mediacore.lib.storage import StorageEngine
-from mediacore.model.media import MediaFile, MediaFileQuery, media_files
-from mediacore.model.meta import metadata
-from mediacore.model.util import JSONType
+from mediadrop.lib.storage import StorageEngine
+from mediadrop.model.media import MediaFile, MediaFileQuery, media_files
+from mediadrop.model.meta import metadata
+from mediadrop.model.util import JSONType
 
 log = logging.getLogger(__name__)
 

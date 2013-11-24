@@ -12,7 +12,7 @@ See LICENSE.txt in the main project directory, for more information.
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:xi="http://www.w3.org/2001/XInclude"
-      i18n:domain="mediacore"
+      i18n:domain="mediadrop"
       py:strip="">
 
 <body py:match="body" py:attrs="select('@*')">
@@ -28,7 +28,7 @@ See LICENSE.txt in the main project directory, for more information.
 
 	<div py:replace="select('*|text()|comment()')">Content is injected here</div>
 
-	<div py:if="settings['appearance_display_mediadrop_footer']" id="mcore-foot" class="mediacore-content clear">
+	<div py:if="settings['appearance_display_mediadrop_footer']" id="mcore-foot" class="mediadrop-content clear">
 		<div id="mcore-feeds" class="f-lft">
 			<h5>Feeds:</h5>
 			<ul>

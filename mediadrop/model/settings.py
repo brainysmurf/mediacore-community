@@ -23,8 +23,8 @@ from sqlalchemy.types import Unicode, UnicodeText, Integer, Boolean, Float
 from sqlalchemy.orm import mapper, relation, backref, synonym, interfaces, validates
 from urlparse import urlparse
 
-from mediacore.model.meta import DBSession, metadata
-from mediacore.plugin import events
+from mediadrop.model.meta import DBSession, metadata
+from mediadrop.plugin import events
 
 settings = Table('settings', metadata,
     Column('id', Integer, autoincrement=True, primary_key=True),

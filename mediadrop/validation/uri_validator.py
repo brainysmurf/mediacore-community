@@ -11,7 +11,7 @@ from urlparse import urlsplit
 from formencode.validators import UnicodeString
 from formencode.api import Invalid
 
-from mediacore.lib.i18n import _
+from mediadrop.lib.i18n import _
 
 
 __all__ = ['URIValidator']

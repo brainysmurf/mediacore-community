@@ -8,15 +8,15 @@
 from pylons import request, tmpl_context
 from sqlalchemy import orm
 
-from mediacore.forms.admin.categories import CategoryForm, CategoryRowForm
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, observable, paginate, 
+from mediadrop.forms.admin.categories import CategoryForm, CategoryRowForm
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, observable, paginate, 
     validate)
-from mediacore.lib.helpers import redirect, url_for
-from mediacore.model import Category, fetch_row, get_available_slug
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
+from mediadrop.lib.helpers import redirect, url_for
+from mediadrop.model import Category, fetch_row, get_available_slug
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 
 import logging
 log = logging.getLogger(__name__)
@@ -36,10 +36,10 @@ class CategoriesController(BaseController):
         :rtype: Dict
         :returns:
             categories
-                The list of :class:`~mediacore.model.categories.Category`
+                The list of :class:`~mediadrop.model.categories.Category`
                 instances for this page.
             category_form
-                The :class:`~mediacore.forms.admin.settings.categories.CategoryForm` instance.
+                The :class:`~mediadrop.forms.admin.settings.categories.CategoryForm` instance.
 
         """
         categories = Category.query\
@@ -62,10 +62,10 @@ class CategoriesController(BaseController):
         :rtype: Dict
         :returns:
             categories
-                The list of :class:`~mediacore.model.categories.Category`
+                The list of :class:`~mediadrop.model.categories.Category`
                 instances for this page.
             category_form
-                The :class:`~mediacore.forms.admin.settings.categories.CategoryForm` instance.
+                The :class:`~mediadrop.forms.admin.settings.categories.CategoryForm` instance.
 
         """
         category = fetch_row(Category, id)
@@ -83,7 +83,7 @@ class CategoriesController(BaseController):
     def save(self, id, delete=None, **kwargs):
         """Save changes or create a category.
 
-        See :class:`~mediacore.forms.admin.settings.categories.CategoryForm` for POST vars.
+        See :class:`~mediadrop.forms.admin.settings.categories.CategoryForm` for POST vars.
 
         :param id: Category ID
         :param delete: If true the category is to be deleted rather than saved.

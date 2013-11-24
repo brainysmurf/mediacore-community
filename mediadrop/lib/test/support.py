@@ -20,12 +20,12 @@ import tw
 from tw.mods.pylonshf import PylonsHostFramework
 from webob.request import environ_from_url
 
-import mediacore
-from mediacore.config.environment import load_environment
-from mediacore.config.middleware import create_tw_engine_manager
-from mediacore.lib.paginate import Bunch
-from mediacore.lib.i18n import Translator
-from mediacore.model.meta import DBSession, metadata
+import mediadrop
+from mediadrop.config.environment import load_environment
+from mediadrop.config.middleware import create_tw_engine_manager
+from mediadrop.lib.paginate import Bunch
+from mediadrop.lib.i18n import Translator
+from mediadrop.model.meta import DBSession, metadata
 
 
 __all__ = [
@@ -121,8 +121,8 @@ def create_wsgi_environ(url, request_method, request_body=None):
 
 def setup_translator(language='en', registry=None, locale_dirs=None):
     if not locale_dirs:
-        mediacore_i18n_path = os.path.join(os.path.dirname(mediacore.__file__), 'i18n')
-        locale_dirs = {'mediacore': mediacore_i18n_path}
+        mediadrop_i18n_path = os.path.join(os.path.dirname(mediadrop.__file__), 'i18n')
+        locale_dirs = {'mediadrop': mediadrop_i18n_path}
     translator = Translator(language, locale_dirs=locale_dirs)
     
     # not sure why but sometimes pylons.translator is not a StackedObjectProxy
@@ -156,7 +156,7 @@ def fake_request(pylons_config, server_name='mediadrop.example', language='en',
     pylons.url._push_object(routes_url)
 
     # Use ContextObj() when we get rid of 'pylons.strict_tmpl_context=False' in
-    # mediacore.lib.environment
+    # mediadrop.lib.environment
     tmpl_context = AttribSafeContextObj()
     tmpl_context.paginators = Bunch()
     pylons.tmpl_context._push_object(tmpl_context)

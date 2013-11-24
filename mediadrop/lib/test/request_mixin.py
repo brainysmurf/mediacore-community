@@ -8,8 +8,8 @@
 
 import pylons
 
-from mediacore.lib.auth.permission_system import MediaDropPermissionSystem
-from mediacore.lib.test.support import fake_request
+from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
+from mediadrop.lib.test.support import fake_request
 
 
 __all__ = ['RequestMixin']

@@ -23,7 +23,7 @@ __all__ = [
 try:
     from functools import wraps
 except ImportError:
-    from mediacore.lib.compat.functional import wraps
+    from mediadrop.lib.compat.functional import wraps
 
 try:
     from hashlib import sha1

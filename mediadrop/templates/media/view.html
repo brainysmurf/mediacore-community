@@ -32,7 +32,7 @@ See LICENSE.txt in the main project directory, for more information.
 	<link rel="image_src" href="${h.thumb_url(media, 'l', qualified=True)}" />
 </head>
 <body class="${media.podcast and 'nav-podcasts-on' or 'nav-media-on'}" py:with="is_widescreen = (settings['appearance_enable_widescreen_view'] == 'True')">
-	<div id="media-wrapper" class="mediacore-content clearfix">
+	<div id="media-wrapper" class="mediadrop-content clearfix">
 
 		<div py:def="media_box(media)" id="media-box" class="feat-box media-${is_widescreen and 'wide' or 'norm'}">
 			<div class="feat-top" />

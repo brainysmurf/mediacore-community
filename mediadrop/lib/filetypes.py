@@ -5,8 +5,8 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.i18n import _
-from mediacore.plugin.events import (media_types as registered_media_types,
+from mediadrop.lib.i18n import _
+from mediadrop.plugin.events import (media_types as registered_media_types,
     observes)
 
 __all__ = [

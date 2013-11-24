@@ -14,7 +14,7 @@ from pkg_resources import iter_entry_points
 from pylons.wsgiapp import PylonsApp
 from routes.util import controller_scan
 
-from mediacore.plugin.plugin import MediaDropPlugin
+from mediadrop.plugin.plugin import MediaDropPlugin
 
 
 __all__ = ['PluginManager']

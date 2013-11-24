@@ -8,15 +8,15 @@
 from pylons import request, tmpl_context
 from sqlalchemy import orm
 
-from mediacore.forms.admin.tags import TagForm, TagRowForm
-from mediacore.lib.auth import has_permission
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import (autocommit, expose, observable, paginate, 
+from mediadrop.forms.admin.tags import TagForm, TagRowForm
+from mediadrop.lib.auth import has_permission
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import (autocommit, expose, observable, paginate, 
     validate)
-from mediacore.lib.helpers import redirect
-from mediacore.model import Tag, fetch_row, get_available_slug
-from mediacore.model.meta import DBSession
-from mediacore.plugin import events
+from mediadrop.lib.helpers import redirect
+from mediadrop.model import Tag, fetch_row, get_available_slug
+from mediadrop.model.meta import DBSession
+from mediadrop.plugin import events
 
 import logging
 log = logging.getLogger(__name__)
@@ -38,10 +38,10 @@ class TagsController(BaseController):
         :rtype: Dict
         :returns:
             tags
-                The list of :class:`~mediacore.model.tags.Tag`
+                The list of :class:`~mediadrop.model.tags.Tag`
                 instances for this page.
             tag_form
-                The :class:`~mediacore.forms.admin.settings.tags.TagForm` instance.
+                The :class:`~mediadrop.forms.admin.settings.tags.TagForm` instance.
 
         """
         tags = DBSession.query(Tag)\
@@ -63,10 +63,10 @@ class TagsController(BaseController):
         :rtype: Dict
         :returns:
             tags
-                The list of :class:`~mediacore.model.tags.Tag`
+                The list of :class:`~mediadrop.model.tags.Tag`
                 instances for this page.
             tag_form
-                The :class:`~mediacore.forms.admin.settings.tags.TagForm` instance.
+                The :class:`~mediadrop.forms.admin.settings.tags.TagForm` instance.
 
         """
         tag = fetch_row(Tag, id)
@@ -83,7 +83,7 @@ class TagsController(BaseController):
     def save(self, id, delete=False, **kwargs):
         """Save changes or create a tag.
 
-        See :class:`~mediacore.forms.admin.settings.tags.TagForm` for POST vars.
+        See :class:`~mediadrop.forms.admin.settings.tags.TagForm` for POST vars.
 
         :param id: Tag ID
         :rtype: JSON dict

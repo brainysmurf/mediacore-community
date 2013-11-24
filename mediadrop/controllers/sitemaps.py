@@ -18,13 +18,13 @@ from pylons import config, request, response
 from pylons.controllers.util import abort, forward
 from webob.exc import HTTPNotFound
 
-from mediacore.plugin import events
-from mediacore.lib.base import BaseController
-from mediacore.lib.decorators import expose, beaker_cache, observable, validate
-from mediacore.lib.helpers import (content_type_for_response, 
+from mediadrop.plugin import events
+from mediadrop.lib.base import BaseController
+from mediadrop.lib.decorators import expose, beaker_cache, observable, validate
+from mediadrop.lib.helpers import (content_type_for_response, 
     get_featured_category, url_for, viewable_media)
-from mediacore.model import Media
-from mediacore.validation import LimitFeedItemsValidator
+from mediadrop.model import Media
+from mediadrop.validation import LimitFeedItemsValidator
 
 log = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ class SitemapsController(BaseController):
             raise HTTPNotFound()
 
         if not crossdomain_app:
-            relpath = 'mediacore/public/crossdomain.xml'
+            relpath = 'mediadrop/public/crossdomain.xml'
             abspath = os.path.join(config['here'], relpath)
             crossdomain_app = FileApp(abspath)
 

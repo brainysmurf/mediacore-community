@@ -3,7 +3,7 @@ python_egg_cache = '/path/to/data/python-egg-cache'
 deployment_config = '/path/to/deployment.ini'
 temp_dir = '/path/to/data/tmp'
 
-# NOTE: Before running MediaCore, you will need to update the four paths
+# NOTE: Before running MediaDrop, you will need to update the four paths
 #       above to point to the appropriate locations for your installation.
 
 import os

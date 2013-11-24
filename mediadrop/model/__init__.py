@@ -17,8 +17,8 @@ from sqlalchemy.types import FLOAT
 from sqlalchemy.ext.compiler import compiles
 from unidecode import unidecode
 
-from mediacore.lib.xhtml.htmlsanitizer import entities_to_unicode
-from mediacore.model.meta import DBSession, metadata
+from mediadrop.lib.xhtml.htmlsanitizer import entities_to_unicode
+from mediadrop.model.meta import DBSession, metadata
 
 # maximum length of slug strings for all objects.
 SLUG_LENGTH = 50
@@ -32,7 +32,7 @@ SLUG_LENGTH = 50
 def init_model(engine, table_prefix=None):
     """Call me before using any of the tables or classes in the model."""
     DBSession.configure(bind=engine)
-    from mediacore.model import meta
+    from mediadrop.model import meta
     meta.metadata.bind = engine
     meta.engine = engine
     # Change all table names to include the given prefix. This can't be
@@ -251,13 +251,13 @@ __all__ = [
     'PlayerPrefs',
 ]
 
-from mediacore.model.auth import User, Group, Permission
-from mediacore.model.authors import Author, AuthorWithIP
-from mediacore.model.comments import Comment
-from mediacore.model.settings import Setting, MultiSetting
-from mediacore.model.tags import Tag
-from mediacore.model.categories import Category
-from mediacore.model.media import Media, MediaFile
-from mediacore.model.podcasts import Podcast
-from mediacore.model.players import PlayerPrefs, players, cleanup_players_table
-from mediacore.model.storage import storage
+from mediadrop.model.auth import User, Group, Permission
+from mediadrop.model.authors import Author, AuthorWithIP
+from mediadrop.model.comments import Comment
+from mediadrop.model.settings import Setting, MultiSetting
+from mediadrop.model.tags import Tag
+from mediadrop.model.categories import Category
+from mediadrop.model.media import Media, MediaFile
+from mediadrop.model.podcasts import Podcast
+from mediadrop.model.players import PlayerPrefs, players, cleanup_players_table
+from mediadrop.model.storage import storage

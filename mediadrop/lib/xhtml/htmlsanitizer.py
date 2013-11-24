@@ -22,7 +22,7 @@ import re
 import sys
 import copy
 
-from mediacore.lib.compat import any
+from mediadrop.lib.compat import any
 
 s = lambda x: unicode(x)[:20].replace("\n", "")
 
