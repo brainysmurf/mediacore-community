@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -11,6 +11,9 @@ from collections import deque
 import logging
 
 from sqlalchemy.orm.interfaces import MapperExtension
+
+
+__all__ = ['Event', 'GeneratorEvent', 'FetchFirstResultEvent', 'observes']
 
 log = logging.getLogger(__name__)
 
@@ -127,9 +130,23 @@ class MapperObserver(MapperExtension):
 # Application Setup
 
 class Environment(object):
+    before_route_setup = Event(['mapper'])
+    after_route_setup = Event(['mapper'])
+    # TODO: deprecation warning
+    routes = after_route_setup
+    
     routes = Event(['mapper'])
     init_model = Event([])
     loaded = Event(['config'])
+    
+    # fires when a new database was initialized (tables created)
+    database_initialized = Event([])
+    
+    # an existing database was migrated to a newer DB schema
+    database_migrated = Event([])
+    
+    # the environment has been loaded, the database is ready to use
+    database_ready = Event([])
 
 ###############################################################################
 # Controllers

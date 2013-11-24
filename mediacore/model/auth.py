@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -193,6 +193,18 @@ class Group(object):
     @classmethod
     def by_name(cls, name):
         return cls.query.filter(cls.group_name == name).first()
+    
+    @classmethod
+    def example(cls, **kwargs):
+        defaults = dict(
+            name = u'baz_users',
+            display_name = u'Baz Users',
+        )
+        defaults.update(kwargs)
+        group = Group(**defaults)
+        DBSession.add(group)
+        DBSession.flush()
+        return group
 
 
 class Permission(object):
@@ -229,6 +241,7 @@ mapper(
     User, users,
     extension=events.MapperObserver(events.User),
     properties={
+        'id': users.c.user_id,
         'password': synonym('_password', map_column=True),
     },
 )

@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -7,7 +7,7 @@
 
 from mediacore.lib.auth.api import UserPermissions
 from mediacore.lib.auth.group_based_policy import GroupBasedPermissionsPolicy
-from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
+from mediacore.lib.auth.permission_system import MediaDropPermissionSystem
 from mediacore.lib.test.pythonic_testcase import *
 from mediacore.lib.test.db_testcase import DBTestCase
 from mediacore.model import DBSession, Media, Permission, User
@@ -26,7 +26,7 @@ class GroupBasedPermissionsPolicyTest(DBTestCase):
         assert_contains(u'custom', self.policy.permissions)
     
     def perm(self):
-        system = MediaCorePermissionSystem(self.pylons_config)
+        system = MediaDropPermissionSystem(self.pylons_config)
         system.policies = [self.policy]
         
         user = DBSession.query(User).filter(User.user_name == u'admin').one()

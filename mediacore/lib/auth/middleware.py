@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -28,6 +28,7 @@ from pylons import config as pylonsconfig
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
+<<<<<<< HEAD
 class GeneralAuth(object):
     def __init__(self, config):
         """ Give this object whatever keys are in config: host, etc """
@@ -143,6 +144,11 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
 
     def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
+=======
+class MediaDropAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
+    def authenticate(self, environ, identity):
+        login = super(MediaDropAuthenticatorPlugin, self).authenticate(environ, identity)
+>>>>>>> 4eaead27155404dddab6fab881601c801839b739
         if login is None:
             if notagain:
                 return None   # prevent infinite loop
@@ -190,23 +196,27 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
         # lead to confusion (user is logged out unexpectedly, best case) or 
         # account take-over (impersonation, worst case).
         # The user ID is considered constant and likely the best choice here.
-        return user.user_id
+        return user.id
     
     @classmethod
     def by_attribute(cls, config, attribute_name=None):
         from mediacore.model import DBSession, User
+<<<<<<< HEAD
         authenticator = MediaCoreAuthenticatorPlugin(config, User, DBSession)
+=======
+        authenticator = MediaDropAuthenticatorPlugin(User, DBSession)
+>>>>>>> 4eaead27155404dddab6fab881601c801839b739
         if attribute_name:
             authenticator.translations['user_name'] = attribute_name
         return authenticator
 
 
-class MediaCoreCookiePlugin(AuthTktCookiePlugin):
+class MediaDropCookiePlugin(AuthTktCookiePlugin):
     def __init__(self, secret, **kwargs):
         if kwargs.get('userid_checker') is not None:
             raise TypeError("__init__() got an unexpected keyword argument 'userid_checker'")
         kwargs['userid_checker'] = self._check_userid
-        super(MediaCoreCookiePlugin, self).__init__(secret, **kwargs)
+        super(MediaDropCookiePlugin, self).__init__(secret, **kwargs)
     
     def _check_userid(self, user_id):
         # only accept numeric user_ids. In MediaCore < 0.10 the cookie contained
@@ -217,7 +227,11 @@ class MediaCoreCookiePlugin(AuthTktCookiePlugin):
 
 
 def who_args(config):
+<<<<<<< HEAD
     auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute(config, 'user_name')
+=======
+    auth_by_username = MediaDropAuthenticatorPlugin.by_attribute('user_name')
+>>>>>>> 4eaead27155404dddab6fab881601c801839b739
     
     form = FriendlyFormPlugin(
         login_form_url,
@@ -226,11 +240,11 @@ def who_args(config):
         logout_handler_url,
         post_logout_url,
         rememberer_name='cookie',
-        charset='iso-8859-1',
+        charset='utf-8',
     )
     cookie_secret = config['sa_auth.cookie_secret']
     seconds_30_days = 30*24*60*60 # session expires after 30 days
-    cookie = MediaCoreCookiePlugin(cookie_secret, 
+    cookie = MediaDropCookiePlugin(cookie_secret, 
         cookie_name='authtkt', 
         timeout=seconds_30_days, # session expires after 30 days
         reissue_time=seconds_30_days/2, # reissue cookie after 15 days
@@ -259,8 +273,8 @@ class AuthorizationMiddleware(object):
         self.config = config
     
     def __call__(self, environ, start_response):
-        environ['mediacore.perm'] = \
-            MediaCorePermissionSystem.permissions_for_request(environ, self.config)
+        environ['mediadrop.perm'] = \
+            MediaDropPermissionSystem.permissions_for_request(environ, self.config)
         return self.app(environ, start_response)
 
 
@@ -288,8 +302,8 @@ def classifier_for_flash_uploads(environ):
         # pylons.request is populated. Re-instantiation later comes cheap.
         request = Request(environ)
         try:
-            session_id = request.str_POST[session_key]
+            session_id = str(request.POST[session_key])
             environ['HTTP_COOKIE'] = '%s=%s' % (session_key, session_id)
-        except KeyError:
+        except (KeyError, UnicodeEncodeError):
             pass
     return classification

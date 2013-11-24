@@ -1,20 +1,19 @@
 .. _dev_contributing:
 
 ============================
-Contributing to MediaCore CE
+Contributing to MediaDrop
 ============================
 
 Reporting Bugs
 --------------
 
-The simplest way to give back to MediaCore CE is to report bugs as you find
+The simplest way to give back to MediaDrop is to report bugs as you find
 them!
 
 Please post issues to our `issue tracker on Github
-<http://github.com/mediacore/mediacore-community/issues>`_.
+<https://github.com/mediadrop/mediadrop/issues>`_.
 
-You can always post to our `community forums
-<http://mediacorecommunity.org/community>`_ if you aren't sure if its a bug or
+You can always post to our `community forums <http://mediadrop.net/community/>`_ if you aren't sure if its a bug or
 not.
 
 
@@ -35,15 +34,15 @@ which is an extension of
 `reStructuredText <http://en.wikipedia.org/wiki/ReStructuredText>`_.
 
 To build the documentation you must have Sphinx and Pygments installed. They
-were probably installed when you first installed MediaCore CE, but just in case,
+were probably installed when you first installed MediaDrop, but just in case,
 here's how to install them. (This example assumes that you're using a
-``virtualenv`` called ``mediacore_env``, as outlined in the :ref:`install
+``virtualenv`` called ``mediadrop_env``, as outlined in the :ref:`install
 instructions <install_toplevel>`.)
 
 .. sourcecode:: bash
 
     # As always, don't forget to work in your virtualenv
-    $ source mediacore_env/bin/activate
+    $ source mediadrop_env/bin/activate
     $ easy_install Sphinx Pygments
 
     # Build the HTML docs with sphinx
@@ -58,7 +57,7 @@ Submitting Patches
 ------------------
 
 Generally we request that you create an issue in our `issue tracker
-<http://github.com/mediacore/mediacore-community/issues>`_ for any patch
+<https://github.com/mediadrop/mediadrop/issues>`_ for any patch
 you'd like to submit. It helps us stay organized in the long run.
 
 Our Git repository is hosted over at `Github <http://github.com/>`_ and
@@ -75,7 +74,7 @@ bugfixes and smaller features, where only one person is working on it.
 .. sourcecode:: bash
 
     # Getting a copy of our git repository (if you haven't already):
-    $ git clone git://github.com/mediacore/mediacore-community.git
+    $ git clone git://github.com/mediadrop/mediadrop.git
 
     # Create a new branch and switch to it:
     $ git checkout -b your_local_branch
@@ -95,7 +94,7 @@ create a patch for submission:
     $ git format-patch --stdout origin/master.. > your_patch
 
 Attach the ``your_patch`` file to an `issue
-<http://github.com/mediacore/mediacore-community/issues>`_ describing the
+<https://github.com/mediadrop/mediadrop/issues>`_ describing the
 problem and the fix.
 
 

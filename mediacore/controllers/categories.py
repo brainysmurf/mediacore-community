@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -12,7 +12,8 @@ from sqlalchemy import orm
 from mediacore.lib.base import BaseController
 from mediacore.lib.decorators import (beaker_cache, expose, observable, 
     paginate, validate)
-from mediacore.lib.helpers import content_type_for_response, viewable_media
+from mediacore.lib.helpers import content_type_for_response, url_for, viewable_media
+from mediacore.lib.i18n import _
 from mediacore.model import Category, Media, fetch_row
 from mediacore.plugin import events
 from mediacore.validation import LimitFeedItemsValidator
@@ -60,6 +61,11 @@ class CategoriesController(BaseController):
 
         if c.category:
             media = media.in_category(c.category)
+            
+            response.feed_links.append((
+                url_for(controller='/categories', action='feed', slug=c.category.slug),
+                _('Latest media in %s') % c.category.name
+            ))
 
         latest = media.order_by(Media.publish_on.desc())
         popular = media.order_by(Media.popularity_points.desc())
@@ -111,7 +117,9 @@ class CategoriesController(BaseController):
             media = media.in_category(c.category)
 
         media_query = media.order_by(Media.publish_on.desc())
-        media = viewable_media(media_query).limit(limit)
+        media = viewable_media(media_query)
+        if limit is not None:
+            media = media.limit(limit)
 
         return dict(
             media = media,

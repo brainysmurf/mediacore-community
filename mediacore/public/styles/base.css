@@ -1,6 +1,6 @@
 /**
- * This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
- * Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+ * This file is a part of MediaDrop (http://www.mediadrop.net),
+ * Copyright 2009-2013 MediaDrop contributors
  * For the exact contribution history, see the git revision log.
  * The source code contained in this file is licensed under the GPLv3 or
  * (at your option) any later version.
@@ -79,7 +79,7 @@ a:hover {
 #mcore-site-title,
 #mcore-logo {
 	width: 920px;
-	margin: 10px auto;
+	margin: 10px auto 0px;
 }
 #mcore-tagline {
 	margin-top: -10px;
@@ -127,6 +127,33 @@ a:hover {
 .mediacore-content {
 	width: 920px;
 	margin: 0 auto;
+}
+
+/* Login bar */
+.mcore-login-box {
+    width: 920px;       /* same as .mediacore-content */
+    position: relative;
+    
+    /* don't reserve any space, we use relative/absolute positioning with negative margins anyway */
+    height: 0px;
+    
+    /* ensure that 'login' link is visible if there is no head html/site
+     * title - setting will be overriden by appearance.css if logo should be
+     * displayed */
+    margin-top: 20px;
+    
+    margin-bottom: 5px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mcore-login-bar {
+    /* get the login bar completely out of the flow so it never messes up with the navbar */
+    position: absolute;
+    top: -15px;
+    right: 0px;
+    
+    float: right;
 }
 
 /* Sectional Nav */
@@ -1005,4 +1032,21 @@ textarea {
 }
 .mcore-cursor-pointer {
     cursor: pointer;
+}
+
+.mcore-alerts {
+	width: 920px;
+	margin: 10px auto 30px auto;
+	border-radius: 4px;
+	font-weight: bold;
+	
+	padding: 10px;
+	line-height: 1;
+}
+
+.mcore-warnings {
+	color: #644405;
+	background-color: #FBDCA0;
+	border: 1px solid #F6B83F;
+	text-align: center;
 }

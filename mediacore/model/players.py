@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -23,8 +23,8 @@ from sqlalchemy.types import Boolean, DateTime, Integer, Unicode
 from mediacore.lib.decorators import memoize
 from mediacore.lib.i18n import _
 from mediacore.lib.players import AbstractPlayer
-from mediacore.model import JsonType
 from mediacore.model.meta import DBSession, metadata
+from mediacore.model.util import JSONType
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ players = Table('players', metadata,
                                                     onupdate=datetime.now, doc=\
         """The date and time this player was last modified."""),
 
-    Column('data', JsonType, nullable=False, default=dict, doc=\
+    Column('data', JSONType, nullable=False, default=dict, doc=\
         """The user preferences for this player (if any).
 
         This dictionary is passed as `data` kwarg when

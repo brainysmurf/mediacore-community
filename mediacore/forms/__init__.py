@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -38,7 +38,8 @@ class LeniantValidationMixin(object):
         # we need to ensure that each form instance gets its own Schema instance
         # so it is safe for plugins to change class-level variables (e.g.
         # adding chained validators)
-        self.validator = leniant_schema()
+        if not self.validator:
+            self.validator = leniant_schema()
         
         if getattr(self, 'event', None):
             self.event(self)

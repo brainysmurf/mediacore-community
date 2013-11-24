@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -414,7 +414,8 @@ class MediaController(BaseController):
                 file.storage.delete(file.unique_id)
                 DBSession.delete(file)
                 DBSession.flush()
-                media = fetch_row(Media, id)
+                # media.files must be updated to reflect the file deletion above
+                DBSession.refresh(media)
                 data['success'] = True
             else:
                 data['message'] = _('No action to perform.')
@@ -548,7 +549,7 @@ class MediaController(BaseController):
         """
         if id == 'new':
             media = Media()
-            user = req.perm.user
+            user = request.perm.user
             media.author = Author(user.display_name, user.email_address)
             media.title = os.path.basename(thumb.filename)
             media.slug = get_available_slug(Media, '_stub_' + media.title)

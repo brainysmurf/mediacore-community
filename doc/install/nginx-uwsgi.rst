@@ -1,3 +1,5 @@
+:orphan:
+
 .. _install_nginx-uwsgi:
 
 ========================
@@ -31,19 +33,19 @@ recipes and tips for configuring NGINX.
 Components
 ----------
 The following five components are involved in getting web requests through to
-MediaCore CE with this setup.
+MediaDrop with this setup.
 
 ``NGINX``
    the web server
 
 ``uWSGI``
-   WSGI application container that serves MediaCore CE
+   WSGI application container that serves MediaDrop
 
 ``nginx.conf``
    Your nginx configuration file.
 
 ``deployment.ini``
-   The MediaCore CE deployment file for your production server.
+   The MediaDrop deployment file for your production server.
 
 ``mediacore``
    the reason we're here!
@@ -54,12 +56,12 @@ Instructions
 the permissions on the ``data`` subdirectories as outlined in
 :ref:`production_deployments`
 
-**NOTE 2:** The following instructions assume that you’re deploying MediaCore CE
-to your own domain at ``http://yourdomain.com`` and that your MediaCore CE
+**NOTE 2:** The following instructions assume that you’re deploying MediaDrop
+to your own domain at ``http://site.example`` and that your MediaDrop
 installation is configured like this:
 
-``MediaCore CE Virtual Environment > /home/mediacore/mediacore_env``
-``MediaCore CE App > /home/mediacore/mediacore``
+``MediaDrop Virtual Environment > /path/to/venv``
+``MediaDrop Source Code > /path/to/mediacore_install``
 
 uWSGI Configuration
 -------------------
@@ -76,7 +78,7 @@ more detail below:
     socket = /tmp/uwsgi-mediacore.sock
     master = true
     processes = 5
-    home = /home/mediacore/mediacore_env
+    home = /path/to/venv
     daemonize = /var/log/uwsgi.log
 
 ``socket:`` uWSGI will create a unix socket at this location on your system
@@ -102,7 +104,7 @@ uWSGI and point to your ini file like this:
 .. sourcecode:: bash
 
     # launch uWSGI and serve with settings from your config file
-    sudo uwsgi --ini-paste /path/to/your/mediacore/deployment.ini
+    sudo uwsgi --ini-paste /path/to/deployment.ini
 
 If everything went well uWSGI will now be listening on the unix socket you
 specified above. Of course you still need to tell NGINX how to talk to uWSGI so
@@ -111,17 +113,17 @@ let's configure that now.
 NGINX Configuration
 -------------------
 
-When configuring NGINX for use with uWSGI to serve MediaCore CE, you need to make
+When configuring NGINX for use with uWSGI to serve MediaDrop, you need to make
 sure that you define how to talk to uWSGI, your static file paths, and also
-your XSendfile internal path that MediaCore CE will serve media files from.
+your XSendfile internal path that MediaDrop will serve media files from.
 
 At this point, it will probably be easier to just walk through a fully
-functional MediaCore CE NGINX configuration file, so here it is. This is a generic
+functional MediaDrop NGINX configuration file, so here it is. This is a generic
 configuration and will probably suit most use cases:
 
 .. sourcecode:: nginx
 
-    # Configure our MediaCore CE App for NGINX+UWSGI
+    # Configure our MediaDrop App for NGINX+UWSGI
     server {
         # Define server parameters:
         # Listen on port 80 for requests to mydomain.com
@@ -132,7 +134,7 @@ configuration and will probably suit most use cases:
 
         # Important: This setting will define maximum upload size, so make
         # sure it is sane for your purposes! For example, if you have a
-        # 300MB upload limit in MediaCore CE, people will say "Yay! I can upload
+        # 300MB upload limit in MediaDrop, people will say "Yay! I can upload
         # my 300MB video!" However, if this setting is set to 10MB, then no
         # one will be able to upload videos over 10MB and people will not
         # like you very much.
@@ -155,17 +157,17 @@ configuration and will probably suit most use cases:
         # See the NGINX docs on Location  regex matching for more details:
         # http://wiki.nginx.org/HttpCoreModule#location
 
-        root /home/mediacore/mediacore/mediacore/public;
+        root /path/to/mediacore_install/mediacore/public;
 
         # And now we define the rest of our static locations below
         location ~* ^/(appearance)/ {
-                root /home/mediacore/mediacore/data ;
+                root /path/to/data ;
                 break;
         }
 
         # All media and podcast images
         location ~* ^(/images\/media|images\/podcasts) {
-                root /home/mediacore/mediacore/data ;
+                root /path/to/data ;
                 break;
         }
 
@@ -178,12 +180,15 @@ configuration and will probably suit most use cases:
 
         # Configure NGINX XSendfile.
         # We use an alias here instead of root so the path info
-        # __mediacore_serve__ is stripped off.
-        # Note: __mediacore_serve__ is defined in MediaCore CE as the path to serve NGINX files from.
+        # __mediadrop_serve__ is stripped off.
+        # Note: "__mediadrop_serve__" is just the default prefix and can be
+        # configured using the option "nginx_serve_path" in your deployment.ini.
+        # Note: __mediadrop_serve__ should point to the path where MediaDrop
+        # stores its media files.
         # Note: We define this as an "internal" location to prevent it from
         # being served directly to end users.
         location /__mediacore_serve__ {
-                alias /home/mediacore/mediacore/data/media;
+                alias /path/to/data/media;
                 internal;
         }
 
@@ -192,7 +197,7 @@ configuration and will probably suit most use cases:
         # Note: The uwsgi_pass directive must use the same socket that was
         # defined in your deployment.ini [uwsgi] block.
         # Note: Make sure that you pass in SCRIPT_NAME = '' otherwise uWSGI
-        # will raise a keyError when loading MediaCore CE.
+        # will raise a keyError when loading MediaDrop.
         location / {
                 uwsgi_pass      unix:///tmp/uwsgi-mediacore.sock;
                 include         uwsgi_params;
@@ -202,29 +207,25 @@ configuration and will probably suit most use cases:
 
 At this point you can start your NGINX server and test out your app!
 
-.. sourcecode:: bash
-
-    # launch NGINX
-    sudo /path/to/nginx/sbin/nginx
 
 Performance Enhancements
 ------------------------
-By default, all files are served through MediaCore CE. The configuration above
+By default, all files are served through MediaDrop. The configuration above
 ensures that NGINX will serve all static files (.css, .js, and images) directly,
-but MediaCore CE will still check for static files before serving any page. There
+but MediaDrop will still check for static files before serving any page. There
 are two speedups we can enable here.
 
-First, edit one line in ``/path/to/mediacore_install/deployment.ini``.
+First, edit one line in ``/path/to/deployment.ini``.
 Find the static_files line, and set it to false.
 
 .. sourcecode:: ini
 
-    # disable static file serving with MediaCore CE
+    # disable static file serving with MediaDrop
     static_files = false
 
-The second speedup will allow MediaCore CE to take advantage of NGINX XSendfile
+The second speedup will allow MediaDrop to take advantage of NGINX XSendfile
 and have NGINX serve all media files (.mp3, .mp4, etc.) directly. To enable
-this, edit another line in ``/path/to/mediacore_install/deployment.ini``.
+this, edit another line in ``/path/to/deployment.ini``.
 Find the files_serve_method line, and set it to nginx_redirect.
 
 .. sourcecode:: ini

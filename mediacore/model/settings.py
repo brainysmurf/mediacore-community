@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -87,7 +87,7 @@ def insert_settings(defaults):
     """Insert the given setting if they don't exist yet.
 
     XXX: Does not include any support for MultiSetting. This approach
-         won't work for that. We'll need to use sqlalchemy-migrate.
+         won't work for that. We'll need to use a migration script.
 
     :type defaults: list
     :param defaults: Key and value pairs

@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -12,6 +12,7 @@ available to Controllers. This module is available to templates as 'h'.
 import re
 import simplejson
 import time
+import warnings
 
 from datetime import datetime
 from urllib import quote, unquote, urlencode
@@ -101,7 +102,7 @@ __all__ = [
     'is_admin',
     'in_restricted_group',
     'js',
-    'mediacore_version',
+    'mediadrop_version',
     'pick_any_media_file',
     'pick_podcast_media_file',
     'pretty_file_size',
@@ -126,7 +127,7 @@ def js(source):
         return url_for(js_sources_debug[source])
     return url_for(js_sources[source])
 
-def mediacore_version():
+def mediadrop_version():
     import mediacore
     return mediacore.__version__
 
@@ -307,15 +308,15 @@ def has_permission(permission_name):
     return request.perm.contains_permission(permission_name)
 
 def is_admin():
-    """Return True if the logged in user is a part of the Admins group.
+    """Return True if the logged in user has the "admin" permission.
 
-    TODO: This method will need to be replaced when we improve our user
-    access controls.
+    For a default install a user has the "admin" permission if he is a member
+    of the "admins" group.
 
-    :returns: Whether or not the current user is an Admin.
+    :returns: Whether or not the current user has "admin" permission.
     :rtype: bool
     """
-    return has_permission('admin')
+    return has_permission(u'admin')
 
 def in_restricted_group():
     restricted_group_name = request.settings.get('restricted_permissions_group', False)
@@ -324,17 +325,20 @@ def in_restricted_group():
     return restricted_group_name in [g.group_name for g in request.perm.groups]
     
 def can_edit(item=None):
-    """Return True if the logged in user has the 'edit' permission.
+    """Return True if the logged in user has the "edit" permission.
 
-    :param item: When we improve our user access controls, this will be used
-                 to check edit permissions on a particular object.
-                 TODO: 'item' is currently an unimplemented argument.
+    For a default install this is true for all members of the "admins" group.
+
+    :param item: unused parameter (deprecated)
     :type item: unimplemented
 
-    :returns: Whether the current user has the 'edit' permission.
+    :returns: Whether or not the current user has "edit" permission.
     :rtype: bool
     """
-    return has_permission('edit')
+    if item is not None:
+        warnings.warn(u'"item" parameter for can_edit() is deprecated', 
+          DeprecationWarning, stacklevel=2)
+    return has_permission(u'edit')
 
 def gravatar_from_email(email, size):
     """Return the URL for a gravatar image matching the provided email address.
@@ -391,7 +395,7 @@ def doc_link(page=None, anchor='', text=N_('Help'), **kwargs):
     XXX: Target attribute is not XHTML compliant.
     """
     attrs = {
-        'href': 'http://mediacorecommunity.org/docs/user/%s.html#%s' % (page, anchor),
+        'href': 'http://mediadrop.net/docs/user/%s.html#%s' % (page, anchor),
         'target': '_blank',
     }
     if kwargs:

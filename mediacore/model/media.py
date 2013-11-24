@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -439,7 +439,7 @@ class Media(object):
             title=u'Foo Media',
             author=Author(u'Joe', u'joe@site.example'),
             
-            type = VIDEO,
+            type = None,
         )
         defaults.update(kwargs)
         defaults.setdefault('slug', get_available_slug(Media, defaults['title']))
@@ -492,8 +492,7 @@ class Media(object):
             return VIDEO
         elif any(file.type == AUDIO for file in self.files):
             return AUDIO
-        else:
-            return None
+        return None
 
     def _update_encoding(self):
         # Test to see if we can find a workable file/player combination

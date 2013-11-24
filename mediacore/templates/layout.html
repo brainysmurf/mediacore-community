@@ -1,6 +1,6 @@
 <!--!
-This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
 For the exact contribution history, see the git revision log.
 The source code contained in this file is licensed under the GPLv3 or
 (at your option) any later version.
@@ -12,18 +12,8 @@ See LICENSE.txt in the main project directory, for more information.
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
       xmlns:xi="http://www.w3.org/2001/XInclude"
+      i18n:domain="mediacore"
       py:strip="">
-
-<?python feed_links = [] ?>
-
-<head py:match="head">
-	<link py:match="link" py:attrs="select('@*')"><?python
-		attrs = h.attrs_to_dict(select('@*'))
-		if attrs.get('type') == 'application/rss+xml':
-			feed_links.append((attrs['href'], attrs['title']))
-	?></link>
-	<meta py:replace="select('*|text()')"/>
-</head>
 
 <body py:match="body" py:attrs="select('@*')">
 	${Markup(settings['appearance_custom_header_html'])}
@@ -38,15 +28,15 @@ See LICENSE.txt in the main project directory, for more information.
 
 	<div py:replace="select('*|text()|comment()')">Content is injected here</div>
 
-	<div py:if="settings['appearance_display_mediacore_footer']" id="mcore-foot" class="mediacore-content clear">
+	<div py:if="settings['appearance_display_mediadrop_footer']" id="mcore-foot" class="mediacore-content clear">
 		<div id="mcore-feeds" class="f-lft">
 			<h5>Feeds:</h5>
 			<ul>
-				<li py:for="href, title in feed_links"><a href="${href}" class="mcore-foot-link underline-hover">${title}</a></li>
+				<li py:for="href, title in response.feed_links"><a href="${href}" class="mcore-foot-link underline-hover">${title}</a></li>
 			</ul>
 		</div>
-		<div py:if="settings['appearance_display_mediacore_credits']" id="mcore-credits" class="f-rgt">
-			<a href="http://mediacorecommunity.org" class="mcore-foot-link underline-hover" i18n:msg=""><strong>MediaCore</strong> <em>video platform</em></a>
+		<div py:if="settings['appearance_display_mediadrop_credits']" id="mcore-credits" class="f-rgt">
+			<a href="http://mediadrop.net" class="mcore-foot-link underline-hover" i18n:msg=""><strong>MediaDrop</strong> <em>video platform</em></a>
 		</div>
 	</div>
 
@@ -54,23 +44,23 @@ See LICENSE.txt in the main project directory, for more information.
 
 	
     <script type="text/javascript">
-        window.mediacore = window.mediacore || {};
-        mediacore.ie6update = mediacore.ie6update || {};
-        mediacore.ie6update.scripts = "${h.url_for('/scripts/third-party/ie6update')}";
-        mediacore.ie6update.images = "${h.url_for('/images/third-party/ie6update/')}";
+        window.mediadrop = window.mediadrop || {};
+        mediadrop.ie6update = mediadrop.ie6update || {};
+        mediadrop.ie6update.scripts = "${h.url_for('/scripts/third-party/ie6update')}";
+        mediadrop.ie6update.images = "${h.url_for('/images/third-party/ie6update/')}";
     </script>
 	<!--[if IE 6]>
 		<script type="text/javascript">
 			// Load jQuery if not already loaded
 			if (typeof jQuery == 'undefined') {
-				document.write('<script type="text/javascript" src="'+mediacore.ie6update.scripts+'/jquery-1.7.2.min.js"></'+'script>');
+				document.write('<script type="text/javascript" src="'+mediadrop.ie6update.scripts+'/jquery-1.7.2.min.js"></'+'script>');
 				var __noconflict = true;
 			}
 			var IE6UPDATE_OPTIONS = {
-			    icons_path: mediacore.ie6update.images,
+			    icons_path: mediadrop.ie6update.images,
 			    message: 'Your version of Internet Explorer is not supported by this site. Click here to update... '
 		    };
-			document.write('<script type="text/javascript" src="'+mediacore.ie6update.scripts+'/ie6update.js"></'+'script>');
+			document.write('<script type="text/javascript" src="'+mediadrop.ie6update.scripts+'/ie6update.js"></'+'script>');
 		</script>
 	<![endif]-->
 </body>

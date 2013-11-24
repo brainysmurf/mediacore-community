@@ -1,6 +1,6 @@
 <!--!
-This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
 For the exact contribution history, see the git revision log.
 The source code contained in this file is licensed under the GPLv3 or
 (at your option) any later version.
@@ -17,17 +17,8 @@ See LICENSE.txt in the main project directory, for more information.
 
 <head>
 	<title>${h.page_title(default='Explore', media='all')}</title>
-	<meta name="keywords" content="${h.meta_keywords(media='all') or 'MediaCore'}" />
-	<meta name="description" content="${h.meta_description(media='all') or 'MediaCore Video CMS'}" />
-	<link py:if="settings['sitemaps_display'] == 'True'"
-	      rel="alternate" type="application/rss+xml" title="Sitemap XML"
-	      href="${h.url_for(controller='/sitemaps', action='google')}" />
-	<link py:if="settings['sitemaps_display'] == 'True'"
-	      rel="alternate" type="application/rss+xml" title="Sitemap RSS"
-	      href="${h.url_for(controller='/sitemaps', action='mrss')}" />
-	<link py:if="settings['rss_display'] == 'True'"
-	      rel="alternate" type="application/rss+xml" title="Latest RSS"
-	      href="${h.url_for(controller='/sitemaps', action='latest')}" />
+	<meta name="keywords" content="${h.meta_keywords(media='all') or 'MediaDrop'}" />
+	<meta name="description" content="${h.meta_description(media='all') or 'MediaDrop Video CMS'}" />
 </head>
 <body class="nav-explore-on">
 	<div class="mediacore-content clearfix">
@@ -81,7 +72,7 @@ See LICENSE.txt in the main project directory, for more information.
 					${h.media_player(featured, width=410, height=231)}
 					<h3><a class="underline-hover" href="${h.url_for_media(featured)}">${featured.title}</a></h3>
 					<div class="feat-meta">
-						<span py:if="settings['comments_engine'] == 'mediacore'" class="meta meta-comments">${featured.comment_count_published} ${ungettext('Comment', 'Comments', featured.comment_count_published)}</span>
+						<span py:if="settings['comments_engine'] == 'builtin'" class="meta meta-comments">${featured.comment_count_published} ${ungettext('Comment', 'Comments', featured.comment_count_published)}</span>
 						<span py:if="settings['appearance_show_like'] and settings.get('likes') != 'facebook'" class="meta meta-likes"><span id="mcore-likes-counter">${h.format_decimal(featured.likes)}</span> ${ungettext('Like', 'Likes', featured.likes)}</span>
 						<span class="meta meta-views">${h.format_decimal(featured.views)} ${ungettext('View', 'Views', featured.views)}</span>
 					</div>

@@ -1,39 +1,34 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
-
-"""Setup the MediaCore application"""
+"""Setup the MediaDrop application"""
 import logging
-import os.path
+import os
 import random
 import string
 
 import pylons
-import pylons.test
 
 from genshi.template import NewTextTemplate
 from genshi.template.loader import TemplateLoader
 from PIL import Image
-from migrate.versioning.api import (drop_version_control, version_control,
-    version, upgrade)
-from migrate.exceptions import DatabaseAlreadyControlledError
 
 from mediacore.config.environment import load_environment
 from mediacore.lib.i18n import N_
 from mediacore.lib.storage import (BlipTVStorage, DailyMotionStorage,
-    GoogleVideoStorage, LocalFileStorage, RemoteURLStorage, VimeoStorage,
-    YoutubeStorage)
+    LocalFileStorage, RemoteURLStorage, VimeoStorage, YoutubeStorage)
+from mediacore.migrations.util import MediaDropMigrator
+from mediacore.plugin import events
+
 from mediacore.model import (Author, AuthorWithIP, Category, Comment,
     DBSession, Group, Media, MediaFile, Permission, Podcast, Setting,
     User, metadata, cleanup_players_table)
 
 log = logging.getLogger(__name__)
 here = os.path.dirname(__file__)
-
-migrate_repository = os.path.join(here, 'migrations')
 
 appearance_settings = [
     (u'appearance_logo', u''),
@@ -44,7 +39,8 @@ appearance_settings = [
     (u'appearance_text_color', u'#637084'),
     (u'appearance_navigation_bar_color', u'purple'),
     (u'appearance_heading_color', u'#3f3f3f'),
-    (u'appearance_enable_cooliris', u'True'),
+    (u'appearance_enable_cooliris', u''),
+    (u'appearance_display_login', u''),
     (u'appearance_enable_featured_items', u'True'),
     (u'appearance_enable_podcast_tab', u'True'),
     (u'appearance_enable_user_uploads', u'True'),
@@ -55,8 +51,8 @@ appearance_settings = [
     (u'appearance_custom_header_html', u''),
     (u'appearance_custom_footer_html', u''),
     (u'appearance_custom_head_tags', u''),
-    (u'appearance_display_mediacore_footer', u'True'),
-    (u'appearance_display_mediacore_credits', u'True'),
+    (u'appearance_display_mediadrop_footer', u'True'),
+    (u'appearance_display_mediadrop_credits', u'True'),
     (u'appearance_show_download', u'True'),
     (u'appearance_show_share', u'True'),
     (u'appearance_show_embed', u'True'),
@@ -65,6 +61,7 @@ appearance_settings = [
     (u'appearance_show_like', u'True'),
     (u'appearance_show_dislike', u'True'),
 ]
+
 
 def setup_app(command, conf, vars):
     """Called by ``paster setup-app``.
@@ -95,42 +92,46 @@ def setup_app(command, conf, vars):
          script yourself.
 
     """
-    if pylons.test.pylonsapp:
-        # NOTE: This extra filename check may be unnecessary, the example it is
-        # from did not check for pylons.test.pylonsapp. Leaving it in for now
-        # to make it harder for someone to accidentally delete their database.
-        filename = os.path.split(conf.filename)[-1]
-        if filename == 'test.ini':
-            log.info('Dropping existing tables...')
-            metadata.drop_all(checkfirst=True)
-            drop_version_control(conf.local_conf['sqlalchemy.url'],
-                                 migrate_repository)
-    else:
-        # Don't reload the app if it was loaded under the testing environment
-        config = load_environment(conf.global_conf, conf.local_conf)
-
-    # Create the migrate_version table if it doesn't exist.
-    # If the table doesn't exist, we assume the schema was just setup
-    # by this script and therefore must be the latest version.
-    latest_version = version(migrate_repository)
-    try:
-        version_control(conf.local_conf['sqlalchemy.url'],
-                        migrate_repository,
-                        version=latest_version)
-    except DatabaseAlreadyControlledError:
-        log.info('Running any new migrations, if there are any')
-        upgrade(conf.local_conf['sqlalchemy.url'],
-                migrate_repository,
-                version=latest_version)
-    else:
-        log.info('Initializing new database with version %r' % latest_version)
+    config = load_environment(conf.global_conf, conf.local_conf)
+    plugin_manager = config['pylons.app_globals'].plugin_mgr
+    mediadrop_migrator = MediaDropMigrator.from_config(conf, log=log)
+    
+    engine = metadata.bind
+    db_connection = engine.connect()
+    # simplistic check to see if MediaCore tables are present, just check for
+    # the media_files table and assume that all other tables are there as well
+    from mediacore.model.media import media_files
+    mediadrop_tables_exist = engine.dialect.has_table(db_connection, media_files.name)
+    
+    run_migrations = True
+    if not mediadrop_tables_exist:
+        head_revision = mediadrop_migrator.head_revision()
+        log.info('Initializing new database with version %r' % head_revision)
         metadata.create_all(bind=DBSession.bind, checkfirst=True)
+        mediadrop_migrator.init_db(revision=head_revision)
+        run_migrations = False
         add_default_data()
-
+        for migrator in plugin_manager.migrators():
+            migrator.init_db()
+        events.Environment.database_initialized()
+    elif not mediadrop_migrator.migrate_table_exists():
+        log.error('No migration table found, probably your MediaCore install '
+            'is too old (< 0.9?). Please upgrade to MediaCore CE 0.9 first.')
+        raise AssertionError('no migration table found')
+    elif not mediadrop_migrator.alembic_table_exists():
+        alembic_revision = mediadrop_migrator.map_migrate_version()
+        mediadrop_migrator.stamp(alembic_revision)
+    if run_migrations:
+        mediadrop_migrator.migrate_db()
+        for migrator in plugin_manager.migrators():
+            migrator.migrate_db()
+        events.Environment.database_migrated()
+    
     cleanup_players_table(enabled=True)
-
+    
     # Save everything, along with the dummy data if applicable
     DBSession.commit()
+    events.Environment.database_ready()
 
     log.info('Generating appearance.css from your current settings')
     settings = DBSession.query(Setting.key, Setting.value)
@@ -173,7 +174,7 @@ def add_default_data():
         (u'api_secret_key', random_string(20)),
         (u'api_media_max_results', u'50'),
         (u'api_tree_max_depth', u'10'),
-        (u'general_site_name', u'MediaCore'),
+        (u'general_site_name', u'MediaDrop'),
         (u'general_site_title_display_order', u'prepend'),
         (u'sitemaps_display', u'True'),
         (u'rss_display', u'True'),
@@ -181,7 +182,7 @@ def add_default_data():
         (u'primary_language', u'en'),
         (u'advertising_banner_html', u''),
         (u'advertising_sidebar_html', u''),
-        (u'comments_engine', u'mediacore'),
+        (u'comments_engine', u'builtin'),
         (u'facebook_appid', u''),
     ]
     settings.extend(appearance_settings)
@@ -289,47 +290,46 @@ def add_default_data():
         VimeoStorage(),
         BlipTVStorage(),
         DailyMotionStorage(),
-        GoogleVideoStorage(),
     ]
     for engine in default_engines:
         DBSession.add(engine)
 
     import datetime
     instructional_media = [
-        (u'workflow-in-mediacore',
-        u'Workflow in MediaCore',
-        u'<p>This sceencast explains the publish status feature in MediaCore.</p><p>Initially all videos uploaded through the front-end or admin panel are placed under &quot;awaiting review&quot; status. Once the administrator hits the &quot;review complete&quot; button, they can upload media. Videos can be added in any format, however, they can only be published if they are in a web-ready format such as FLV, M4V, MP3, or MP4. Alternatively, if they are published through Youtube or Vimeo the encoding step is skipped</p><p>Once uploaded and encoded the administrator can then publish the video.</p>',
-        u'This sceencast explains the publish status feature in MediaCore.\nInitially all videos uploaded through the front-end or admin panel are placed under \"awaiting review\" status. Once the administrator hits the \"review complete\" button, they can upload media. Videos can be added in any format, however, they can only be published if they are in a web-ready format such as FLV, M4V, MP3, or MP4. Alternatively, if they are published through Youtube or Vimeo the encoding step is skipped\nOnce uploaded and encoded the administrator can then publish the video.',
+        (u'workflow-in-mediadrop',
+        u'Workflow in MediaDrop',
+        u'<p>This sceencast explains the publish status feature in MediaDrop.</p><p>Initially all videos uploaded through the front-end or admin panel are placed under &quot;awaiting review&quot; status. Once the administrator hits the &quot;review complete&quot; button, they can upload media. Videos can be added in any format, however, they can only be published if they are in a web-ready format such as FLV, M4V, MP3, or MP4. Alternatively, if they are published through Youtube or Vimeo the encoding step is skipped</p><p>Once uploaded and encoded the administrator can then publish the video.</p>',
+        u'This sceencast explains the publish status feature in MediaDrop.\nInitially all videos uploaded through the front-end or admin panel are placed under \"awaiting review\" status. Once the administrator hits the \"review complete\" button, they can upload media. Videos can be added in any format, however, they can only be published if they are in a web-ready format such as FLV, M4V, MP3, or MP4. Alternatively, if they are published through Youtube or Vimeo the encoding step is skipped\nOnce uploaded and encoded the administrator can then publish the video.',
         datetime.datetime(2010, 5, 13, 2, 29, 40),
         218,
-        u'http://getmediacore.com/files/tutorial-workflow-in-mediacore.mp4',
+        u'http://static.mediadrop.net/files/videos/tutorial-workflow-in-mediadrop.mp4',
         u'video',
         u'mp4',
         ),
-        (u'creating-a-podcast-in-mediacore',
-        u'Creating a Podcast in MediaCore',
-        u'<p>This describes the process an administrator goes through in creating a podcast in MediaCore. An administrator can enter information that will automatically generate the iTunes/RSS feed information. Any episodes published to a podcast will automatically publish to iTunes/RSS.</p>',
-        u'This describes the process an administrator goes through in creating a podcast in MediaCore. An administrator can enter information that will automatically generate the iTunes/RSS feed information. Any episodes published to a podcast will automatically publish to iTunes/RSS.',
+        (u'creating-a-podcast-in-mediadrop',
+        u'Creating a Podcast in MediaDrop',
+        u'<p>This describes the process an administrator goes through in creating a podcast in MediaDrop. An administrator can enter information that will automatically generate the iTunes/RSS feed information. Any episodes published to a podcast will automatically publish to iTunes/RSS.</p>',
+        u'This describes the process an administrator goes through in creating a podcast in MediaDrop. An administrator can enter information that will automatically generate the iTunes/RSS feed information. Any episodes published to a podcast will automatically publish to iTunes/RSS.',
         datetime.datetime(2010, 5, 13, 2, 33, 44),
         100,
-        u'http://getmediacore.com/files/tutorial-create-podcast-in-mediacore.mp4',
+        u'http://static.mediadrop.net/files/videos/tutorial-create-podcast-in-mediadrop.mp4',
         u'video',
         u'mp4',
         ),
-        (u'adding-a-video-in-mediacore',
-        u'Adding a Video in MediaCore',
-        u'<p>This screencast shows how video or audio can be added in MediaCore.</p><p>MediaCore supports a wide range of formats including (but not limited to): YouTube, Vimeo, Google Video, Amazon S3, Bits on the Run, BrightCove, Kaltura, and either your own server or someone else\'s.</p><p>Videos can be uploaded in any format, but can only be published in web-ready formats such as FLV, MP3, M4V, MP4 etc.</p>',
-        u'This screencast shows how video or audio can be added in MediaCore.\nMediaCore supports a wide range of formats including (but not limited to): YouTube, Vimeo, Google Video, Amazon S3, Bits on the Run, BrightCove, Kaltura, and either your own server or someone else\'s.\nVideos can be uploaded in any format, but can only be published in web-ready formats such as FLV, MP3, M4V, MP4 etc.',
+        (u'adding-a-video-in-mediadrop',
+        u'Adding a Video in MediaDrop',
+        u'<p>This screencast shows how video or audio can be added in MediaDrop.</p><p>MediaDrop supports a wide range of formats including (but not limited to): YouTube, Vimeo, Amazon S3, Bits on the Run, BrightCove, Kaltura, and either your own server or someone else\'s.</p><p>Videos can be uploaded in any format, but can only be published in web-ready formats such as FLV, MP3, M4V, MP4 etc.</p>',
+        u'This screencast shows how video or audio can be added in MediaDrop.\nMediaDrop supports a wide range of formats including (but not limited to): YouTube, Vimeo, Amazon S3, Bits on the Run, BrightCove, Kaltura, and either your own server or someone else\'s.\nVideos can be uploaded in any format, but can only be published in web-ready formats such as FLV, MP3, M4V, MP4 etc.',
         datetime.datetime(2010, 5, 13, 02, 37, 36),
         169,
-        u'http://getmediacore.com/files/tutorial-add-video-in-mediacore.mp4',
+        u'http://static.mediadrop.net/files/videos/tutorial-add-video-in-mediadrop.mp4',
         u'video',
         u'mp4',
         ),
     ]
 
-    name = u'MediaCore Team'
-    email = u'info@mediacore.com'
+    name = u'MediaDrop Team'
+    email = u'info@mediadrop.net'
     for slug, title, desc, desc_plain, publish_on, duration, url, type_, container in instructional_media:
         media = Media()
         media.author = Author(name, email)
@@ -410,7 +410,7 @@ def generate_appearance_css(settings, cache_dir=None):
 
     """
     if cache_dir is None:
-        cache_dir = pylons.config['cache.dir']
+        cache_dir = pylons.config['pylons.cache_dir']
     if not os.path.exists(cache_dir):
         raise ValueError('No valid cache dir provided.')
 
@@ -441,7 +441,7 @@ def generate_appearance_css(settings, cache_dir=None):
     css = tmpl.generate(**vars).render('text')
 
     warning = ('/*\n'
-               ' * This file is automatically generated by MediaCore.\n'
+               ' * This file is automatically generated by MediaDrop.\n'
                ' * Please do not edit this file directly.\n'
                ' */\n\n')
 

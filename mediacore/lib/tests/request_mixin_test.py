@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code in this file is is dual licensed under the MIT license or
 # the GPLv3 or (at your option) any later version.
@@ -14,7 +14,7 @@ from mediacore.lib.attribute_dict import AttrDict
 from mediacore.lib.helpers import has_permission
 from mediacore.lib.test.db_testcase import DBTestCase
 from mediacore.lib.test.pythonic_testcase import *
-from mediacore.lib.test.request_mixin import build_http_body, RequestMixin
+from mediacore.lib.test import build_http_body, RequestMixin
 from mediacore.model import DBSession, User
 
 

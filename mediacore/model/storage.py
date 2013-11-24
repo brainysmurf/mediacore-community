@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -14,9 +14,9 @@ from sqlalchemy.orm import column_property, dynamic_loader, mapper
 from sqlalchemy.types import Boolean, DateTime, Integer, Unicode
 
 from mediacore.lib.storage import StorageEngine
-from mediacore.model import JsonType
 from mediacore.model.media import MediaFile, MediaFileQuery, media_files
 from mediacore.model.meta import metadata
+from mediacore.model.util import JSONType
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ storage = Table('storage', metadata,
     Column('created_on', DateTime, nullable=False, default=datetime.now),
     Column('modified_on', DateTime, nullable=False, default=datetime.now,
                                                     onupdate=datetime.now),
-    Column('data', JsonType, nullable=False, default=dict),
+    Column('data', JSONType, nullable=False, default=dict),
     mysql_engine='InnoDB',
     mysql_charset='utf8',
 )

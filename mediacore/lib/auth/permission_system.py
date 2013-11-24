@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -16,7 +16,7 @@ from mediacore.model import DBSession, Group, User
 from mediacore.plugin.abc import AbstractClass, abstractmethod
 
 
-__all__ = ['MediaCorePermissionSystem', 'PermissionPolicies']
+__all__ = ['MediaDropPermissionSystem', 'PermissionPolicies']
 
 class PermissionPolicies(AbstractClass):
     @abstractmethod
@@ -45,10 +45,10 @@ class PermissionPolicies(AbstractClass):
         return map(policy_from_name, policy_names)
 
 
-class MediaCorePermissionSystem(PermissionSystem):
+class MediaDropPermissionSystem(PermissionSystem):
     def __init__(self, config):
         policies = PermissionPolicies.configured_policies(config)
-        super(MediaCorePermissionSystem, self).__init__(policies)
+        super(MediaDropPermissionSystem, self).__init__(policies)
     
     @classmethod
     def permissions_for_request(cls, environ, config):
@@ -56,7 +56,7 @@ class MediaCorePermissionSystem(PermissionSystem):
         user_id = identity.get('repoze.who.userid')
         user = None
         if user_id is not None:
-            user = DBSession.query(User).filter(User.user_id==user_id).first()
+            user = DBSession.query(User).filter(User.id==user_id).first()
         return cls.permissions_for_user(user, config)
     
     @classmethod
@@ -65,7 +65,7 @@ class MediaCorePermissionSystem(PermissionSystem):
             user = User()
             user.display_name = u'Anonymous User'
             user.user_name = u'anonymous'
-            user.email_address = 'invalid@mediacore.example'
+            user.email_address = 'invalid@mediadrop.example'
             anonymous_group = Group.by_name(u'anonymous')
             groups = filter(None, [anonymous_group])
         else:

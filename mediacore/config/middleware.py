@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -33,7 +33,9 @@ import tw.api
 from mediacore import monkeypatch_method
 from mediacore.config.environment import load_environment
 from mediacore.lib.auth import add_auth
-from mediacore.model.meta import DBSession
+from mediacore.migrations.util import MediaDropMigrator
+from mediacore.model import DBSession
+from mediacore.plugin import events
 
 log = logging.getLogger(__name__)
 
@@ -176,22 +178,22 @@ class DBSanityCheckingMiddleware(object):
     
     def check_for_live_db_connection(self, dbapi_connection):
         # Try to check that the current DB connection is usable for DB queries
-        # by issuing a trivial SQL query. It can happen because the user set 
-        # the 'sqlalchemy.pool_recycle' time too high or simply because the 
+        # by issuing a trivial SQL query. It can happen because the user set
+        # the 'sqlalchemy.pool_recycle' time too high or simply because the
         # MySQL server was restarted in the mean time.
         # Without this check a user would get an internal server error and the
-        # connection would be reset by the DBSessionRemoverMiddleware at the  
+        # connection would be reset by the DBSessionRemoverMiddleware at the
         # end of that request.
-        # This functionality below will prevent the initial "internal server 
+        # This functionality below will prevent the initial "internal server
         # error".
         #
         # This approach is controversial between DB experts. A good blog post
         # (with an even better discussion highlighting pros and cons) is
         # http://www.mysqlperformanceblog.com/2010/05/05/checking-for-a-live-database-connection-considered-harmful/
         #
-        # In MediaCore the check is only done once per request (skipped for 
+        # In MediaDrop the check is only done once per request (skipped for
         # static files) so it should be relatively light on the DB server.
-        # Also the check can be disabled using the setting 
+        # Also the check can be disabled using the setting
         # 'sqlalchemy.check_connection_before_request = false'.
         #
         # possible optimization: check each connection only once per minute or so,
@@ -219,7 +221,7 @@ class DBSanityCheckingMiddleware(object):
     
     def on_connection_checkin(self, dbapi_connection, connection_record):
         connection_id = id(dbapi_connection)
-        # connections might be returned *after* this middleware called 
+        # connections might be returned *after* this middleware called
         # 'self.connections.clear()', we should not break in that case...
         if connection_id in self.connections:
             del self.connections[connection_id]
@@ -287,6 +289,11 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     """
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
+    alembic_migrations = MediaDropMigrator.from_config(config, log=log)
+    if alembic_migrations.is_db_scheme_current():
+        events.Environment.database_ready()
+    else:
+        log.warn('Running with an outdated database scheme. Please upgrade your database.')
     plugin_mgr = config['pylons.app_globals'].plugin_mgr
 
     # The Pylons WSGI app
@@ -321,12 +328,20 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
 
+        # by default Apache uses  a global alias for "/error" in the httpd.conf
+        # which means that users can not send error reports through MediaDrop's
+        # error page (because that POSTs to /error/report).
+        # To make things worse Apache (at least up to 2.4) has no "unalias"
+        # functionality. So we work around the issue by using the "/errors"
+        # prefix (extra "s" at the end)
+        error_path = '/errors/document'
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
         if asbool(config['debug']):
-            app = StatusCodeRedirect(app)
+            app = StatusCodeRedirect(app, path=error_path)
         else:
-            app = StatusCodeRedirect(app, [400, 401, 403, 404, 500])
+            app = StatusCodeRedirect(app, errors=(400, 401, 403, 404, 500),
+                                     path=error_path)
 
     # Cleanup the DBSession only after errors are handled
     app = DBSessionRemoverMiddleware(app)

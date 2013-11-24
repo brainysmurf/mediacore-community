@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -128,11 +128,11 @@ class UploadForm(ListForm):
     events = events.UploadForm
     
     class fields(WidgetsList):
-        #file = FileField(validator=FieldStorageUploadConverter(if_missing=None, messages={'empty':N_('Oops! You forgot to enter a file.')}), label_text=N_('Upload:'), help_text="(Must be an mp4 or m4a file)")
         #name = TextField(validator=validators['name'], label_text=N_(request.settings.get('text_of_name_prompt') or 'Your Name:'), help_text=N_(request.settings.get('text_of_name_help') or ''), maxlength=50)
         email = TextField(validator=UploadEmailValidator(not_empty=True), label_text=N_(request.settings.get('text_of_email_prompt') or 'Your email:'), help_text=N_(request.settings.get('text_of_email_help') or ''), maxlength=255)
         title = TextField(validator=validators['title'], label_text=N_(request.settings.get('text_of_title_prompt') or 'Title:'), help_text=N_(request.settings.get('text_of_title_help') or ''), maxlength=255)
         tags = TextArea(validator=validators['tags'], label_text=N_(request.settings.get('text_of_tags_prompt') or 'Tags:'), help_text=N_(request.settings.get('text_of_tag_help') or '(one tag for each line)'), maxlength=255)
         description = TextField(validator=validators['description'], label_text=N_(request.settings.get('text_of_description_prompt') or 'Description:'), help_text=N_(request.settings.get('text_of_description_help') or ''), attrs=dict(rows=5, cols=25))
         #url = TextField(validator=validators['url'], label_text=N_('Add a YouTube, Vimeo or Google Video URL:'), maxlength=255)
+        #file = FileField(validator=FieldStorageUploadConverter(if_missing=None, messages={'empty':N_('Oops! You forgot to enter a file.')}), label_text=N_('Upload:'), help_text="(Must be an mp4 or m4a file)")
         submit = SubmitButton(default=N_('Continue'), css_classes=['mcore-btn', 'btn-submit'])

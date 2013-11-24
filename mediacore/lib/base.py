@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -56,7 +56,7 @@ class BareBonesController(WSGIController):
         override this method to customize the arguments your controller
         actions are called with.
 
-        For MediaCore, we extend this to include all GET and POST params.
+        For MediaDrop, we extend this to include all GET and POST params.
 
         NOTE: If the action does not define \*\*kwargs, then only the kwargs
               that it defines will be passed to it when it is called.
@@ -78,8 +78,10 @@ class BareBonesController(WSGIController):
         self.setup_translator()
         response.scripts = Scripts()
         response.stylesheets = StyleSheets()
+        response.feed_links = []
         response.facebook = None
-        request.perm = request.environ['mediacore.perm']
+        response.warnings = []
+        request.perm = request.environ['mediadrop.perm']
 
         action_method = getattr(self, kwargs['action'], None)
         # The expose decorator sets the exposed attribute on controller
@@ -128,7 +130,7 @@ class BaseController(BareBonesController):
         tmpl_context.external_template = None
 
         # FIXME: This external template is only ever updated on server startup
-        if asbool(config['external_template']):
+        if asbool(config.get('external_template')):
             tmpl_name = config['external_template_name']
             tmpl_url = config['external_template_url']
             timeout = config['external_template_timeout']
@@ -281,8 +283,7 @@ class BaseSettingsController(BaseController):
 
     def _save(self, form, redirect_action=None, values=None):
         """Save the values from the passed in form instance."""
-        values = self._flatten_settings_from_form(tmpl_context.settings,
-                                                  form, values)
+        values = self._flatten_settings_from_form(form, values)
         self._update_settings(values)
         if redirect_action:
             helpers.redirect(action=redirect_action)
@@ -302,7 +303,7 @@ class BaseSettingsController(BaseController):
                 form_values[field._name] = settings[field._name].value
         return form_values
 
-    def _flatten_settings_from_form(self, settings, form, form_values):
+    def _flatten_settings_from_form(self, form, form_values):
         """Take a nested dict and return a flat dict of setting values."""
         setting_values = {}
         for field in form.c:
@@ -311,7 +312,7 @@ class BaseSettingsController(BaseController):
                 continue
             if isinstance(field, _ContainerMixin):
                 setting_values.update(self._flatten_settings_from_form(
-                    settings, field, form_values[field._name]
+                    field, form_values[field._name]
                 ))
             elif not self._is_button(field):
                 setting_values[field._name] = form_values[field._name]

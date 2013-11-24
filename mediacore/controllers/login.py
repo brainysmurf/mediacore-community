@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -36,7 +36,7 @@ class LoginController(BaseController):
         login_errors = None
         if self._is_failed_login():
             login_errors = Invalid('dummy', None, {}, error_dict={
-                '_form': Invalid(_('Invalid email/username or password.'), None, {}),
+                '_form': Invalid(_('Invalid username or password.'), None, {}),
                 'login': Invalid('dummy', None, {}),
                 'password': Invalid('dummy', None, {}),
             })
@@ -80,7 +80,12 @@ class LoginController(BaseController):
             # mechanism doesn't work so go to the login method directly here.
             self._increase_number_of_failed_logins()
             return self.login(came_from=came_from)
-        redirect(came_from or url_for('/admin'))
+        if came_from:
+            redirect(came_from)
+        # It is important to return absolute URLs (if app mounted in subdirectory)
+        if request.perm.contains_permission(u'edit') or request.perm.contains_permission(u'admin'):
+            redirect(url_for('/admin', qualified=True))
+        redirect(url_for('/', qualified=True))
 
     @expose()
     @observable(events.LoginController.post_logout)

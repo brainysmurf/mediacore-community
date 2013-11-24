@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -1020,7 +1020,7 @@ def media_player(media, is_widescreen=False, show_like=True, show_dislike=True,
         'show_embed': show_embed,
         'show_playerbar': show_playerbar,
         'show_popout': show_popout,
-        'show_resize': show_resize and player.supports_resizing,
+        'show_resize': show_resize and (player and player.supports_resizing),
         'show_share': show_share,
     })
 
@@ -1079,7 +1079,7 @@ def embed_iframe(media, width=400, height=225, frameborder=0, **kwargs):
                   frameborder=frameborder, **kwargs)
     # some software is known not to work with self-closing iframe tags 
     # ('<iframe ... />'). Several WordPress instances are affected as well as
-    # TWiki http://opensource.mediacore.com/community/topic/embed-iframe-closing-tag
+    # TWiki http://mediadrop.net/community/topic/embed-iframe-closing-tag
     tag.append('')
     return tag
 

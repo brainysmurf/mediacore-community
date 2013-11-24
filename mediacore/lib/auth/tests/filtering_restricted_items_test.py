@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -7,7 +7,7 @@
 
 from mediacore.lib.auth.api import IPermissionPolicy, UserPermissions
 from mediacore.lib.auth.group_based_policy import GroupBasedPermissionsPolicy
-from mediacore.lib.auth.permission_system import MediaCorePermissionSystem, PermissionPolicies
+from mediacore.lib.auth.permission_system import MediaDropPermissionSystem, PermissionPolicies
 from mediacore.lib.test.db_testcase import DBTestCase
 from mediacore.lib.test.pythonic_testcase import *
 from mediacore.model import DBSession, Media, User
@@ -24,7 +24,7 @@ class FilteringRestrictedItemsTest(DBTestCase):
         Media.query.delete()
         self.private_media = Media.example(slug=u'private')
         self.public_media = Media.example(slug=u'public')
-        self.permission_system = MediaCorePermissionSystem(self.pylons_config)
+        self.permission_system = MediaDropPermissionSystem(self.pylons_config)
         self.media_query = Media.query
         user = self._create_user_without_groups()
         self.perm = UserPermissions(user, self.permission_system)
@@ -35,7 +35,7 @@ class FilteringRestrictedItemsTest(DBTestCase):
     def _create_user_without_groups(self):
         user = User()
         user.user_name = u'joe'
-        user.email_address = u'joe@mediacore.example'
+        user.email_address = u'joe@mediadrop.example'
         user.display_name = u'Joe'
         user.groups = []
         DBSession.add(user)

@@ -1,11 +1,10 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
-from mediacore.lib.filetypes import VIDEO
 from mediacore.model import Author, Media
 from mediacore.lib.test.db_testcase import DBTestCase
 from mediacore.lib.test.pythonic_testcase import *
@@ -22,7 +21,7 @@ class MediaExampleTest(DBTestCase):
         assert_equals(Author(u'Joe', u'joe@site.example'), media.author)
         assert_length(0, media.files)
         
-        assert_equals(VIDEO, media.type)
+        assert_none(media.type)
         assert_none(media.podcast_id)
         
         assert_false(media.publishable)

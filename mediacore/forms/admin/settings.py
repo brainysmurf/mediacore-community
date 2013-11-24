@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -26,11 +26,11 @@ from mediacore.model.settings import insert_settings
 from mediacore.model import Category
 
 comments_enable_disable = lambda: (
-    ('mediacore', _("Built-in comments")),
+    ('builtin', _("Built-in comments")),
     ('facebook', _('Facebook comments (requires a Facebook application ID)')),
     ('disabled', _('Disable comments')),
 )
-comments_enable_validator = OneOf(('mediacore', 'facebook', 'disabled'))
+comments_enable_validator = OneOf(('builtin', 'facebook', 'disabled'))
 
 title_options = lambda: (
     ('prepend', _('Prepend')),
@@ -477,6 +477,13 @@ class AppearanceForm(MediaCoreSettingsForm):
                 CheckBox('appearance_enable_cooliris',
                     css_classes=['checkbox-left'],
                     label_text=N_('Enable Cooliris on the Explore Page'),
+                    help_text=N_('Cooliris support is deprecated and will be ' + \
+                        'removed in the next major version of MediaDrop ' + \
+                        'unless someone is interested in maintaining it.'),
+                    validator=Bool(if_missing='')),
+                CheckBox(u'appearance_display_login',
+                    css_classes=['checkbox-left'],
+                    label_text=N_('Display login link for all users'),
                     validator=Bool(if_missing='')),
                 CheckBox('appearance_enable_featured_items',
                     label_text=N_('Enable Featured Items on the Explore Page'),
@@ -506,12 +513,12 @@ class AppearanceForm(MediaCoreSettingsForm):
                     label_text=N_('Display Background Image'),
                     css_classes=['checkbox-left'],
                     validator=Bool(if_missing='')),
-                CheckBox('appearance_display_mediacore_footer',
-                    label_text=N_('Display MediaCore Footer'),
+                CheckBox('appearance_display_mediadrop_footer',
+                    label_text=N_('Display MediaDrop Footer'),
                     css_classes=['checkbox-left'],
                     validator=Bool(if_missing='')),
-                CheckBox('appearance_display_mediacore_credits',
-                    label_text=N_('Display MediaCore Credits in Footer'),
+                CheckBox('appearance_display_mediadrop_credits',
+                    label_text=N_('Display MediaDrop Credits in Footer'),
                     css_classes=['checkbox-left'],
                     validator=Bool(if_missing='')),
             ],

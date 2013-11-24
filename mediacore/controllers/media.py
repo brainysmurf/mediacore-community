@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -83,6 +83,16 @@ class MediaController(BaseController):
             tag = fetch_row(Tag, slug=tag)
             media = media.filter(Media.tags.contains(tag))
 
+        if (request.settings['rss_display'] == 'True') and (not (q or tag)):
+            if show == 'latest':
+                response.feed_links.extend([
+                    (url_for(controller='/sitemaps', action='latest'), _(u'Latest RSS')),
+                ])
+            elif show == 'featured':
+                response.feed_links.extend([
+                    (url_for(controller='/sitemaps', action='featured'), _(u'Featured RSS')),
+                ])
+
         media = viewable_media(media)
         return dict(
             media = media,
@@ -129,6 +139,15 @@ class MediaController(BaseController):
 
         latest = viewable_media(latest.exclude(featured))[:8]
         popular = viewable_media(popular.exclude(featured, latest))[:5]
+        if request.settings['sitemaps_display'] == 'True':
+            response.feed_links.extend([
+                (url_for(controller='/sitemaps', action='google'), _(u'Sitemap XML')),
+                (url_for(controller='/sitemaps', action='mrss'), _(u'Sitemap RSS')),
+            ])
+        if request.settings['rss_display'] == 'True':
+            response.feed_links.extend([
+                (url_for(controller='/sitemaps', action='latest'), _(u'Latest RSS')),
+            ])
 
         return dict(
             featured = featured,
@@ -277,7 +296,7 @@ class MediaController(BaseController):
                 return self.view(slug, name=name, email=email, body=body,
                                  **kwargs)
 
-        if request.settings['comments_engine'] != 'mediacore':
+        if request.settings['comments_engine'] != 'builtin':
             abort(404)
         akismet_key = request.settings['akismet_key']
         if akismet_key:
@@ -345,17 +364,17 @@ class MediaController(BaseController):
         file_path = helpers.file_path(file)
         if file_path is None:
             log.warn('No path exists for requested media file: %r', file)
-            raise HTTPNotFound().exception
+            raise HTTPNotFound()
         file_path = file_path.encode('utf-8')
 
         if not os.path.exists(file_path):
             log.warn('No such file or directory: %r', file_path)
-            raise HTTPNotFound().exception
+            raise HTTPNotFound()
 
         # Ensure the request accepts files with this container
         accept = request.environ.get('HTTP_ACCEPT', '*/*')
         if not mimeparse.best_match([file_type], accept):
-            raise HTTPNotAcceptable().exception # 406
+            raise HTTPNotAcceptable() # 406
 
         method = config.get('file_serve_method', None)
         headers = []
@@ -375,11 +394,15 @@ class MediaController(BaseController):
         elif method == 'nginx_redirect':
             # Requires NGINX server configuration:
             # NGINX must have a location block configured that matches
-            # the __mediacore_serve__ path below. It should also be
-            # configured as an "internal" location to prevent people from
-            # surfing directly to it.
+            # the /__mediadrop_serve__ path below (the value configured by
+            # setting  "nginx_serve_path" option in the configuration). It
+            # should also be configured as an "internal" location to prevent
+            # people from surfing directly to it.
             # For more information see: http://wiki.nginx.org/XSendfile
-            redirect_filename = '/__mediacore_serve__/%s' % os.path.basename(file_path)
+            serve_path = config.get('nginx_serve_path', '__mediadrop_serve__')
+            if not serve_path.startswith('/'):
+                serve_path = '/' + serve_path
+            redirect_filename = '%s/%s' % (serve_path, os.path.basename(file_path))
             response.headers['X-Accel-Redirect'] = redirect_filename
 
 

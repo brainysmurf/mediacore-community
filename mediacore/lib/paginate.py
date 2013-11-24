@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -169,7 +169,7 @@ def paginate(name, items_per_page=10, use_prefix=False, items_first_page=None):
             res = f(*args, **kwargs)
             if isinstance(res, dict) and name in res:
                 additional_parameters = MultiDict()
-                for key, value in request.str_params.iteritems():
+                for key, value in request.params.iteritems():
                     if key not in own_parameters:
                         additional_parameters.add(key, value)
 

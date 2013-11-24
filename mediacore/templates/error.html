@@ -1,6 +1,6 @@
 <!--!
-This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
 For the exact contribution history, see the git revision log.
 The source code contained in this file is licensed under the GPLv3 or
 (at your option) any later version.
@@ -35,7 +35,7 @@ See LICENSE.txt in the main project directory, for more information.
 			<li>Fill out an error report below.</li>
 		</ol>
 
-		<form action="${h.url_for(controller='error', action='report')}" method="post" class="form">
+		<form action="${h.url_for(controller='errors', action='report')}" method="post" class="form">
 			<input py:for="x in vars" id="${x}" name="${x}" value="${vars[x]}" type="hidden" />
 			<div>
 				<label for="email">Email: (so we can contact you if we find it!)</label>

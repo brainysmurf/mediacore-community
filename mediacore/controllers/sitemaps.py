@@ -1,5 +1,5 @@
-# This file is a part of MediaCore CE (http://www.mediacorecommunity.org),
-# Copyright 2009-2013 MediaCore Inc., Felix Schwarz and other contributors.
+# This file is a part of MediaDrop (http://www.mediadrop.net),
+# Copyright 2009-2013 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -124,7 +124,9 @@ class SitemapsController(BaseController):
             ['application/rss+xml', 'application/xml', 'text/xml'])
 
         media_query = Media.query.published().order_by(Media.publish_on.desc())
-        media = viewable_media(media_query).limit(limit)
+        media = viewable_media(media_query)
+        if limit is not None:
+            media = media.limit(limit)
 
         if skip > 0:
             media = media.offset(skip)
@@ -152,7 +154,9 @@ class SitemapsController(BaseController):
         media_query = Media.query.in_category(get_featured_category())\
             .published()\
             .order_by(Media.publish_on.desc())
-        media = viewable_media(media_query).limit(limit)
+        media = viewable_media(media_query)
+        if limit is not None:
+            media = media.limit(limit)
 
         if skip > 0:
             media = media.offset(skip)
@@ -167,7 +171,7 @@ class SitemapsController(BaseController):
         """Serve the crossdomain XML file manually if static_files is disabled.
 
         If someone forgets to add this Alias we might as well serve this file
-        for them and save everyone the trouble. This only works when MediaCore
+        for them and save everyone the trouble. This only works when MediaDrop
         is served out of the root of a domain and if Cooliris is enabled.
         """
         global crossdomain_app
@@ -176,7 +180,7 @@ class SitemapsController(BaseController):
             # Ensure the cache is cleared if cooliris is suddenly disabled
             if crossdomain_app:
                 crossdomain_app = None
-            raise HTTPNotFound().exception
+            raise HTTPNotFound()
 
         if not crossdomain_app:
             relpath = 'mediacore/public/crossdomain.xml'
