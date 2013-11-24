@@ -15,7 +15,7 @@ See LICENSE.txt in the main project directory, for more information.
 <xi:include href="../master.html" />
 <head>
 
-	<title>${h.page_title(default='Podcasts', podcast=c.podcast or 'all')}</title>
+	<title>${h.page_title(default=settings.get('vocabulary_podcasts_plural', 'Podcasts'), podcast=c.podcast or 'all')}</title>
 	<meta name="keywords" content="${h.meta_keywords(podcast=c.podcast or 'all')}" />
 	<meta name="description" content="${h.meta_description(podcast=c.podcast or 'all')}" />
 	<link href="${h.url_for('/styles/podcasts.css')}" media="screen" rel="stylesheet" type="text/css" />
@@ -44,8 +44,8 @@ See LICENSE.txt in the main project directory, for more information.
 		</div>
 
 		<h4 i18n:choose="result_count; result_count" class="uppercase">
-			<i18n:singular>${result_count} Episodes</i18n:singular>
-			<i18n:plural>All ${result_count} Episodes</i18n:plural>
+			<i18n:singular>${'{} {}'.format(result_count, settings.get('vocabulary_episodes_singular', 'Episode'))}</i18n:singular>
+			<i18n:plural>All ${'{} {}'.format(result_count, settings.get('vocabulary_episodes_plural', 'Episodes'))}</i18n:plural>
 		</h4>
 		${library_controls(show, paginator=c.paginators.episodes)}
 		<ul py:replace="media_grid(episodes, thumb_size='m', desc_len=145)" />

@@ -64,7 +64,7 @@ See LICENSE.txt in the main project directory, for more information.
 		<div class="box-head clearfix">
 			<py:choose>
 				<h1 py:when="search" i18n:msg="search">Media that matches '${search}'</h1>
-				<h1 py:when="podcast" i18n:msg="podcastTitle">${podcast.title} Episodes</h1>
+				<h1 py:when="podcast" i18n:msg="podcastTitle"> ${'{} {}'.format(podcast.title, settings.get('vocabulary_episodes_plural', 'Episodes'))}</h1>
 				<h1 py:when="category" i18n:msg="categoryName">Media in '${category.name}'</h1>
 				<h1 py:when="tag" i18n:msg="tagName">Media tagged '${tag.name}'</h1>
 				<h1 py:when="media_filter == 'unreviewed'">Unreviewed Media</h1>
@@ -74,7 +74,9 @@ See LICENSE.txt in the main project directory, for more information.
 				<h1 py:otherwise="">All Media</h1>
 			</py:choose>
 			<div class="f-rgt">
-				<a class="btn inline block f-lft" href="${h.url_for(action='edit', id='new')}" style="margin-right:10px"><span>Add New Media</span></a>
+				<a class="btn inline block f-lft"
+			href="${h.url_for(action='edit', id='new')}"
+			  style="margin-right:10px"><span>Upload Movie</span></a>
 				<div class="dropdown-wrapper f-lft" style="margin-right:10px;width:130px">
 					<div class="dropdown-position">
 						<div class="dropdown-box">

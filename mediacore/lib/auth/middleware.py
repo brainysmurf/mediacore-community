@@ -12,22 +12,178 @@ from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
 from repoze.who.plugins.friendlyform import FriendlyFormPlugin
 from repoze.who.plugins.sa import SQLAlchemyAuthenticatorPlugin
-from webob.request import Request
-
 from mediacore.config.routing import login_form_url, login_handler_url, \
     logout_handler_url, post_login_url, post_logout_url
-
+from pylons.controllers.util import Request
 from mediacore.lib.auth.permission_system import MediaCorePermissionSystem
 
-
+from mediacore.model import User, Group
+import imaplib
+import ldap
+import re
+import datetime
+from mediacore.model.meta import DBSession
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from pylons import config as pylonsconfig
 
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
+class GeneralAuth(object):
+    def __init__(self, config):
+        """ Give this object whatever keys are in config: host, etc """
+        self.__dict__.update(config)
+
+        restricted_group_name = "RestrictedGroup"
+        self.restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+        self.builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+
+        if not self.restricted_group:
+            make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+            # Copy the permissions from the same group that can give us access to the /admin section
+            from copy import copy
+            make_new_group.permissions = copy(builtin_editor_group.permissions)
+            DBSession.add(make_new_group)
+            DBSession.commit()
+            # get the group we just created
+            self.restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+
+    def __del__(self):
+        self.delete()
+
+    def auth(self, username, password):
+        if not hasattr(self, 'connection'):
+            # lazy connection
+            self.connection = self.init()
+        return bool(self.login(username, password))
+
+    def log(self, exception):
+        #TODO: Implement
+        print(str(exception))
+
+    def init(self):
+        """ Should return the connection object """
+        raise NotImplemented
+
+    def delete(self):
+        """ Should free self.connection """
+        raise NotImplemented
+
+    def login(self, username, password):
+        """ Return bool whether or not user username with password authenticates """
+        raise NotImplemented
+
+    def default_domain(self):
+        """ Return the email domain these accounts should use """
+        raise NotImplemented
+
+    def default_groups(self):
+        """ Return list of group(s) these accounts should be in """
+        raise NotImplemented
+
+class LDAPAuthentication(GeneralAuth):
+
+    def init(self):
+        trace_level = 1 if hasattr(self, 'trace_level') and self.trace_level else 0
+        print(trace_level)
+        return ldap.initialize(self.host, trace_level=trace_level)
+
+    def delete(self):
+        self.connection.unbind()
+
+    def login(self, username, password):
+        try:
+            return self.connection.simple_bind_s("{cnword}={uid},{ouphrase},{dcphrase}".format(
+                cnword=self.cnword, uid=username,
+                ouphrase=self.ouphrase, dcphrase=self.dcphrase), password)
+        except Exception, e:
+            self.log(e)
+            return False
+
+    def default_domain(self):
+        return self.default_email_domain if hasattr(self, 'default_email_domain') else "example.org"
+
+    def default_groups(self):
+        return [self.builtin_editor_group]
+
+class IMAPAuthentication(GeneralAuth):
+
+    def init(self):
+        if not hasattr(self, 'connection'):
+            return None
+        return imaplib.IMAP4_SSL(self.host)
+
+    def delete(self):
+        pass
+
+    def login(self, username, password):
+        self.connection = self.init()
+        try:
+            authenticated = self.connection.login(username, password)
+        except Exception, e:
+            self.log(e)
+            return False
+        if authenticated:
+            print("logging out")
+            self.connection.logout()
+        print("Authenticated?: ", authenticated)
+        self.connection = None  # release memory for this connection
+        return authenticated
+
+    def default_domain(self):
+        return self.host
+
+    def default_groups(self):
+        return [self.restricted_group]
+
 class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
-    def authenticate(self, environ, identity):
+    def __init__(self, config, *args, **kwargs):
+        super(SQLAlchemyAuthenticatorPlugin, self).__init__(*args, **kwargs)
+        pylonsconfig['imap'] = IMAPAuthentication(config['imap'])
+        pylonsconfig['ldap'] = LDAPAuthentication(config['ldap'])
+
+    def authenticate(self, environ, identity, notagain=False):
         login = super(MediaCoreAuthenticatorPlugin, self).authenticate(environ, identity)
         if login is None:
-            return None
+            if notagain:
+                return None   # prevent infinite loop
+
+            username = identity['login']
+            password = identity['password']
+
+            if re.match(r'^[a-z]+[0-9]{2}$', username):
+                auth_to_use = pylonsconfig['imap']
+            else:
+                auth_to_use = pylonsconfig['ldap']
+                
+            if not auth_to_use.auth(username, password):
+                return None
+            else:
+                # Use the model to create the user which automagically gets put in the database
+                user = User()
+                user.display_name = username
+                user.user_name = username
+                user.email_address = "{}@{}".format(user.user_name, auth_to_use.default_domain())
+                user.password = u'uselesspassword#%^^#@'
+                user.groups = auth_to_use.default_groups()
+
+                try:
+                    #actually add the user
+                    DBSession.add(user)
+                    DBSession.commit()
+                except IntegrityError, e:
+                    DBSession.rollback()
+                    return None
+                except InvalidRequestError, e:
+                    new_user = DBSession.merge(user)
+                    DBSession.add(new_user)
+                    DBSession.commit()
+                except Exception, e:
+                    DBSession.rollback()
+                    return None
+
+                # Now repoze.who should be able to login
+                return self.authenticate(environ, identity, notagain=True)
+
         user = self.get_user(login)
         # The return value of this method is used to identify the user later on.
         # As the username can be changed, that's not really secure and may 
@@ -37,9 +193,9 @@ class MediaCoreAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
         return user.user_id
     
     @classmethod
-    def by_attribute(cls, attribute_name=None):
+    def by_attribute(cls, config, attribute_name=None):
         from mediacore.model import DBSession, User
-        authenticator = MediaCoreAuthenticatorPlugin(User, DBSession)
+        authenticator = MediaCoreAuthenticatorPlugin(config, User, DBSession)
         if attribute_name:
             authenticator.translations['user_name'] = attribute_name
         return authenticator
@@ -61,7 +217,7 @@ class MediaCoreCookiePlugin(AuthTktCookiePlugin):
 
 
 def who_args(config):
-    auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute('user_name')
+    auth_by_username = MediaCoreAuthenticatorPlugin.by_attribute(config, 'user_name')
     
     form = FriendlyFormPlugin(
         login_form_url,
@@ -137,5 +293,3 @@ def classifier_for_flash_uploads(environ):
         except KeyError:
             pass
     return classification
-
-

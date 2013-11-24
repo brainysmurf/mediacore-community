@@ -14,10 +14,14 @@ from sqlalchemy.orm import mapper, relation, synonym
 from mediacore.model.meta import DBSession, metadata
 from mediacore.lib.compat import any, sha1
 from mediacore.plugin import events
+import imaplib
+import ldap
+import re
+from pylons import config as pylonsconfig
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
-    Column('user_name', Unicode(16), unique=True, nullable=False),
+    Column('user_name', Unicode(255), unique=True, nullable=False),
     Column('email_address', Unicode(255), unique=True, nullable=False),
     Column('display_name', Unicode(255)),
     Column('password', Unicode(80)),
@@ -150,8 +154,16 @@ class User(object):
         """
         hashed_pass = sha1()
         hashed_pass.update(password + self.password[:40])
-        return self.password[40:] == hashed_pass.hexdigest()
-
+        authenticated = self.password[40:] == hashed_pass.hexdigest()
+        if not authenticated:
+            if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
+                print('using imap')
+                auth_to_use = pylonsconfig['imap']
+            else:
+                print('using ldap')
+                auth_to_use = pylonsconfig['ldap']
+            return auth_to_use.auth(self.user_name, password)
+        return authenticated
 
 class Group(object):
     """

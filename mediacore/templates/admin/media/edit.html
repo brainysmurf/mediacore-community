@@ -90,7 +90,7 @@ See LICENSE.txt in the main project directory, for more information.
 				image: 'thumb-img',
 				target: 'thumb',
 				statusContainer: 'thumb-upload',
-				uploadBtnText: '${_('Upload image').replace("'", "\\'")}',
+				uploadBtnText: '${_('Upload Thumbnail').replace("'", "\\'")}',
 				fxProgressBar: {url: '${h.url_for('/admin/images/progressbar/progress.png')}'},
 				path: '${h.url_for('/scripts/third-party/Swiff.Uploader.swf')}',
 				verbose: false // debug
@@ -168,8 +168,9 @@ See LICENSE.txt in the main project directory, for more information.
 		<div py:replace="update_status_form(media=media, action=update_status_action)" />
 
 		<div id="media-files-box" class="box">
-			<div class="box-head"><h1>Files</h1></div>
-			<div class="box-content"><div id="fmgr-open" class="btn block"><span>Add &amp; Manage</span></div></div>
+			<div class="box-head"><h1>Movie</h1></div>
+			<div class="box-content"><div id="fmgr-open"
+			class="btn block"><span>Upload Movie</span></div></div>
 			<ol id="file-list" class="file-list">
 				<li py:for="file in media.files" class="${file.type}" id="list-file-${file.id}">
 					<a class="file-name" href="${h.best_link_uri(file)}"

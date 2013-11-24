@@ -22,7 +22,7 @@ from mediacore.lib.auth import has_permission
 from mediacore.lib.base import BaseController
 from mediacore.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate, validate_xhr)
-from mediacore.lib.helpers import redirect, url_for
+from mediacore.lib.helpers import redirect, url_for, in_restricted_group
 from mediacore.lib.i18n import _
 from mediacore.lib.storage import add_new_media_file
 from mediacore.lib.templating import render
@@ -30,6 +30,7 @@ from mediacore.lib.thumbnails import thumb_path, thumb_paths, create_thumbs_for,
 from mediacore.model import Author, Category, Media, Podcast, Tag, fetch_row, get_available_slug
 from mediacore.model.meta import DBSession
 from mediacore.plugin import events
+from mediacore.model.authors import Author
 
 import logging
 log = logging.getLogger(__name__)
@@ -70,7 +71,10 @@ class MediaController(BaseController):
                 The podcast object for rendering if filtering by podcast.
 
         """
-        media = Media.query.options(orm.undefer('comment_count_published'))
+        if in_restricted_group():
+            media = Media.query.filter_by(author_email=request.perm.user.email_address)
+        else:
+            media = Media.query.options(orm.undefer('comment_count_published'))
 
         if search:
             media = media.admin_search(search)
@@ -155,7 +159,7 @@ class MediaController(BaseController):
 
         """
         media = fetch_row(Media, id)
-
+                
         if tmpl_context.action == 'save' or id == 'new':
             # Use the values from error_handler or GET for new podcast media
             media_values = kwargs
@@ -163,6 +167,15 @@ class MediaController(BaseController):
             media_values.setdefault('author_name', user.display_name)
             media_values.setdefault('author_email', user.email_address)
         else:
+            their_own_media_item = lambda : media.author.email == request.perm.user.email_address
+            if in_restricted_group():
+                if not their_own_media_item():
+                    redirect(url_for('/admin'))  # no message, just redirect TODO: Figure out how to display info
+                else:
+                    # Need to set this
+                    media.author = Author(request.perm.user.display_name, request.perm.user.email_address)
+                    DBSession.commit()
+
             # Pull the defaults from the media item
             media_values = dict(
                 podcast = media.podcast_id,

@@ -306,6 +306,9 @@ class BaseSettingsController(BaseController):
         """Take a nested dict and return a flat dict of setting values."""
         setting_values = {}
         for field in form.c:
+            if field.disabled:
+                # we can safely ignore values of disabled fields
+                continue
             if isinstance(field, _ContainerMixin):
                 setting_values.update(self._flatten_settings_from_form(
                     settings, field, form_values[field._name]

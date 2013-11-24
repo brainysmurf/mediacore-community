@@ -30,10 +30,10 @@ class LoginForm(ListForm):
     show_children_errors = False
 
     fields = [
-        TextField('login', label_text=N_('Username'), 
+        TextField('login', label_text=N_('DragonNet Username'), 
             # 'autofocus' is actually not XHTML-compliant
             attrs={'autofocus': True}),
-        PasswordField('password', label_text=N_('Password')),
+        PasswordField('password', label_text=N_('EMAIL Password'), help_text=N_("")),
         
         SubmitButton('login_button', default=N_('Login'), 
             css_classes=['mcore-btn', 'btn-submit', 'f-rgt'])

@@ -1,3 +1,7 @@
+SSIS DragonTV - Streaming video for K-12 schools:
+  * Expanded unauthenticated upload features (validation of specific domains, creation of limited "student" accounts)
+  * General user interface adjustments / improvements
+
 MediaCore Community Edition - A video, audio, and podcast publication platform.
 http://mediacorecommunity.org/
 

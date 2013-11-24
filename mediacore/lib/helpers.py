@@ -99,6 +99,7 @@ __all__ = [
     'get_featured_category',
     'gravatar_from_email',
     'is_admin',
+    'in_restricted_group',
     'js',
     'mediacore_version',
     'pick_any_media_file',
@@ -316,6 +317,12 @@ def is_admin():
     """
     return has_permission('admin')
 
+def in_restricted_group():
+    restricted_group_name = request.settings.get('restricted_permissions_group', False)
+    if not restricted_group_name:
+        return False
+    return restricted_group_name in [g.group_name for g in request.perm.groups]
+    
 def can_edit(item=None):
     """Return True if the logged in user has the 'edit' permission.
 

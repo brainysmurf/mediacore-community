@@ -19,6 +19,9 @@ from mediacore.lib.storage import add_new_media_file
 from mediacore.lib.thumbnails import create_default_thumbs_for, has_thumbs
 from mediacore.model import Author, DBSession, get_available_slug, Media
 from mediacore.plugin import events
+from mediacore.model import User, Group, Category
+import datetime
+import re
 
 import logging
 log = logging.getLogger(__name__)
@@ -124,15 +127,33 @@ class UploadController(BaseController):
                 # else actually save it!
                 kwargs.setdefault('name')
 
+                apply_yourname = kwargs.get('name') or kwargs.get('email') or "To be determined"
+                if re.match(r'^[a-z]+[0-9]{2}$', apply_yourname):
+                    apply_email = apply_yourname + '@student.ssis-suzhou.net'
+                else:
+                    apply_email = apply_yourname + '@ssis-suzhou.net'
+                
+                apply_title = kwargs['title']
+                apply_description = kwargs['description']
+                apply_tags = kwargs['tags']
+                if request.settings.get('upload_default_category') and request.settings.get('upload_default_category'):
+                    default_category = Category.query.filter(Category.name == request.settings['upload_default_category']).first()
+                    apply_categories = [default_category.id] if default_category else None
+                else:
+                    apply_categories = None
+                apply_file = kwargs['file']
+                apply_url = kwargs.get('url')
+
                 media_obj = self.save_media_obj(
-                    kwargs['name'], kwargs['email'],
-                    kwargs['title'], kwargs['description'],
-                    None, kwargs['file'], kwargs['url'],
+                    apply_yourname, apply_email,
+                    apply_title, apply_description,
+                    apply_tags, apply_categories, apply_file, apply_url,
                 )
+
                 email.send_media_notification(media_obj)
                 data = dict(
                     success = True,
-                    redirect = url_for(action='success')
+                    redirect = url_for(controller='admin/media', action=str(media_obj.id))
                 )
 
         return data
@@ -146,16 +167,30 @@ class UploadController(BaseController):
         """
         kwargs.setdefault('name')
 
+        if request.settings.get('upload_default_category') and request.settings.get('upload_default_category'):
+            default_category = Category.query.filter(Category.name == request.settings['upload_default_category']).first()
+            apply_categories = [default_category.id] if default_category else None
+        else:
+            apply_categories = None
+
+        apply_username = kwargs.get('name') or kwargs.get('email') or "To be determined"
+        if re.match(r'^[a-z]+[0-9]{2}$', apply_username):
+            apply_email = apply_username + '@student.ssis-suzhou.net'
+            default_category = Category.query.filter(Category.name == 'StudentUploads').first()
+        else:
+            apply_email = apply_username + '@ssis-suzhou.net'
+            default_category = Category.query.filter(Category.name == 'TeacherUploads').first()
+
         # Save the media_obj!
         media_obj = self.save_media_obj(
-            kwargs['name'], kwargs['email'],
+            apply_username, apply_email,
             kwargs['title'], kwargs['description'],
-            None, kwargs['file'], kwargs['url'],
+            kwargs['tags'], apply_categories, kwargs.get('file'), kwargs.get('url'),
         )
         email.send_media_notification(media_obj)
 
         # Redirect to success page!
-        redirect(action='success')
+        redirect(controller="admin/media", action=media_obj.id)
 
     @expose('upload/success.html')
     @observable(events.UploadController.success)
@@ -167,7 +202,7 @@ class UploadController(BaseController):
     def failure(self, **kwargs):
         return dict()
 
-    def save_media_obj(self, name, email, title, description, tags, uploaded_file, url):
+    def save_media_obj(self, name, email, title, description, tags, categories, uploaded_file, url):
         # create our media object as a status-less placeholder initially
         media_obj = Media()
         media_obj.author = Author(name, email)
@@ -177,14 +212,18 @@ class UploadController(BaseController):
         if request.settings['wording_display_administrative_notes']:
             media_obj.notes = request.settings['wording_administrative_notes']
         media_obj.set_tags(tags)
+        if categories:
+            media_obj.set_categories(categories)
 
         # Give the Media object an ID.
         DBSession.add(media_obj)
         DBSession.flush()
 
         # Create a MediaFile object, add it to the media_obj, and store the file permanently.
-        media_file = add_new_media_file(media_obj, file=uploaded_file, url=url)
-
+        if uploaded_file:
+            media_file = add_new_media_file(media_obj, file=uploaded_file, url=url)
+        else:
+            media_file = None
         # The thumbs may have been created already by add_new_media_file
         if not has_thumbs(media_obj):
             create_default_thumbs_for(media_obj)

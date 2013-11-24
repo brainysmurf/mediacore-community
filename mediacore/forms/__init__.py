@@ -20,7 +20,6 @@ from mediacore.lib.templating import tmpl_globals
 from mediacore.lib.util import url_for
 from mediacore.plugin import events
 
-
 def leniant_schema():
     return forms.validators.Schema(
         # workaround to prevent an error if no checkbox is checked in a list
@@ -206,6 +205,7 @@ tinyMCE.init({
                 kwargs['css_classes'] = ['tinymcearea']
 
         return TextArea.display(self, value, **kwargs)
+
 
 email_validator = Email(messages={
     'badUsername': N_('The portion of the email address before the @ is invalid'),
