@@ -1,2 +1,2 @@
 
-from mediacore.migrations.util import *
+from mediadrop.migrations.util import *
