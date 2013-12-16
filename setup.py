@@ -52,6 +52,7 @@ install_requires = setup_requires + [
     'unidecode',
     'decorator >= 3.3.2', # (version required by Pylons 1.0)
     'simplejson >= 2.2.1', # (version required by Pylons 1.0)
+    'python-ldap >= 2.4.13'
 ]
 
 if sys.version_info < (2, 7):
