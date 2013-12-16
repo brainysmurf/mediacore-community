@@ -109,7 +109,7 @@ class AddFileForm(ListForm):
     fields = [
         FileField('file', label_text=N_('Please choose an MP4 (or M4a or MP3) file'), validator=FieldStorageUploadConverter(not_empty=False, label_text=N_('Upload'))),
         SubmitButton('add_url', attrs={'class':'hidden'}, default=N_('Add URL'), named_button=True, css_class='btn grey btn-add-url f-rgt'),
-        TextField('url', validator=URL, suppress_label=True, attrs=lambda: {'title': _('YouTube, Vimeo, Google Video, Amazon S3 or any other link'), 'class': 'hidden'}, maxlength=255),
+        TextField('url', validator=URIValidator, suppress_label=True, attrs=lambda: {'title': _('YouTube, Vimeo, Google Video, Amazon S3 or any other link'), 'class': 'hidden'}, maxlength=255),
     ]
 
 file_type_options = lambda: registered_media_types()
