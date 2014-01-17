@@ -152,15 +152,15 @@ class User(object):
         :rtype: bool
 
         """
+        from IPython import embed
+        embed()
         hashed_pass = sha1()
         hashed_pass.update(password + self.password[:40])
         authenticated = self.password[40:] == hashed_pass.hexdigest()
         if not authenticated:
             if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
-                print('using imap')
                 auth_to_use = pylonsconfig['imap']
             else:
-                print('using ldap')
                 auth_to_use = pylonsconfig['ldap']
             return auth_to_use.auth(self.user_name, password)
         return authenticated
