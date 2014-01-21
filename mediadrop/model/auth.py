@@ -5,6 +5,9 @@
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 import os
+from pylons import config
+import psycopg2
+
 from datetime import datetime
 
 from sqlalchemy import Table, ForeignKey, Column, not_
@@ -12,12 +15,9 @@ from sqlalchemy.types import Unicode, Integer, DateTime
 from sqlalchemy.orm import mapper, relation, synonym
 
 from mediadrop.model.meta import DBSession, metadata
-from mediadrop.lib.compat import any, sha1
+from mediadrop.lib.compat import any, sha1, md5
 from mediadrop.plugin import events
-import imaplib
-import ldap
 import re
-from pylons import config as pylonsconfig
 
 users = Table('users', metadata,
     Column('user_id', Integer, autoincrement=True, primary_key=True),
@@ -152,17 +152,65 @@ class User(object):
         :rtype: bool
 
         """
-        from IPython import embed
-        embed()
         hashed_pass = sha1()
         hashed_pass.update(password + self.password[:40])
         authenticated = self.password[40:] == hashed_pass.hexdigest()
+
         if not authenticated:
-            if re.match(r'^[a-z]+[0-9]{2}$', self.user_name):
-                auth_to_use = pylonsconfig['imap']
+            # Make a connection to postgres
+            dragonnet = psycopg2.connect(database="moodle",
+                user="moodle", password="ssissqlmoodle", host="dragonnet.ssis-suzhou.net")
+            dragonnet_cursor = dragonnet.cursor()
+            query = "select firstname, lastname, email, password2 from ssismdl_user where username = '{}'".format(self.user_name)
+            salt = 'thi$i$thelonge$t$tringat$$i$.net'
+            dragonnet_cursor.execute(query)
+            first, last, dragonnet_email, dragonnet_password = dragonnet_cursor.fetchone()
+
+            self.display_name = first + ' ' + last
+
+            self.email_address = dragonnet_email
+
+            pgsql_authenticated = md5(password + salt).hexdigest() == dragonnet_password
+            if pgsql_authenticated:
+                try:
+                    u = DBSession.query(User).filter_by(user_name=self.user_name).one()
+                except:
+                    u = None
+
+                if u is None:
+                    restricted_group_name = "RestrictedGroup"
+                    restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+                    builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+
+                    if not restricted_group:
+                        make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+                        # Copy the permissions from the same group that can give us access to the /admin section
+                        from copy import copy
+                        make_new_group.permissions = copy(builtin_editor_group.permissions)
+                        DBSession.add(make_new_group)
+                        DBSession.commit()
+                        # get the group we just created
+                        restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+
+                    if '@ssis-suzhou.net' in self.email_address:
+                        self.groups = [builtin_editor_group]
+                    else:
+                        self.groups = [restricted_group]
+
+
+                    DBSession.add(self)
+                    DBSession.commit()
+                else:
+                    None
+
             else:
-                auth_to_use = pylonsconfig['ldap']
-            return auth_to_use.auth(self.user_name, password)
+                None
+
+            dragonnet_cursor.close()
+            dragonnet.close()
+
+            return pgsql_authenticated
+
         return authenticated
 
 class Group(object):
