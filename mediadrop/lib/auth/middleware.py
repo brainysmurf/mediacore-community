@@ -20,38 +20,30 @@ from mediadrop.config.routing import login_form_url, login_handler_url, \
 from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
 from mediadrop.model import User
 
-import logging
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-
 __all__ = ['add_auth', 'classifier_for_flash_uploads']
 
 class MediaDropAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def authenticate(self, environ, identity):
-        log.warn('authenticating')
         login = super(MediaDropAuthenticatorPlugin, self).authenticate(environ, identity)
         if not login:
-            log.warn('no user by this name in database')
             username = identity['login']
             password = identity['password']
 
             potential_user = User()
             potential_user.user_name = username
-            potential_user.password = 'lskdfjsdlfkjsdfdjslfkjsd'
+            # nonsensical password to ensure it won't match in the database
+            potential_user.password = 'lskdfjsdlfkjsdfdjslfkjsdsfsdfds'
             if potential_user.validate_password(password):
-                log.warn('returned true, now what?')
-                log.warn('{} {}'.format(potential_user, potential_user.id))
+
                 return potential_user.id
 
         else:
-            log.warn('authenticated, returning user.id')
             user = self.get_user(login)
             # The return value of this method is used to identify the user later on.
             # As the username can be changed, that's not really secure and may 
             # lead to confusion (user is logged out unexpectedly, best case) or 
             # account take-over (impersonation, worst case).
             # The user ID is considered constant and likely the best choice here.
-            log.warn('{} {}'.format(user, user.id))
             return user.id
     
     @classmethod

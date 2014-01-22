@@ -33,7 +33,7 @@ class LoginForm(ListForm):
         TextField('login', label_text=N_('DragonNet Username'), 
             # 'autofocus' is actually not XHTML-compliant
             attrs={'autofocus': True}),
-        PasswordField('password', label_text=N_('EMAIL Password'), help_text=N_("")),
+        PasswordField('password', label_text=N_('DragonNet Password'), help_text=N_("")),
         
         SubmitButton('login_button', default=N_('Login'), 
             css_classes=['mcore-btn', 'btn-submit', 'f-rgt'])

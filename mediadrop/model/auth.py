@@ -164,7 +164,12 @@ class User(object):
             query = "select firstname, lastname, email, password2 from ssismdl_user where username = '{}'".format(self.user_name)
             salt = 'thi$i$thelonge$t$tringat$$i$.net'
             dragonnet_cursor.execute(query)
-            first, last, dragonnet_email, dragonnet_password = dragonnet_cursor.fetchone()
+            fetched = dragonnet_cursor.fetchone()
+            if not fetched:
+                # Username is not in dragonnet's database, invalid login
+                return None
+
+            first, last, dragonnet_email, dragonnet_password = fetched
 
             self.display_name = first + ' ' + last
 
