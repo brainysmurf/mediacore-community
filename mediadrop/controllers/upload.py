@@ -24,6 +24,9 @@ import re
 import logging
 log = logging.getLogger(__name__)
 
+from mediadrop.lib.util import redirect, url_for
+
+
 upload_form = UploadForm(
     action = url_for(controller='/upload', action='submit'),
     async_action = url_for(controller='/upload', action='submit_async')
@@ -60,6 +63,8 @@ class UploadController(BaseController):
                 ``dict`` form values, if any
 
         """
+        redirect(controller='admin/media', action="edit", id="new")
+
         support_emails = request.settings['email_support_requests']
         support_emails = email.parse_email_string(support_emails)
         support_email = support_emails and support_emails[0] or None
