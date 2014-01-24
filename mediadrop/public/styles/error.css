@@ -1,0 +1,50 @@
+/**
+ * This file is a part of MediaDrop (http://www.mediadrop.net),
+ * Copyright 2009-2013 MediaDrop contributors
+ * For the exact contribution history, see the git revision log.
+ * The source code contained in this file is licensed under the GPLv3 or
+ * (at your option) any later version.
+ * See LICENSE.txt in the main project directory, for more information.
+ **/
+.column {
+	font-size: 16px;
+	margin: 0 auto;
+	width: 500px;
+}
+.column p,
+.column li {
+	margin-bottom: 10px;
+}
+.column textarea,
+.column input.text {
+	width: 493px;
+	margin: 0 -5px;
+}
+.column ol li {
+	list-style-type: decimal;
+	margin-left: 2em;
+}
+.column ol {
+	margin-bottom: 3em;
+}
+.column label,
+.column h1,
+.column h2 {
+	font-weight: bold;
+}
+.column label {
+	display: block;
+	margin-top: 1.5em;
+	margin-bottom: 0.75em;
+}
+.column h1,
+.column h2 {
+	margin-bottom: 0.4em;
+}
+.column h1 {
+	font-size: 50px;
+}
+.column h2 {
+	font-size: 40px;
+	margin-top: 1em;
+}

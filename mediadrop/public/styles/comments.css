@@ -1,0 +1,114 @@
+/**
+ * This file is a part of MediaDrop (http://www.mediadrop.net),
+ * Copyright 2009-2013 MediaDrop contributors
+ * For the exact contribution history, see the git revision log.
+ * The source code contained in this file is licensed under the GPLv3 or
+ * (at your option) any later version.
+ * See LICENSE.txt in the main project directory, for more information.
+ **/
+/* Comments List */
+.comments-head {
+	position: absolute;
+	top: -5000px;
+	left: -5000px;
+}
+.comments,
+.no-comments,
+.comment {
+	width: 560px;
+	position: relative;
+}
+.comment-top,
+.comment-bottom {
+	height: 10px;
+}
+.comment-top-divot {
+	height: 26px;
+}
+.comment-content {
+	padding: 5px 15px;
+}
+
+.comment cite,
+.comment blockquote {
+	display: block;
+	width: 433px;
+	float: right;
+}
+.comment cite {
+	color: #2f3439;
+	font-style: normal;
+	font-weight: bold;
+	font-size: 17px;
+	line-height: 16px;
+}
+.comment cite span {
+	color: #637084;
+}
+.comments cite .comment-date {
+	font-size: 12px;
+	line-height: 15px;
+}
+.comments cite a:link,
+.comments cite a:visited {
+	color: #3F3F3F;
+}
+.comment .avatar {
+	float: left;
+	background: url('../images/layout/avatar-box.png') no-repeat;
+	width: 72px;
+	height: 72px;
+	padding: 5px;
+}
+.comment .avatar img {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #fff;
+	display: block;
+}
+.comment blockquote p {
+	margin-top: 10px;
+}
+
+/* Post comment form */
+#post-comment-form textarea,
+#post-comment-form input[type='text'] {
+	width: 544px;
+	font-size: 13px;
+}
+#post-comment-form .form-field-wide textarea,
+#post-comment-form .form-field-wide input[type='text'] {
+	margin-bottom: 12px;
+}
+#post-comment-form .form-field-wide label {
+	/* style for rearranged OverText labels */
+	padding: 6px 9px;
+	cursor: text;
+	position: absolute;
+	display: none;
+}
+#post-comment-form li .form-label {
+	margin: 5px 0;
+}
+#post-comment-form li .form-field {
+	margin: 5px 0;
+}
+#post-comment-form li .field-error {
+	width: 398px;
+	padding: 3px;
+	margin: -3px 5px 5px 0;
+	color: red;
+}
+
+#comment-flash {
+	margin-top: 15px;
+}
+#comment-flash .success,
+#comment-flash .error {
+	background: url('../images/uploader/check.png') no-repeat left;
+	line-height: 24px;
+	padding-left: 33px;
+}
+#comment-flash .error {
+	background-image: url('../images/uploader/ex.png');
+}

@@ -1,0 +1,110 @@
+/**
+ * This file is a part of MediaDrop (http://www.mediadrop.net),
+ * Copyright 2009-2013 MediaDrop contributors
+ * For the exact contribution history, see the git revision log.
+ * The source code contained in this file is licensed under the GPLv3 or
+ * (at your option) any later version.
+ * See LICENSE.txt in the main project directory, for more information.
+ **/
+
+.explicit, .clean {
+	display: block;
+	height: 11px;
+	width: 37px;
+	padding-top: 3px;
+	background-position: bottom;
+	background-repeat: no-repeat;
+}
+.explicit { background-image: url('../images/icons/explicit.png'); }
+.clean { background-image: url('../images/icons/clean.png'); }
+.explicit strong, .clean strong {
+	display: none;
+}
+
+#podcast-table tbody tr td {
+	vertical-align: top;
+}
+#podcast-table h3 a:link,
+#podcast-table h3 a:visited {
+	color: #627789;
+}
+#podcast-table td.podcast-art-col {
+	width: 180px;
+	padding-bottom: 6px;
+}
+#podcast-table .podcast-art {
+	width: 160px;
+	height: 160px;
+	padding: 2px 0px 0px 2px;
+	margin-left: -1px;
+	background: transparent url('../images/layout/podcast-art-frame.png') no-repeat top left;
+}
+#podcast-table .podcast-info {
+	padding-left: 0;
+}
+#podcast-table .info-content {
+	position: relative;
+	min-height: 156px;
+	min-width: 700px;
+}
+#podcast-table .info-content p {
+	line-height: 1.5em;
+	font-size: 14px;
+}
+#podcast-table .podcast-meta {
+	font-size: 12px;
+	position: absolute;
+	bottom: 40px;
+	left: 0;
+}
+#podcast-table .podcast-meta strong {
+	font-weight: bold;
+}
+#podcast-table .podcast-meta span,
+#podcast-table .podcast-episodes a {
+	float: left;
+	margin-right: 20px;
+}
+#podcast-table .copyright {
+	font-weight: bold;
+}
+.podcast-meta, .podcast-episodes {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	height: 32px;
+	line-height: 32px;
+}
+.view-episodes strong {
+	font-weight: bold;
+}
+
+#podcast-form .details_fieldset .fieldlabel {
+	width: 95px;
+}
+#podcast-form .details_fieldset .fieldlabel,
+#podcast-form .details_fieldset .fieldhelp {
+	line-height: 26px;
+}
+#podcast-form .details_fieldset li {
+	clear: both;
+}
+#feed_feed_url,
+#feed_itunes_url,
+#feed_feedburner_url,
+#details_copyright {
+	width: 285px;
+	float: left;
+}
+#feed_feed_url {
+	color: #5D7485;
+}
+#podcast-form #details_explicit li {
+	float: left;
+	width: auto;
+	clear: none;
+	margin-right: 10px;
+}
+#podcast-form #details_explicit li label {
+	margin-left: 5px;
+}

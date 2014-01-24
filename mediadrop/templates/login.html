@@ -1,0 +1,45 @@
+<!--!
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
+For the exact contribution history, see the git revision log.
+The source code contained in this file is licensed under the GPLv3 or
+(at your option) any later version.
+See LICENSE.txt in the main project directory, for more information.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Log in to ${h.page_title()}</title>
+	<link href="${h.url_for('/styles/base.css')}" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${h.url_for('/styles/login.css')}" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${h.url_for('/appearance/appearance.css')}" media="screen" rel="stylesheet" type="text/css" />
+</head>
+<body class="mcore-body mcore-login">
+    <div class="logo-container"
+        py:with="show_logo = bool(settings['appearance_display_logo'] and settings['appearance_logo'])">
+        <h1 id="${show_logo and 'mcore-logo' or 'mcore-site-title'}">
+	        <a href="${h.url_for('/')}">${settings['general_site_name']}</a>
+        </h1>
+    </div>
+
+    <div id="login-page">
+	<!--[if IE]>
+		<div id="ie-warning-wrapper">
+			<div id="ie-warning">
+				<strong>Internet Explorer is unsupported!</strong><br />
+				Your browsing experience will be subpar,<br />
+				Please update to <a href="http://getfirefox.com/">a better browser</a>.
+			</div>
+		</div>
+	<![endif]-->
+	    <div class="box">
+            <h1 class="box-head">Log in</h1>
+            ${login_form(form_values, action=form_action, error=login_errors)}		
+    	</div>
+	</div>
+</body>
+</html>

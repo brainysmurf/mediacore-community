@@ -1,0 +1,19 @@
+<!--!
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
+For the exact contribution history, see the git revision log.
+The source code contained in this file is licensed under the GPLv3 or
+(at your option) any later version.
+See LICENSE.txt in the main project directory, for more information.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip=""
+      py:with="id = value_of('id', 'media-table');
+               include_thead = not h.request.is_xhr;
+               include_pagination = value_of('include_pagination', True);
+               pager_link_args=value_of('pager_link_args', {})">
+<xi:include href="./_media-table.html" />
+${media_table(media, fields=['bulk', 'status', 'publish_on', 'type', 'title', 'author', 'comment_count'], id=id, include_thead=include_thead, include_pagination=include_pagination, pager_link_args=pager_link_args)}
+</html>

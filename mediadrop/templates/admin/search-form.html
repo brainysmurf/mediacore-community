@@ -1,0 +1,19 @@
+<!--!
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
+For the exact contribution history, see the git revision log.
+The source code contained in this file is licensed under the GPLv3 or
+(at your option) any later version.
+See LICENSE.txt in the main project directory, for more information.
+-->
+<form xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      action="${action}" method="${method}" name="${name}"
+      id="${id}" class="${css_class}" py:attrs="attrs">
+	<py:for each="field in fields">
+		<input py:replace="field.display(value_for(field), **args_for(field))" />
+	</py:for>
+	<py:for each="field in fields" py:with="error = error_for(field)">
+		<div py:if="error and field.show_error" class="field_error" py:content="error" />
+	</py:for>
+</form>

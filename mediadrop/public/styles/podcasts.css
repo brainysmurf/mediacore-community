@@ -1,0 +1,88 @@
+/**
+ * This file is a part of MediaDrop (http://www.mediadrop.net),
+ * Copyright 2009-2013 MediaDrop contributors
+ * For the exact contribution history, see the git revision log.
+ * The source code contained in this file is licensed under the GPLv3 or
+ * (at your option) any later version.
+ * See LICENSE.txt in the main project directory, for more information.
+ **/
+.podcast-box .thumb-wrap {
+	margin-right: 13px;
+	width: 160px;
+	border-color: #fff;
+}
+.podcast-info {
+	float: left;
+	width: 715px;
+	position: relative;
+	margin-bottom: 24px;
+}
+.podcasts-list .podcast-info {
+	width: 440px;
+}
+.podcast-meta {
+	position: absolute;
+	bottom: 0;
+	left: 188px;
+	height: 20px;
+}
+.podcast-meta .meta {
+	margin-right: 10px;
+}
+.podcast-info h3 {
+	margin-bottom: 5px;
+}
+.podcast-episodes {
+	float: right;
+	width: 255px;
+	padding-left: 15px;
+	margin-bottom: 19px;
+}
+.podcast-episodes h4 {
+	color: #494949;
+	font-weight: normal;
+	margin-bottom: 5px;
+}
+.podcast-episodes ol {
+	list-style: none;
+	margin: 0;
+}
+.podcast-episodes li {
+	margin-bottom: 5px;
+	width: 100%;
+}
+.podcast-episodes li a:link,
+.podcast-episodes li a:visited {
+	padding-left: 18px;
+	display: block;
+	font-weight: bold;
+	font-size: 13px;
+	line-height: 18px;
+}
+.podcast-box .meta-go {
+	position: absolute;
+	bottom: 0;
+	left: 650px;
+}
+.feat-content .feat-vr {
+	margin: -5px 0;
+	padding: 5px 0;
+}
+.feat-vr {
+	background: url('../images/layout/feature-vr.png') repeat-y;
+}
+.podcast-box .feat-content .feat-vr {
+	background-position: 620px 0;
+}
+.podcast-box .feat-top .feat-vr,
+.podcast-box .feat-bottom .feat-vr {
+	background-position: 635px;
+	height: 8px;
+}
+.podcast-box .feat-top {
+	padding-top: 1px;
+}
+.podcast-box .feat-top,
+.podcast-box .feat-top .feat-vr {
+	height: 9px;
+}

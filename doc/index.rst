@@ -1,9 +1,9 @@
 .. _toplevel:
 
-MediaCore CE Documentation
+MediaDrop Documentation
 ==========================
 
-MediaCore CE is a media-oriented content manager.
+MediaDrop is a media-oriented content manager previously known as "MediaCore CE".
 
 
 Contents
@@ -12,9 +12,7 @@ Contents
 .. toctree::
    :maxdepth: 3
 
-   install/requirements
    install/index
-   install/troubleshooting
    install/upgrade
    user/index
    dev/index

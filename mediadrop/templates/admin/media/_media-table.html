@@ -1,0 +1,76 @@
+<!--!
+This file is a part of MediaDrop (http://www.mediadrop.net),
+Copyright 2009-2013 MediaDrop contributors
+For the exact contribution history, see the git revision log.
+The source code contained in this file is licensed under the GPLv3 or
+(at your option) any later version.
+See LICENSE.txt in the main project directory, for more information.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+	<table py:def="media_table(collection, fields, include_thead=True, include_pagination=True, id='media-table', pager_link_args={})"
+	       cellpadding="0" cellspacing="0" id="${id}"
+	       py:with="item_count = len(collection);
+	                include_thead = include_thead and (item_count > 0);
+	                paginator = include_pagination and c.paginators and c.paginators.media;">
+		<thead py:if="include_thead">
+			<tr>
+				<py:for each="f in fields" py:choose="f">
+					<th py:when="'bulk'" id="h-bulk" style="width:20px"><input type="checkbox" class="bulk-toggle" /></th>
+					<th py:when="'publish_on'" id="h-publish_on" style="width:90px">Publish Date</th>
+					<th py:when="'created_on'" id="h-created_on" style="width:90px">Upload Date</th>
+					<th py:when="'publish_status'" id="h-status" style="width:90px">Publish Status</th>
+					<th py:when="'status'" id="h-status" style="width:90px">Status</th>
+					<th py:when="'title'" id="h-publish_on" style="width:auto">Title</th>
+					<th py:when="'comment_count'" id="h-comment-count" style="width:30px" class="center"><img src="${h.url_for('/admin/images/icons/comments.png')}" alt="Comments" title="Number of Comments" /></th>
+					<th py:when="'tags'" id="h-tags" style="width:120px">Tags</th>
+					<th py:when="'author'" id="h-author" style="width:120px">Author</th>
+					<th py:when="'type'" id="h-type" style="width:30px">&nbsp;</th>
+				</py:for>
+			</tr>
+		</thead>
+		<tbody>
+			<tr py:if="item_count == 0">
+				<td>None Found</td>
+			</tr>
+			<tr py:for="media in collection" id="media-${media.id}">
+				<py:for each="f in fields" py:choose="f">
+					<td py:when="'bulk'" headers="h-bulk"><input type="checkbox" class="bulk-checkbox" /></td>
+					<td py:when="'publish_on'"
+					    py:content="media.publish_on and h.format_date(media.publish_on) or '-'"
+					    headers="h-publish_on"
+					/>
+					<td py:when="'created_on'" headers="h-created_on">${h.format_date(media.created_on)}</td>
+					<td py:when="'status'" headers="h-status" py:choose="">
+						<div py:when="not media.reviewed" class="status-unreviewed">Unreviewed</div>
+						<div py:when="not media.encoded" class="status-unencoded">Unencoded</div>
+						<div py:when="not media.publishable" class="status-draft">Draft</div>
+						<div py:when="media.is_published" class="status-published">Published</div>
+						<div py:otherwise="" class="status-publishing">Publishing...</div>
+					</td>
+					<td py:when="'title'" headers="h-title">
+						<a href="${h.url_for(controller='/admin/media', action='edit', id=media.id)}">${media.title}</a>
+					</td>
+					<td py:when="'comment_count'" class="center" headers="h-comment_count">
+						<a href="${h.url_for(controller='/admin/comments', media_filter=media.id)}">${media.comment_count_published}</a>
+					</td>
+					<td py:when="'tags'" headers="h-tags" py:content="' '.join(tag.name for tag in media.tags) or 'None'" />
+					<td py:when="'author'" headers="h-author">
+						<a href="mailto:${media.author.email}" py:strip="not media.author.email">${media.author.name}</a>
+					</td>
+					<td py:when="'type'" class="center" headers="h-type">
+						<img py:if="media.type" py:with="pretty_type = _(media.type.capitalize())"
+						     src="${h.url_for('/admin/images/icons/%s.png' % media.type.encode('utf-8'))}"
+						     alt="${pretty_type}" title="${pretty_type}" />
+					</td>
+				</py:for>
+			</tr>
+		</tbody>
+		<py:if test="paginator and include_pagination">
+			<xi:include href="../helpers.html" />
+			${paginated_tfoot(paginator, '8', link_args=pager_link_args)}
+		</py:if>
+	</table>
+</html>

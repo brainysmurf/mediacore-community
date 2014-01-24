@@ -1,3 +1,1 @@
-
-from mediacore.validation.limit_feed_items_validator import *
-
+from mediadrop.validation import *

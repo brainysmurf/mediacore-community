@@ -9,10 +9,10 @@ Glossary
     media
         A collection of 0 or more closely-related **audio** and/or **video**
         files and metadata that describes them.
-        See :class:`mediacore.model.media.Media` for the definition in code.
+        See :class:`mediadrop.model.media.Media` for the definition in code.
 
     slug
-        A unique, search-engine-friendly identifer for an item. It is made up
+        A unique, search-engine-friendly identifier for an item. It is made up
         of purely alphanumeric characters and hyphens.
 
     status
@@ -25,7 +25,7 @@ Glossary
             * unreviewed
             * user_flagged
 
-        See :mod:`mediacore.model.statuses`.
+        See :mod:`mediadrop.model.statuses`.
 
     tag
         A keyword or term that describes some aspect of a content item.

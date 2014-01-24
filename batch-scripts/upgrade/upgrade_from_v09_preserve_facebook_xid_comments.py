@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# This file is a part of MediaCore CE, Copyright 2009-2013 MediaCore Inc.
+# This file is a part of MediaDrop, Copyright 2009-2013 MediaDrop contributors
 # The source code contained in this file is licensed under the GPL.
 # See LICENSE.txt in the main project directory, for more information.
 #
 # Copyright (c) 2012 Felix Schwarz (www.schwarz.eu)
 
-from mediacore.lib.cli_commands import LoadAppCommand, load_app
+from mediadrop.lib.cli_commands import LoadAppCommand, load_app
 
 _script_name = "Database Upgrade Script for v0.9.x users with Facebook comments"
 _script_description = """Use this script to preserve your existing Facebook
@@ -94,7 +94,7 @@ def main(parser, options, args):
     app_secret = options.app_secret
     fb = FacebookAPI(app_id, app_secret)
     
-    from mediacore.model import DBSession, Media
+    from mediadrop.model import DBSession, Media
     # eager loading of 'meta' to speed up later check.
     all_media = Media.query.options(joinedload('_meta')).all()
     
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         '--app-secret',
         action='store',
         dest='app_secret',
-        help='Facebook app_secret for the app_id stored in MediaCore',
+        help='Facebook app_secret for the app_id stored in MediaDrop',
     )
     load_app(cmd)
     if len(cmd.args) < 1:

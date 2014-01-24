@@ -1,7 +1,7 @@
 .. _debug_toplevel:
 
 =========================
-Debugging in MediaCore CE
+Debugging in MediaDrop
 =========================
 
 Interactive Web-Based Debugging
@@ -23,7 +23,7 @@ installed, try calling
 
 .. sourcecode:: python
 
-   mediacore.ipython()()
+   mediadrop.ipython()()
 
 at some point in your code; it'll act as a breakpoint and open up an IPython
 shell with the local scope for you to play with.
