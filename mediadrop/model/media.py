@@ -225,13 +225,13 @@ media_fulltext = Table('media_fulltext', metadata,
 # Columns grouped by their FULLTEXT index
 _fulltext_indexes = {
     'admin': (
-        media.fulltext.c.author_name,
+        media_fulltext.c.author_name,
         media_fulltext.c.title, media_fulltext.c.subtitle,
         media_fulltext.c.tags, media_fulltext.c.categories,
         media_fulltext.c.description_plain, media_fulltext.c.notes,
     ),
     'public': (
-        media.fulltext.c.author_name,
+        media_fulltext.c.author_name,
         media_fulltext.c.title, media_fulltext.c.subtitle,
         media_fulltext.c.tags, media_fulltext.c.categories,
         media_fulltext.c.description_plain,
@@ -327,7 +327,7 @@ class MediaQuery(Query):
         if connection.dialect.name == 'mysql':
             # use a fun trick to see if the media_fulltext table is being used
             # thanks to this guy: http://data.agaric.com/node/2241#comment-544
-            select = sql.select('1').select_from('media_fulltext').limit(1)
+            select = sql.select('1').select_from(media_fulltext).limit(1)
             result = connection.execute(select)
             if result.scalar() is not None:
                 return True
