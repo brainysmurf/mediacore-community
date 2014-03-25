@@ -112,7 +112,7 @@ class User(object):
         defaults.update(kwargs)
         for key, value in defaults.items():
             setattr(user, key, value)
-        
+
         DBSession.add(user)
         DBSession.flush()
         return user
@@ -157,13 +157,17 @@ class User(object):
         authenticated = self.password[40:] == hashed_pass.hexdigest()
 
         if not authenticated:
+
+            from IPython import embed
+            embed()
+
             # Make a connection to postgres
             dragonnet = psycopg2.connect(database="moodle",
                 user="moodle", password="ssissqlmoodle", host="dragonnet.ssis-suzhou.net")
             dragonnet_cursor = dragonnet.cursor()
-            query = "select firstname, lastname, email, password2 from ssismdl_user where username = '{}'".format(self.user_name)
+            query = "select firstname, lastname, email, password2 from ssismdl_user where username = %s".format(self.user_name)
             salt = 'thi$i$thelonge$t$tringat$$i$.net'
-            dragonnet_cursor.execute(query)
+            dragonnet_cursor.execute(query, (self.user_name,))
             fetched = dragonnet_cursor.fetchone()
             if not fetched:
                 # Username is not in dragonnet's database, invalid login
@@ -234,7 +238,7 @@ class Group(object):
 
     def __unicode__(self):
         return self.group_name
-    
+
     @classmethod
     def custom_groups(cls, *columns):
         query_object = columns or (Group, )
@@ -246,7 +250,7 @@ class Group(object):
     @classmethod
     def by_name(cls, name):
         return cls.query.filter(cls.group_name == name).first()
-    
+
     @classmethod
     def example(cls, **kwargs):
         defaults = dict(
@@ -272,10 +276,10 @@ class Permission(object):
 
     def __unicode__(self):
         return self.permission_name
-    
+
     def __repr__(self):
         return '<Permission: name=%r>' % self.permission_name
-    
+
     @classmethod
     def example(cls, **kwargs):
         defaults = dict(
