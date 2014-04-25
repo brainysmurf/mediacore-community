@@ -163,7 +163,7 @@ class User(object):
 
             # Make a connection to postgres
             dragonnet = psycopg2.connect(database="moodle",
-                user="moodle", password="ssissqlmoodle", host="dragonnet.ssis-suzhou.net")
+                user="moodle", password="ssissqlmoodle", host="192.168.1.186")
             dragonnet_cursor = dragonnet.cursor()
             query = "select firstname, lastname, email, password2 from ssismdl_user where username = %s"
             salt = 'thi$i$thelonge$t$tringat$$i$.net'
