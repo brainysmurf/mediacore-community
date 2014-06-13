@@ -1,15 +1,15 @@
 Mac OS X
 ----------------------------------------------
 
-Installing MediaDrop on a Mac is a bit more complicated than doing so on 
+Installing MediaDrop on a Mac is a bit more complicated than doing so on
 Linux because Mac OS does not come with all the required packages. However once
 it is working you can run MediaDrop on Mac just fine.
 
-The following documentation was tested with a client version of Mac OS X 10.8 
-(Mountain Lion). 
+The following documentation was tested with a client version of Mac OS X 10.8
+(Mountain Lion).
 
 Please note: I'm not a Mac user myself so I'd be glad to improve this section
-based on your input (e.g. other Mac OS versions, installation on Mac OS server 
+based on your input (e.g. other Mac OS versions, installation on Mac OS server
 edition, alternate install methods).
 
 
@@ -24,8 +24,8 @@ compiler. You can check your system by using the which command:
 
     which cc
 
-This checks to see if we have the compiler ready. No output after hitting return 
-means it's not installed; output indicates that it is installed and tells us 
+This checks to see if we have the compiler ready. No output after hitting return
+means it's not installed; output indicates that it is installed and tells us
 exactly where it is in our system.
 
 Now that you've got XCode installed, we need to set up Python. Every Mac does come
@@ -35,9 +35,9 @@ for our purposes it is best to do so with Homebrew.
 
 Install `Homebrew <http://mxcl.github.com/homebrew/>`_ by following the instructions
 on the website. Please note that you can use other such tools such as MacPorts, but
-Homebrew is highly recommended for its interactive help. If you already have MacPorts 
-installed (if it's new to you, then you probably don't), Homebrew will indicate to 
-you that you need to delete MacPorts, and even provide the necessary command to 
+Homebrew is highly recommended for its interactive help. If you already have MacPorts
+installed (if it's new to you, then you probably don't), Homebrew will indicate to
+you that you need to delete MacPorts, and even provide the necessary command to
 execute.
 
 Let's get a new fresh version of Python:
@@ -52,7 +52,7 @@ can be assured that we use it for the remainder of this tutorial:
 .. sourcecode:: bash
     BREWPYTHON=`brew ls python | grep 'python$' | grep -v 'Frameworks' | sed 's/\/python$//'`
 
-This above command looks convoluted but all it does is set the variable "BREWPYTHON" to the 
+This above command looks convoluted but all it does is set the variable "BREWPYTHON" to the
 location of brew's python, which we'll use in the following section.
 
 Now that we have Xcode and Python installed, now we need to get the necessary system libraries:
@@ -87,8 +87,9 @@ Python libraries and tools
 """"""""""""""""""""""""""""""""""""""""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Before installing MediaCore we also need virtualenv. Virtualenv will manage any
-future software that MediaCore needs to ensure that it does not conflict with any 
+future software that MediaCore needs to ensure that it does not conflict with any
 other software, similar to sandboxing. Since we used Homebrew to install our python,
 and remembering have we've set up the variable "brewpython", we can do this:
 
@@ -96,26 +97,35 @@ and remembering have we've set up the variable "brewpython", we can do this:
 
   $brewpython/pip install virtualenv
 =======
+=======
+>>>>>>> bcf21388931f7e1da9170405a4c395167f33731a
 Before installing MediaDrop we also need virtualenv. Virtualenv will manage any
-future software that MediaDrop needs to ensure that it does not conflict with any 
+future software that MediaDrop needs to ensure that it does not conflict with any
 other software, similar to sandboxing. Since we used Homebrew to install our Python,
 and remembering have we've set up the variable "BREWPYTHON", we can do this:
 
 .. sourcecode:: bash
 
   $BREWPYTHON/pip install virtualenv
+<<<<<<< HEAD
 >>>>>>> 4eaead27155404dddab6fab881601c801839b739
+=======
+>>>>>>> bcf21388931f7e1da9170405a4c395167f33731a
 
-Now we need to create a "virtual environment" (see :ref:`install_setup_virtualenv`) 
+Now we need to create a "virtual environment" (see :ref:`install_setup_virtualenv`)
 with the following command:
 
 .. sourcecode:: bash
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     virtualenv --no-site-packages --python="$brewpython"/python /path/to/virtual_environment
 =======
     /usr/local/share/python/virtualenv --no-site-packages  /path/to/venv
 >>>>>>> 4eaead27155404dddab6fab881601c801839b739
+=======
+    /usr/local/share/python/virtualenv --no-site-packages  /path/to/venv
+>>>>>>> bcf21388931f7e1da9170405a4c395167f33731a
 
 Finally, we can activate this virtual environment, which we'll have to do when we're
 working with MediaDrop, with the following command:
