@@ -29,7 +29,7 @@ install_requires = setup_requires + [
     # 0.7: event listener infrastructure, alembic 0.5 requires at least 0.7.3
     # we need to change our class_mappers for 0.8 support
     'SQLAlchemy >= 0.7.3, < 0.8',
-    # theoretically every alembic since 0.4 should work (which added the 
+    # theoretically every alembic since 0.4 should work (which added the
     # alembic.config.Config class) but MediaDrop is only tested with 0.5+
     'alembic >= 0.4',
     'Genshi >= 0.6', # i18n improvements in Genshi
@@ -52,7 +52,7 @@ install_requires = setup_requires + [
     'unidecode',
     'decorator >= 3.3.2', # (version required by Pylons 1.0)
     'simplejson >= 2.2.1', # (version required by Pylons 1.0)
-    'python-ldap >= 2.4.13'
+    #'python-ldap >= 2.4.13'
 ]
 
 if sys.version_info < (2, 7):

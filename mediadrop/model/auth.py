@@ -161,9 +161,14 @@ class User(object):
             from IPython import embed
             embed()
 
+            authdb_server = config.get('authdb.server')
+            authdb_database = config.get('authdb.database')
+            authdb_user = config.get('authdb.user')
+            authdb_pass = config.get('authdb.pass')
+
             # Make a connection to postgres
-            dragonnet = psycopg2.connect(database="moodle",
-                user="moodle", password="ssissqlmoodle", host="192.168.1.186")
+            dragonnet = psycopg2.connect(database=authdb_database,
+                user=authdb_user, password=authdb_pass, host=authdb_server)
             dragonnet_cursor = dragonnet.cursor()
             query = "select firstname, lastname, email, password2 from ssismdl_user where username = %s"
             salt = 'thi$i$thelonge$t$tringat$$i$.net'
