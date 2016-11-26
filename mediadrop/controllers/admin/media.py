@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -24,10 +24,11 @@ from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate, validate_xhr)
 from mediadrop.lib.helpers import redirect, url_for
 from mediadrop.lib.i18n import _
-from mediadrop.lib.storage import add_new_media_file
+from mediadrop.lib.storage import add_new_media_file, UserStorageError
 from mediadrop.lib.templating import render
 from mediadrop.lib.thumbnails import thumb_path, thumb_paths, create_thumbs_for, create_default_thumbs_for, has_thumbs, has_default_thumbs, delete_thumbs
-from mediadrop.model import Author, Category, Media, Podcast, Tag, fetch_row, get_available_slug
+from mediadrop.model import (Author, Category, Media, Podcast, Tag, fetch_row,
+    get_available_slug, slugify)
 from mediadrop.model.meta import DBSession
 from mediadrop.plugin import events
 
@@ -216,11 +217,10 @@ class MediaController(BaseController):
 
         if delete:
             self._delete_media(media)
-            DBSession.commit()
             redirect(action='index', id=None)
 
         if not slug:
-            slug = title
+            slug = slugify(title)
         elif slug.startswith('_stub_'):
             slug = slug[len('_stub_'):]
         if slug != media.slug:
@@ -304,7 +304,10 @@ class MediaController(BaseController):
         else:
             media = fetch_row(Media, id)
 
-        media_file = add_new_media_file(media, file, url)
+        try:
+            media_file = add_new_media_file(media, file, url)
+        except UserStorageError as e:
+            return dict(success=False, message=e.message)
         if media.slug.startswith('_stub_'):
             media.title = media_file.display_name
             media.slug = get_available_slug(Media, '_stub_' + media.title)

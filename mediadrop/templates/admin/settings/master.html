@@ -1,6 +1,6 @@
 <!--!
-This file is a part of MediaDrop (http://www.mediadrop.net),
-Copyright 2009-2013 MediaDrop contributors
+This file is a part of MediaDrop (http://www.mediadrop.video),
+Copyright 2009-2015 MediaDrop contributors
 For the exact contribution history, see the git revision log.
 The source code contained in this file is licensed under the GPLv3 or
 (at your option) any later version.
@@ -30,7 +30,7 @@ See LICENSE.txt in the main project directory, for more information.
 <div id="body" py:match="div[@id='body']">
 	<div class="lft-column33" py:with="
 		current_url = h.url_for();
-		plugin_links = sorted(g.events.plugin_settings_links(), key=lambda (text, link): text.lower());
+		plugin_links = sorted(g.events.plugin_settings_links(), key=lambda (text, link): unicode(text).lower());
 	">
 		<div class="box">
 			<h1 class="box-head">Settings</h1>
@@ -52,6 +52,9 @@ See LICENSE.txt in the main project directory, for more information.
 				</li>
 				<li py:with="link = h.url_for(controller='/admin/settings', action='comments')">
 					<a href="${link}" class="${current_url.startswith(link) and 'selected' or None}">Comments</a>
+				</li>
+				<li py:with="link = h.url_for(controller='/admin/settings', action='googleapi')">
+					<a href="${link}" class="${current_url.startswith(link) and 'selected' or None}">Google API</a>
 				</li>
 				<li py:with="link = h.url_for(controller='/admin/settings', action='api')">
 					<a href="${link}" class="${current_url.startswith(link) and 'selected' or None}">Data API</a>

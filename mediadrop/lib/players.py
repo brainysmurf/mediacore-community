@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -149,18 +149,27 @@ class AbstractPlayer(AbstractClass):
         prefs = PlayerPrefs()
         prefs.name = cls.name
         prefs.enabled = enable_player
-        # didn't get direct SQL expression to work with SQLAlchemy
-        # player_table = sql.func.max(player_table.c.priority)
-        query = sql.select([sql.func.max(players_table.c.priority)])
-        max_priority = DBSession.execute(query).first()[0]
-        if max_priority is None:
-            max_priority = -1
-        prefs.priority = max_priority + 1
+        
+        # MySQL does not allow referencing the same table in a subquery
+        # (i.e. insert, max): http://stackoverflow.com/a/14302701/138526
+        # Therefore we need to alias the table in max
+        current_max_query = sql.select([sql.func.max(players_table.alias().c.priority)])
+        # sql.func.coalesce == "set default value if func.max does "
+        # In case there are no players in the database the current max is NULL. With
+        # coalesce we can set a default value.
+        new_priority_query = sql.func.coalesce(
+            current_max_query.as_scalar()+1,
+            1
+        )
+        prefs.priority = new_priority_query
+        
         prefs.created_on = datetime.now()
         prefs.modified_on = datetime.now()
         prefs.data = cls.default_data
         DBSession.add(prefs)
         DBSession.commit()
+
+
 
 ###############################################################################
 
@@ -184,10 +193,14 @@ class FileSupportMixin(object):
         :returns: Boolean result for each of the given URIs.
 
         """
-        return tuple(uri.file.container in cls.supported_containers
-                     and uri.scheme in cls.supported_schemes
-                     and uri.file.type in cls.supported_types
-                     for uri in uris)
+        playable = []
+        for uri in uris:
+            is_type_ok = (uri.file.type in cls.supported_types)
+            is_scheme_ok = (uri.scheme in cls.supported_schemes)
+            is_container_ok = (not uri.file.container) or (uri.file.container in cls.supported_containers)
+            is_playable = is_type_ok and is_scheme_ok and is_container_ok
+            playable.append(is_playable)
+        return tuple(playable)
 
 class FlashRenderMixin(object):
     """
@@ -1079,7 +1092,7 @@ def embed_iframe(media, width=400, height=225, frameborder=0, **kwargs):
                   frameborder=frameborder, **kwargs)
     # some software is known not to work with self-closing iframe tags 
     # ('<iframe ... />'). Several WordPress instances are affected as well as
-    # TWiki http://mediadrop.net/community/topic/embed-iframe-closing-tag
+    # TWiki http://mediadrop.video/community/topic/embed-iframe-closing-tag
     tag.append('')
     return tag
 

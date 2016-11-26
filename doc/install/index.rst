@@ -105,7 +105,7 @@ or the configuration files to web users in case of a configuration error.
 
 After step 3 you should have a directory which contains the folders ``data``,
 ``MediaDrop-0.11.0`` (or whatever you named the directory with the MediaDrop
-source code), and ``venv`` as well as the ``production.ini`` file.
+source code), and ``venv`` as well as the ``deployment.ini`` file.
 
 
 .. _install_setup_virtualenv:
@@ -146,7 +146,7 @@ Step 2: Install MediaDrop
 
 There are two main ways to get MediaDrop:
 
-a. You can `download the latest official release of MediaDrop <http://mediadrop.net/download>`_ from our site.
+a. You can `download the latest official release of MediaDrop <http://mediadrop.video/download>`_ from our site.
 
    Once you've downloaded MediaDrop, it's time to unpack it and install.
 
@@ -174,9 +174,9 @@ b. **For developers and power users** we recommend using the source code
       git clone git://github.com/mediadrop/mediadrop.git mediadrop-git
       cd mediadrop-git
       
-      # now you have the latest development version. For a production deployment
-      # you should switch to a release version, e.g.
-      git checkout v0.10.2
+      # now you have the latest development version. If you like to access the
+      # code for a specific release, please checkout the matching git tag, e.g.:
+      # git checkout v0.10.2
 
       # Install!
       python setup.py develop
@@ -224,7 +224,7 @@ Step 4: Load Initial Data
 
 First we need to set up the directory which contains all the file content. Copy
 the ``data`` folder from your MediaDrop source code next to the 
-``production.ini`` file.
+``deployment.ini`` file.
 
 .. sourcecode:: bash
 
@@ -276,7 +276,7 @@ admin**. (Remember to `change your password
 
 If this produces errors then MediaDrop or one of its dependencies is not
 setup correctly. Please feel free to ask questions and submit solutions
-via our `community forums <http://mediadrop.net/community/>`_.
+via our `community forums <http://mediadrop.video/community/>`_.
 
 If this is your development machine, you're good to go.
 

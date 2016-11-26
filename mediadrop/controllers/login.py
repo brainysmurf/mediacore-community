@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -13,6 +13,7 @@ from mediadrop.lib.base import BaseController
 from mediadrop.lib.helpers import redirect, url_for
 from mediadrop.lib.i18n import _
 from mediadrop.lib.decorators import expose, observable
+from mediadrop.lib.routing_helpers import dispatch_info_for_url, is_url_for_mediadrop_domain
 from mediadrop.plugin import events
 
 import logging
@@ -81,7 +82,16 @@ class LoginController(BaseController):
             self._increase_number_of_failed_logins()
             return self.login(came_from=came_from)
         if came_from:
-            redirect(came_from)
+            url_mapper = request.environ['routes.url'].mapper
+            target = dispatch_info_for_url(came_from, url_mapper)
+            if not is_url_for_mediadrop_domain(came_from):
+                log.debug('no redirect to %r because target url does match our hostname (prevents parameter base redirection attacks)' % came_from)
+                came_from = None
+            elif (target is not None) and getattr(target.action, '_request_method', None) not in ('GET', None):
+                log.debug('no redirect to %r because target url does not allow GET requests' % came_from)
+                came_from = None
+            if came_from:
+                redirect(came_from)
         # It is important to return absolute URLs (if app mounted in subdirectory)
         if request.perm.contains_permission(u'edit') or request.perm.contains_permission(u'admin'):
             redirect(url_for('/admin', qualified=True))

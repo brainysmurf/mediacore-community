@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -28,6 +28,7 @@ from webhelpers.html.converters import format_paragraphs
 
 from mediadrop.lib.auth import viewable_media
 from mediadrop.lib.compat import any, md5
+from mediadrop.lib.filesize import format_filesize
 from mediadrop.lib.i18n import (N_, _, format_date, format_datetime, 
     format_decimal, format_time)
 from mediadrop.lib.players import (embed_player, embed_iframe, media_player,
@@ -352,12 +353,7 @@ def pretty_file_size(size):
     """Return the given file size in the largest possible unit of bytes."""
     if not size:
         return u'-'
-    size = float(size)
-    for unit in ('B', 'KB', 'MB', 'GB', 'TB'):
-        if size < 1024.0:
-            return '%3.1f %s' % (size, unit)
-        size /= 1024.0
-    return '%3.1f %s' % (size, 'PB')
+    return format_filesize(size, locale=translator.locale)
 
 def store_transient_message(cookie_name, text, time=None, path='/', **kwargs):
     """Store a JSON message dict in the named cookie.
@@ -388,7 +384,7 @@ def doc_link(page=None, anchor='', text=N_('Help'), **kwargs):
     XXX: Target attribute is not XHTML compliant.
     """
     attrs = {
-        'href': 'http://mediadrop.net/docs/user/%s.html#%s' % (page, anchor),
+        'href': 'http://mediadrop.video/docs/user/%s.html#%s' % (page, anchor),
         'target': '_blank',
     }
     if kwargs:

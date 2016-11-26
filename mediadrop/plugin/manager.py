@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -15,6 +15,7 @@ from pylons.wsgiapp import PylonsApp
 from routes.util import controller_scan
 
 from mediadrop.plugin.plugin import MediaDropPlugin
+from mediadrop.lib.result import Result
 
 
 __all__ = ['PluginManager']
@@ -100,9 +101,11 @@ class PluginManager(object):
             path to the locale dir where messages can be loaded.
         """
         locale_dirs = {}
+        i18n_env_dir = os.path.join(self.config['env_dir'], 'i18n')
         for plugin in self.plugins.itervalues():
             if plugin.locale_dirs:
-                locale_dirs.update(plugin.locale_dirs)
+                for domain, plugin_i18n_dir in plugin.locale_dirs.items():
+                    locale_dirs[domain] = (plugin_i18n_dir, i18n_env_dir)
         return locale_dirs
 
     def template_loaders(self):
@@ -164,6 +167,12 @@ class PluginManager(object):
             if plugin.contains_migrations():
                 migrator = migrator_class.from_config(plugin, self.config, log=log)
                 yield migrator
+
+    def is_db_scheme_current_for_all_plugins(self):
+        for migrator in self.migrators():
+            if migrator.db_needs_upgrade():
+                return Result(False, message='Database should be updated for plugin %r.' % migrator.plugin_name)
+        return True
 
     def controller_classes(self):
         """Return a dict of controller classes that plugins have defined.

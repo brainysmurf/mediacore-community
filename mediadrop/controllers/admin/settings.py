@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -13,7 +13,7 @@ from babel.core import Locale
 from pylons import config, request, tmpl_context as c
 
 from mediadrop.forms.admin.settings import (AdvertisingForm, AppearanceForm,
-    APIForm, AnalyticsForm, CommentsForm, GeneralForm,
+    APIForm, AnalyticsForm, CommentsForm, GeneralForm, GoogleAPIForm,
     NotificationsForm, PopularityForm, SiteMapsForm, UploadForm)
 from mediadrop.lib.base import BaseSettingsController
 from mediadrop.lib.decorators import autocommit, expose, observable, validate
@@ -32,6 +32,9 @@ notifications_form = NotificationsForm(
 
 comments_form = CommentsForm(
     action=url_for(controller='/admin/settings', action='comments_save'))
+
+googleapi_form = GoogleAPIForm(
+    action=url_for(controller='/admin/settings', action='googleapi_save'))
 
 api_form = APIForm(
     action=url_for(controller='/admin/settings', action='save_api'))
@@ -102,12 +105,24 @@ class SettingsController(BaseSettingsController):
 
         redirect(action='comments')
 
+    @expose('admin/settings/googleapi.html')
+    def googleapi(self, **kwargs):
+        return self._display(googleapi_form, values=kwargs)
+
+    @expose(request_method='POST')
+    @validate(googleapi_form, error_handler=googleapi)
+    @autocommit
+    @observable(events.Admin.SettingsController.googleapi_save)
+    def googleapi_save(self, **kwargs):
+        """Save :class:`~mediadrop.forms.admin.settings.GoogleAPIForm`."""
+        return self._save(googleapi_form, 'googleapi', values=kwargs)
+
     @expose('admin/settings/api.html')
     def api(self, **kwargs):
         return self._display(api_form, values=kwargs)
 
     @expose(request_method='POST')
-    @validate(api_form, error_handler=comments)
+    @validate(api_form, error_handler=api)
     @autocommit
     @observable(events.Admin.SettingsController.save_api)
     def save_api(self, **kwargs):

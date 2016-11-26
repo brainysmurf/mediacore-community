@@ -1,6 +1,6 @@
 /**
- * This file is a part of MediaDrop (http://www.mediadrop.net),
- * Copyright 2009-2013 MediaDrop contributors
+ * This file is a part of MediaDrop (http://www.mediadrop.video),
+ * Copyright 2009-2014 MediaDrop contributors
  * For the exact contribution history, see the git revision log.
  * The source code contained in this file is licensed under the GPLv3 or
  * (at your option) any later version.
@@ -35,8 +35,10 @@ Element.Properties.formValues = {
 		new Hash(values).each(function(value, name){
 			var el = this.getElementById(prefix + name);
 			if (!el) el = this.elements[name];
-			if (!el || $type(el) == 'collection') Log.log('No ' + name + ' element to set the response value to', value);
-			el.set('fieldValue', value);
+			if (!el || $type(el) == 'collection')
+				Log.log('No ' + name + ' element to set the response value to', value);
+			else
+				el.set('fieldValue', value);
 		}, this);
 	},
 
@@ -197,7 +199,7 @@ var BoxForm = new Class({
 		     * at least the users is notified about the error right next to the
 		     * 'save' button (as opposed to an endless spinner and a usually 
 		     * invisible JS exception).
-		     * Also this situation should not appear in stock MediaCore but only
+		     * Also this situation should not appear in stock MediaDrop but only
 		     * with optional plugins.
 		     */
 		    if (window.console !== undefined)

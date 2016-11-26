@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -159,6 +159,8 @@ def expose(template='string', request_method=None, permission=None):
     def wrap(f):
         wrapped_f = _expose_wrapper(f, template, request_method, permission)
         _copy_func_attrs(f, wrapped_f)
+        if request_method:
+            f._request_method = request_method
         return wrapped_f
     return wrap
 
@@ -552,23 +554,28 @@ def observable(event):
         return result
     return decorator(wrapper)
 
-def _memoize(func, *args, **kwargs):
-    if kwargs: # frozenset is used to ensure hashability
-        key = args, frozenset(kwargs.iteritems())
+def _memoize(func, *args, **kw):
+    if kw:  # frozenset is used to ensure hashability
+        key = args, frozenset(kw.items())
     else:
         key = args
-    cache = func.cache # attributed added by memoize
-    if key in cache:
-        return cache[key]
-    else:
-        cache[key] = result = func(*args, **kwargs)
-        return result
+    cache = func.cache  # attribute added by memoize
+    if key not in cache:
+        cache[key] = func(*args, **kw)
+    return cache[key]
 
 def memoize(func):
     """Decorate this function so cached results are returned indefinitely.
 
+    NOTE: Using this decorator on instancemethods will cause memory
+          leaks as results are not removed from the global cache when
+          instances are destroyed.
+
+    For instancemethods, consider something like pyramid.decorators.reify
+    or functools.lru_cache / backports.functools_lru_cache
+
     Copied from docs for the decorator module by Michele Simionato:
-    http://micheles.googlecode.com/hg/decorator/documentation.html#the-solution
+    https://pythonhosted.org/decorator/documentation.html#the-solution
     """
     func.cache = {}
     return decorator(_memoize, func)
@@ -631,6 +638,8 @@ def _autocommit_commit(req):
 
 def _autocommit_rollback(req):
     from mediadrop.model.meta import DBSession
+    if not DBSession.is_active:
+        return
     DBSession.rollback()
     _autocommit_fire_callbacks(req, req.rollback_callbacks)
 

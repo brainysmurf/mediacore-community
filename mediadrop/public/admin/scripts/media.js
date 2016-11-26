@@ -1,6 +1,6 @@
 /**
- * This file is a part of MediaDrop (http://www.mediadrop.net),
- * Copyright 2009-2013 MediaDrop contributors
+ * This file is a part of MediaDrop (http://www.mediadrop.video),
+ * Copyright 2009-2014 MediaDrop contributors
  * For the exact contribution history, see the git revision log.
  * The source code contained in this file is licensed under the GPLv3 or
  * (at your option) any later version.
@@ -162,17 +162,26 @@ var MediaMetaForm = new Class({
 
 	initialize: function(el, opts){
 		this.parent(el, opts);
-		var podSelect = $(this.form.elements['podcast']);
-		if ((podSelect.type == 'hidden' && $$('#podcast-dropdown ol li').length <= 1) || (podSelect.options && podSelect.options.length <= 1)) {
-			podSelect.getParent('li').hide();
-		}
+		this.hidePodcastSelectorIfNoPodcastsAvailable();
 		this.notesArea = new DynamicTextarea(this.form.elements['notes']);
 		var desc = $(this.form.elements['description']);
 		if (!desc.hasClass('tinymcearea')) {
 			this.descArea = new DynamicTextarea(desc, {minRows: 4});
 		}
-	}
+	},
 
+	hidePodcastSelectorIfNoPodcastsAvailable: function() {
+		var podSelect = $(this.form.elements['podcast']);
+		var podcastOptions = [];
+		if (window.mediadrop && mediadrop.settings.podcasts_enabled) {
+			if (podSelect.type == 'hidden')
+				podcastOptions = $$('#podcast-dropdown ol li');
+			else if (podSelect.options)
+				podcastOptions = podSelect.options;
+		}
+		if (podcastOptions.length <= 1)
+			podSelect.getParent('li').hide();
+	}
 });
 
 var StatusForm = new Class({

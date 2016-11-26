@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -11,11 +11,10 @@ import os
 from formencode.api import get_localedir as get_formencode_localedir
 from genshi.filters.i18n import Translator
 import pylons
-from pylons import translator
 from pylons.configuration import PylonsConfig
 from sqlalchemy import engine_from_config
 
-import mediadrop.lib.app_globals as app_globals
+from mediadrop.lib.app_globals import Globals
 import mediadrop.lib.helpers
 
 from mediadrop.config.routing import create_mapper, add_routes
@@ -36,6 +35,8 @@ def load_environment(global_conf, app_conf):
 
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='mediadrop', paths=paths)
+    env_dir = os.path.normpath(os.path.join(config['media_dir'], '..'))
+    config.setdefault('env_dir', env_dir)
 
     # Initialize the plugin manager to load all active plugins
     plugin_mgr = PluginManager(config)
@@ -45,26 +46,28 @@ def load_environment(global_conf, app_conf):
     add_routes(mapper)
     events.Environment.after_route_setup(mapper)
     config['routes.map'] = mapper
-    config['pylons.app_globals'] = app_globals.Globals(config)
-    config['pylons.app_globals'].plugin_mgr = plugin_mgr
-    config['pylons.app_globals'].events = events
+    globals_ = Globals(config)
+    globals_.plugin_mgr = plugin_mgr
+    globals_.events = events
+    config['pylons.app_globals'] = globals_
     config['pylons.h'] = mediadrop.lib.helpers
 
     # Setup cache object as early as possible
-    pylons.cache._push_object(config['pylons.app_globals'].cache)
+    pylons.cache._push_object(globals_.cache)
 
+    i18n_env_dir = os.path.join(config['env_dir'], 'i18n')
     config['locale_dirs'] = plugin_mgr.locale_dirs()
     config['locale_dirs'].update({
-        'mediadrop': os.path.join(root, 'i18n'),
-        'FormEncode': get_formencode_localedir(),
+        'mediadrop': (os.path.join(root, 'i18n'), i18n_env_dir),
+        'FormEncode': (get_formencode_localedir(), i18n_env_dir),
     })
 
     def enable_i18n_for_template(template):
-        translations = Translator(translator)
+        translations = Translator(pylons.translator)
         translations.setup(template)
 
     # Create the Genshi TemplateLoader
-    config['pylons.app_globals'].genshi_loader = TemplateLoader(
+    globals_.genshi_loader = TemplateLoader(
         search_path=paths['templates'] + plugin_mgr.template_loaders(),
         auto_reload=True,
         max_cache_size=100,

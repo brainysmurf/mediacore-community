@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -7,7 +7,8 @@
 
 from mediadrop.lib.auth.api import UserPermissions
 from mediadrop.lib.auth.group_based_policy import GroupBasedPermissionsPolicy
-from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
+from mediadrop.lib.auth.permission_system import (MediaDropPermissionSystem,
+    PermissionPolicies)
 from mediadrop.lib.test.pythonic_testcase import *
 from mediadrop.lib.test.db_testcase import DBTestCase
 from mediadrop.model import DBSession, Media, Permission, User
@@ -16,7 +17,7 @@ from mediadrop.model import DBSession, Media, Permission, User
 class GroupBasedPermissionsPolicyTest(DBTestCase):
     def setUp(self):
         super(GroupBasedPermissionsPolicyTest, self).setUp()
-        
+        PermissionPolicies.register(GroupBasedPermissionsPolicy)
         self.policy = GroupBasedPermissionsPolicy()
     
     def test_applies_to_all_permissions_in_db(self):

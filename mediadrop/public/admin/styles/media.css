@@ -1,6 +1,6 @@
 /**
- * This file is a part of MediaDrop (http://www.mediadrop.net),
- * Copyright 2009-2013 MediaDrop contributors
+ * This file is a part of MediaDrop (http://www.mediadrop.video),
+ * Copyright 2009-2014 MediaDrop contributors
  * For the exact contribution history, see the git revision log.
  * The source code contained in this file is licensed under the GPLv3 or
  * (at your option) any later version.
@@ -47,8 +47,8 @@
 	text-decoration: underline;
 }
 .status-list.media-expiry {
-    border-top: 1px solid #B3C4D0;
-    margin: 10px 5px 3px;
+	border-top: 1px solid #B3C4D0;
+	margin: 10px 5px 3px;
 }
 /* need two selectors to overwrite ".status-list li" above */
 .status-list .status-list-expiry {

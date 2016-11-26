@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -7,6 +7,7 @@
 
 from mediadrop.model import DBSession, Media
 from mediadrop.lib.filetypes import VIDEO
+from mediadrop.lib.i18n import setup_global_translator
 from mediadrop.lib.players import AbstractFlashPlayer, FlowPlayer
 from mediadrop.lib.storage.api import add_new_media_file
 from mediadrop.lib.test.db_testcase import DBTestCase
@@ -18,6 +19,7 @@ from mediadrop.plugin.events import observes
 class MediaTest(DBTestCase):
     def setUp(self):
         super(MediaTest, self).setUp()
+        setup_global_translator(registry=self.paste_registry)
         self.init_flowplayer()
         self.media = Media.example()
         self.encoding_event = self.create_spy_on_event(events.Media.encoding_done)
@@ -60,6 +62,13 @@ class MediaTest(DBTestCase):
         second_encoding_event = self.create_spy_on_event(events.Media.encoding_done)
         self.media.update_status()
         second_encoding_event.assert_was_not_called()
+
+    def test_can_generate_plain_text_description_automatically(self):
+        expected_plaintext = u'foo bar baz'
+        assert_not_equals(expected_plaintext, self.media.description_plain)
+
+        self.media.description = u'<p>foo bar <b>baz</b></p>'
+        assert_equals(expected_plaintext, self.media.description_plain)
 
 
 import unittest

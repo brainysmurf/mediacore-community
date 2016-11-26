@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
-# The source code in this file is is dual licensed under the MIT license or
+# The source code in this file is dual licensed under the MIT license or
 # the GPLv3 or (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
@@ -85,8 +85,10 @@ class InlineJSTest(PythonicTestCase):
         assert_equals('var a=true, b=false, c=null;', self._js_code(script))
     
     def test_can_escape_nested_parameters_correctly(self):
-        script = InlineJS('var a = %(a)s;', params=dict(a=[True, dict(b=12, c=["foo"])]))
-        assert_equals('var a = [true, {"c": ["foo"], "b": 12}];', self._js_code(script))
+        script = InlineJS('var a = %(a)s;', params=dict(a=[True, dict(c=["foo"])]))
+        assert_equals('var a = [true, {"c": ["foo"]}];', self._js_code(script))
+        script = InlineJS('var a = %(a)s;', params=dict(a=[True, dict(b=12)]))
+        assert_equals('var a = [true, {"b": 12}];', self._js_code(script))
      
     def test_raise_exception_for_unknown_parameters(self):
         script = InlineJS('var a = %(a)s;', params=dict(a=complex(2,3)))
