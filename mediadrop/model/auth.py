@@ -7,6 +7,7 @@
 import os
 from pylons import config
 import psycopg2
+import json
 
 from datetime import datetime
 
@@ -152,80 +153,133 @@ class User(object):
         :rtype: bool
 
         """
-        hashed_pass = sha1()
-        hashed_pass.update(password + self.password[:40])
-        authenticated = self.password[40:] == hashed_pass.hexdigest()
+        # hashed_pass = sha1()
+        # hashed_pass.update(password + self.password[:40])
+        # authenticated = self.password[40:] == hashed_pass.hexdigest()
 
-        if not authenticated:
+        # if not authenticated:
 
-            from IPython import embed
-            embed()
+        #     from IPython import embed
+        #     embed()
 
-            authdb_server = config.get('authdb.server')
-            authdb_database = config.get('authdb.database')
-            authdb_user = config.get('authdb.user')
-            authdb_pass = config.get('authdb.pass')
+        #     authdb_server = config.get('authdb.server')
+        #     authdb_database = config.get('authdb.database')
+        #     authdb_user = config.get('authdb.user')
+        #     authdb_pass = config.get('authdb.pass')
 
-            # Make a connection to postgres
-            dragonnet = psycopg2.connect(database=authdb_database,
-                user=authdb_user, password=authdb_pass, host=authdb_server)
-            dragonnet_cursor = dragonnet.cursor()
-            query = "select firstname, lastname, email, password2 from ssismdl_user where username = %s"
-            salt = 'thi$i$thelonge$t$tringat$$i$.net'
-            dragonnet_cursor.execute(query, (self.user_name,))
-            fetched = dragonnet_cursor.fetchone()
-            if not fetched:
-                # Username is not in dragonnet's database, invalid login
-                return None
+        #     # Make a connection to postgres
+        #     dragonnet = psycopg2.connect(database=authdb_database,
+        #         user=authdb_user, password=authdb_pass, host=authdb_server)
+        #     dragonnet_cursor = dragonnet.cursor()
+        #     query = "select firstname, lastname, email, password2 from ssismdl_user where username = %s"
+        #     salt = 'thi$i$thelonge$t$tringat$$i$.net'
+        #     dragonnet_cursor.execute(query, (self.user_name,))
+        #     fetched = dragonnet_cursor.fetchone()
+        #     if not fetched:
+        #         # Username is not in dragonnet's database, invalid login
+        #         return None
 
-            first, last, dragonnet_email, dragonnet_password = fetched
+        #     first, last, dragonnet_email, dragonnet_password = fetched
 
-            self.display_name = first + ' ' + last
+        #     self.display_name = first + ' ' + last
 
-            self.email_address = dragonnet_email
+        #     self.email_address = dragonnet_email
 
-            pgsql_authenticated = md5(password + salt).hexdigest() == dragonnet_password
-            if pgsql_authenticated:
-                try:
-                    u = DBSession.query(User).filter_by(user_name=self.user_name).one()
-                except:
-                    u = None
+        #     pgsql_authenticated = md5(password + salt).hexdigest() == dragonnet_password
+        #     if pgsql_authenticated:
+        #         try:
+        #             u = DBSession.query(User).filter_by(user_name=self.user_name).one()
+        #         except:
+        #             u = None
 
-                if u is None:
-                    restricted_group_name = "RestrictedGroup"
-                    restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
-                    builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+        #         if u is None:
+        #             restricted_group_name = "RestrictedGroup"
+        #             restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+        #             builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
 
-                    if not restricted_group:
-                        make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
-                        # Copy the permissions from the same group that can give us access to the /admin section
-                        from copy import copy
-                        make_new_group.permissions = copy(builtin_editor_group.permissions)
-                        DBSession.add(make_new_group)
-                        DBSession.commit()
-                        # get the group we just created
-                        restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+        #             if not restricted_group:
+        #                 make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+        #                 # Copy the permissions from the same group that can give us access to the /admin section
+        #                 from copy import copy
+        #                 make_new_group.permissions = copy(builtin_editor_group.permissions)
+        #                 DBSession.add(make_new_group)
+        #                 DBSession.commit()
+        #                 # get the group we just created
+        #                 restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
 
-                    if '@ssis-suzhou.net' in self.email_address:
-                        self.groups = [builtin_editor_group]
-                    else:
-                        self.groups = [restricted_group]
+        #             if '@ssis-suzhou.net' in self.email_address:
+        #                 self.groups = [builtin_editor_group]
+        #             else:
+        #                 self.groups = [restricted_group]
 
 
-                    DBSession.add(self)
-                    DBSession.commit()
-                else:
-                    None
+        #             DBSession.add(self)
+        #             DBSession.commit()
+        #         else:
+        #             None
 
-            else:
-                None
+        #     else:
+        #         None
 
-            dragonnet_cursor.close()
-            dragonnet.close()
+        #     dragonnet_cursor.close()
+        #     dragonnet.close()
 
-            return pgsql_authenticated
+        #     return pgsql_authenticated
 
-        return authenticated
+        # return authenticated
+
+        cmd = 'curl --insecure --silent --data username=' + self.user_name + '&password=' + password.replace('&', '%26') + ' https://dragonnet.ssis-suzhou.net/local/api/auth.php'
+        # cmd2 is for testing:
+        #cmd2 = 'curl --silent --insecure --data username=' + self.user_name + '&password=' + password.replace('&', '\&') + ' https://dragonnetstaging.ssis-suzhou.com/local/api/auth.php
+        p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
+        result = p.communicate()
+        data, error = result
+        if error:
+            return None
+        obj = json.loads(data)
+        usr = obj.get('user')
+        if not usr:
+            return None
+
+        self.display_name = usr.get('firstname') + ' ' + usr.get('lastname')
+        self.email_address = usr.get('email')
+
+        if usr:
+           try:
+               u = DBSession.query(User).filter_by(user_name=self.user_name).one()
+           except NoResultFound:
+               u = None
+
+           if u is None:
+               restricted_group_name = "RestrictedGroup"
+               restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+               builtin_editor_group = DBSession.query(Group).filter(Group.group_id.in_([2])).first()
+
+               if not restricted_group:
+                   make_new_group = Group(name=restricted_group_name, display_name=restricted_group_name)
+                   # Copy the permissions from the same group that can give us access to the /admin section
+                   from copy import copy
+                   make_new_group.permissions = copy(builtin_editor_group.permissions)
+                   DBSession.add(make_new_group)
+                   DBSession.commit()
+                   # get the group we just created
+                   restricted_group = DBSession.query(Group).filter(Group.group_name.in_([restricted_group_name])).first()
+
+               if '@ssis-suzhou.net' in self.email_address:
+                   self.groups = [builtin_editor_group]
+               else:
+                   self.groups = [restricted_group]
+
+
+               DBSession.add(self)
+               DBSession.commit()
+           else:
+               pass
+
+        else:
+            pass
+
+        return True if usr else False
 
 class Group(object):
     """
