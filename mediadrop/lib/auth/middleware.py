@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -7,7 +7,7 @@
 
 import re
 
-from repoze.who.classifiers import default_challenge_decider, default_request_classifier
+from repoze.who.classifiers import default_request_classifier
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
 from repoze.who.plugins.friendlyform import FriendlyFormPlugin
@@ -20,7 +20,10 @@ from mediadrop.config.routing import login_form_url, login_handler_url, \
 from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
 from mediadrop.model import User
 
-__all__ = ['add_auth', 'classifier_for_flash_uploads']
+__all__ = ['add_auth', 'classifier_for_flash_uploads', 'session_validity']
+
+days_as_seconds = lambda days: days * 24*60*60
+session_validity = days_as_seconds(30) # session expires after 30 days
 
 class MediaDropAuthenticatorPlugin(SQLAlchemyAuthenticatorPlugin):
     def authenticate(self, environ, identity):
@@ -69,11 +72,35 @@ class MediaDropCookiePlugin(AuthTktCookiePlugin):
             return False
         return True
 
+    # IIdentifier
+    def identify(self, environ):
+        identity = super(MediaDropCookiePlugin, self).identify(environ)
+        if identity and self.timeout:
+            identity['max_age'] = self.timeout
+        return identity
+
+
+class MediaDropLoginForm(FriendlyFormPlugin):
+    def identify(self, environ):
+        credentials = super(MediaDropLoginForm, self).identify(environ)
+        if credentials is None:
+            return None
+        if credentials:
+            credentials['max_age'] = session_validity
+        return credentials
+
+
+def mediadrop_challenge_decider(environ, status, headers):
+    is_xhr = environ.get('HTTP_X_REQUESTED_WITH', '') == 'XMLHttpRequest'
+    if is_xhr:
+        return False
+    return status.startswith('401 ')
+
 
 def who_args(config):
     auth_by_username = MediaDropAuthenticatorPlugin.by_attribute('user_name')
     
-    form = FriendlyFormPlugin(
+    form = MediaDropLoginForm(
         login_form_url,
         login_handler_url,
         post_login_url,
@@ -83,18 +110,17 @@ def who_args(config):
         charset='utf-8',
     )
     cookie_secret = config['sa_auth.cookie_secret']
-    seconds_30_days = 30*24*60*60 # session expires after 30 days
-    cookie = MediaDropCookiePlugin(cookie_secret, 
+    cookie = MediaDropCookiePlugin(cookie_secret,
         cookie_name='authtkt', 
-        timeout=seconds_30_days, # session expires after 30 days
-        reissue_time=seconds_30_days/2, # reissue cookie after 15 days
+        timeout=session_validity, # session expires after 30 days
+        reissue_time=session_validity/2, # reissue cookie after 15 days
     )
     
     who_args = {
         'authenticators': [
             ('auth_by_username', auth_by_username)
         ],
-        'challenge_decider': default_challenge_decider,
+        'challenge_decider': mediadrop_challenge_decider,
         'challengers': [('form', form)],
         'classifier': classifier_for_flash_uploads,
         'identifiers': [('main_identifier', form), ('cookie', cookie)],
@@ -134,9 +160,10 @@ def classifier_for_flash_uploads(environ):
     TODO: Currently overwrites the HTTP_COOKIE, should ideally append.
     """
     classification = default_request_classifier(environ)
-    if classification == 'browser' \
-    and environ['REQUEST_METHOD'] == 'POST' \
-    and 'Flash' in environ.get('HTTP_USER_AGENT', ''):
+    if classification != 'browser':
+        return classification
+    user_agent = environ.get('HTTP_USER_AGENT', '')
+    if environ['REQUEST_METHOD'] == 'POST' and ('Flash' in user_agent):
         session_key = environ['repoze.who.plugins']['cookie'].cookie_name
         # Construct a temporary request object since this is called before
         # pylons.request is populated. Re-instantiation later comes cheap.

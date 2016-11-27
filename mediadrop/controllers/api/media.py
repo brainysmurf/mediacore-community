@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -12,7 +12,7 @@ from paste.util.converters import asbool
 from pylons import app_globals, config, request, response, session, tmpl_context
 from sqlalchemy import orm, sql
 
-from mediadrop.controllers.api import APIException, get_order_by
+from mediadrop.controllers.api import APIException, get_order_by, require_api_key_if_necessary
 from mediadrop.lib import helpers
 from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import expose, expose_xhr, observable, paginate, validate
@@ -47,11 +47,12 @@ class MediaController(BaseController):
     """
 
     @expose('json')
+    @require_api_key_if_necessary
     @observable(events.API.MediaController.index)
     def index(self, type=None, podcast=None, tag=None, category=None, search=None,
               max_age=None, min_age=None, order=None, offset=0, limit=10,
               published_after=None, published_before=None, featured=False,
-              id=None, slug=None, include_embed=False, api_key=None, format="json", **kwargs):
+              id=None, slug=None, include_embed=False, format="json", **kwargs):
         """Query for a list of media.
 
         :param type:
@@ -155,10 +156,6 @@ class MediaController(BaseController):
 
         """
 
-        if asbool(request.settings['api_secret_key_required']) \
-            and api_key != request.settings['api_secret_key']:
-            return dict(error=AUTHERROR)
-
         if format not in ("json", "mrss"):
             return dict(error= INVALIDFORMATERROR % format)
 
@@ -236,8 +233,9 @@ class MediaController(BaseController):
 
 
     @expose('json')
+    @require_api_key_if_necessary
     @observable(events.API.MediaController.get)
-    def get(self, id=None, slug=None, api_key=None, format="json", **kwargs):
+    def get(self, id=None, slug=None, format="json", **kwargs):
         """Expose info on a specific media item by ID or slug.
 
         :param id: An :attr:`id <mediadrop.model.media.Media.id>` for lookup
@@ -255,10 +253,6 @@ class MediaController(BaseController):
             method.
 
         """
-        if asbool(request.settings['api_secret_key_required']) \
-            and api_key != request.settings['api_secret_key']:
-            return dict(error=AUTHERROR)
-
         if format not in ("json", "mrss"):
             return dict(error= INVALIDFORMATERROR % format)
 
@@ -394,7 +388,8 @@ class MediaController(BaseController):
 
 
     @expose('json')
-    def files(self, id=None, slug=None, api_key=None, **kwargs):
+    @require_api_key_if_necessary
+    def files(self, id=None, slug=None, **kwargs):
         """List all files related to specific media.
 
         :param id: A :attr:`mediadrop.model.media.Media.id` for lookup
@@ -414,10 +409,6 @@ class MediaController(BaseController):
                 method.
 
         """
-        if asbool(request.settings['api_secret_key_required']) \
-            and api_key != request.settings['api_secret_key']:
-            return dict(error='Authentication Error')
-
         query = Media.query.published()
 
         if id:
@@ -463,25 +454,25 @@ class MediaController(BaseController):
                     scheme (unicode)
                         The
                         :attr:`scheme <mediadrop.lib.uri.StorageUri.scheme>`
-                        (e.g. 'http' in the URI 'http://mediadrop.net/docs/',
-                        'rtmp' in the URI 'rtmp://mediadrop.net/docs/', or
+                        (e.g. 'http' in the URI 'http://mediadrop.video/docs/',
+                        'rtmp' in the URI 'rtmp://mediadrop.video/docs/', or
                         'file' in the URI 'file:///some/local/file.mp4')
                     server (unicode)
                         The
                         :attr:`server name <mediadrop.lib.uri.StorageUri.server_uri>`
-                        (e.g. 'mediadrop.net' in the URI
-                        'http://mediadrop.net/docs')
+                        (e.g. 'mediadrop.video' in the URI
+                        'http://mediadrop.video/docs')
                     file (unicode)
                         The
                         :attr:`file path <mediadrop.lib.uri.StorageUri.file_uri>`
                         part of the URI.  (e.g. 'docs' in the URI
-                        'http://mediadrop.net/docs')
+                        'http://mediadrop.video/docs')
                     uri (unicode)
                         The full URI string (minus scheme) built from the
                         server_uri and file_uri.
                         See :attr:`mediadrop.lib.uri.StorageUri.__str__`.
-                        (e.g. 'mediadrop.net/docs' in the URI
-                        'http://mediadrop.net/docs')
+                        (e.g. 'mediadrop.video/docs' in the URI
+                        'http://mediadrop.video/docs')
 
         """
         uris = []

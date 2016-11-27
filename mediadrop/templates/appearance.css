@@ -1,6 +1,6 @@
 /**
- * This file is a part of MediaDrop (http://www.mediadrop.net),
- * Copyright 2009-2013 MediaDrop contributors
+ * This file is a part of MediaDrop (http://www.mediadrop.video),
+ * Copyright 2009-2014 MediaDrop contributors
  * For the exact contribution history, see the git revision log.
  * The source code contained in this file is licensed under the GPLv3 or
  * (at your option) any later version.
@@ -38,7 +38,7 @@ a.mcore-heading:visited {
 
 {% if appearance_display_logo and appearance_logo %}\
 .mcore-login-box {
-    margin-top: -5px;
+	margin-top: -5px;
 }
 {% end %}
 
@@ -76,7 +76,7 @@ a.mcore-nav-link:visited,
 }
 .mcore-nav-left .mcore-nav-link,
 .mcore-nav-right .mcore-nav-link > em {
-    background-image: url('../images/ui-kit/${navbar_color}/nav-btn-edge-outer.png');
+	background-image: url('../images/ui-kit/${navbar_color}/nav-btn-edge-outer.png');
 }
 .mcore-playerbar .mcore-nav-left .mcore-nav-link,
 .mcore-playerbar .mcore-nav-right .mcore-nav-link > em {

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
-# The source code in this file is is dual licensed under the MIT license or
+# The source code in this file is dual licensed under the MIT license or
 # the GPLv3 or (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
 
 import pylons
 
 from mediadrop.lib.auth.permission_system import MediaDropPermissionSystem
-from mediadrop.lib.test.support import fake_request
+from mediadrop.lib.test.support import fake_request, remove_globals
 
 
 __all__ = ['RequestMixin']
@@ -35,12 +35,5 @@ class RequestMixin(object):
         pylons.request.perm = perm
     
     def remove_globals(self):
-        for global_ in (pylons.request, pylons.response, pylons.session, 
-                        pylons.tmpl_context, pylons.translator, pylons.url,):
-            try:
-                if hasattr(global_, '_pop_object'):
-                    global_._pop_object()
-            except AssertionError:
-                # AssertionError: No object has been registered for this thread
-                pass
+        remove_globals()
 

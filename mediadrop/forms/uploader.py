@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -37,7 +37,7 @@ class UploadForm(ListForm):
     show_children_errors = False
     params = ['async_action']
     
-    events = events.UploadForm
+    event = events.UploadForm
     
     class fields(WidgetsList):
         name = TextField(validator=validators['name'], label_text=N_('Your Name:'), maxlength=50)

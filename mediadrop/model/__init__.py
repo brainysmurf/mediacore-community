@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -16,8 +16,8 @@ from sqlalchemy.sql.expression import bindparam, ClauseList, ColumnElement
 from sqlalchemy.types import FLOAT
 from sqlalchemy.ext.compiler import compiles
 from unidecode import unidecode
+from bleach import clean
 
-from mediadrop.lib.xhtml.htmlsanitizer import entities_to_unicode
 from mediadrop.model.meta import DBSession, metadata
 
 # maximum length of slug strings for all objects.
@@ -113,16 +113,16 @@ def slugify(string):
     """
     string = unicode(string).lower()
     # Replace xhtml entities
-    string = entities_to_unicode(string)
+    string = clean(string)
     # Transliterate to ASCII, as best as possible:
     string = unidecode(string)
     # String may now contain '[?]' triplets to describe unknown characters.
     # These will be stripped out by the following regexes.
     string = _whitespace.sub(u'-', string)
     string = _non_alpha.sub(u'', string)
-    string = _extra_dashes.sub(u'-', string).strip('-')
-
-    return string[:SLUG_LENGTH]
+    string = _extra_dashes.sub(u'-', string)
+    string = string[:SLUG_LENGTH]
+    return string.strip('-')
 
 def get_available_slug(mapped_class, string, ignore=None, slug_attr='slug', slug_length=SLUG_LENGTH):
     """Return a unique slug based on the provided string.

@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -40,11 +40,12 @@ class MediaDropPlugin(object):
         self.templates_path = templates_path or self._default_templates_path()
         self.public_path = public_path or self._default_public_path()
         self.controllers = controllers or self._default_controllers()
-        self.locale_dirs = self._default_locale_dirs()
+        self.locale_dirs = locale_dirs or self._default_locale_dirs()
         # migrations.util imports model and that causes all kind of recursive
         # import trouble with mediadrop.plugin (events)
         from mediadrop.migrations import PluginDBMigrator
         self.migrator_class = PluginDBMigrator
+        self.add_db_defaults = self._db_default_callable()
 
     def _package_name(self):
         pkg_provider = pkg_resources.get_provider(self.modname)
@@ -100,6 +101,15 @@ class MediaDropPlugin(object):
     def contains_migrations(self):
         return (resource_exists(self.package_name, 'migrations') and 
             not resource_exists(self.package_name+'.migrations', 'alembic.ini'))
+
+    def _db_default_callable(self):
+        if not resource_exists(self.package_name, 'db_defaults.py'):
+            return None
+        defaults_module = import_module(self.package_name+'.db_defaults')
+        add_default_data = getattr(defaults_module, 'add_default_data', None)
+        if add_default_data is None:
+            log.warn('DB defaults setup for plugin %r lacks_"add_default_data()" callable.')
+        return add_default_data
 
 def _controller_class_from_module(module, name):
     c = getattr(module, '__controller__', None)

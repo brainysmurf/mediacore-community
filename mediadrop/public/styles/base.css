@@ -1,13 +1,13 @@
 /**
- * This file is a part of MediaDrop (http://www.mediadrop.net),
- * Copyright 2009-2013 MediaDrop contributors
+ * This file is a part of MediaDrop (http://www.mediadrop.video),
+ * Copyright 2009-2014 MediaDrop contributors
  * For the exact contribution history, see the git revision log.
  * The source code contained in this file is licensed under the GPLv3 or
  * (at your option) any later version.
  * See LICENSE.txt in the main project directory, for more information.
  **/
 /*960.gs Resets*/
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,caption,center,cite,code,dd,del,details,dfn,dialog,div,dl,dt,em,embed,fieldset,figcaption,figure,font,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,html,i,iframe,img,ins,kbd,label,legend,li,main,mark,menu,meter,nav,object,ol,output,p,pre,progress,q,rp,rt,ruby,s,samp,section,small,span,strike,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,tt,u,ul,var,video,xmp{border:0;margin:0;padding:0;font-size:100%}html,body{height:100%}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section{display:block}b,strong{font-weight:bold}img{color:transparent;font-size:0;vertical-align:middle;-ms-interpolation-mode:bicubic}ol,ul{list-style:none}li{display:list-item}table{border-collapse:collapse;border-spacing:0}th,td,caption{font-weight:normal;vertical-align:top;text-align:left}q{quotes:none}q:before,q:after{content:"";content:none}sub,sup,small{font-size:75%}sub,sup{line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}svg{overflow:hidden}
 /*960.gs Typography*/
 body{font-size:13px;line-height:1.5;}
 hr{border:0 #ccc solid;border-top-width:1px;clear:both;height:0}
@@ -75,7 +75,7 @@ a:hover {
 * html .clearfix { height: 1% }
 *:first-child+html .clearfix { display: inline-block }
 
-/* MediaCore default layout */
+/* MediaDrop default layout */
 #mcore-site-title,
 #mcore-logo {
 	width: 920px;
@@ -131,29 +131,29 @@ a:hover {
 
 /* Login bar */
 .mcore-login-box {
-    width: 920px;       /* same as .mediadrop-content */
-    position: relative;
-    
-    /* don't reserve any space, we use relative/absolute positioning with negative margins anyway */
-    height: 0px;
-    
-    /* ensure that 'login' link is visible if there is no head html/site
-     * title - setting will be overriden by appearance.css if logo should be
-     * displayed */
-    margin-top: 20px;
-    
-    margin-bottom: 5px;
-    margin-left: auto;
-    margin-right: auto;
+	width: 920px;       /* same as .mediadrop-content */
+	position: relative;
+	
+	/* don't reserve any space, we use relative/absolute positioning with negative margins anyway */
+	height: 0px;
+	
+	/* ensure that 'login' link is visible if there is no head html/site
+	 * title - setting will be overriden by appearance.css if logo should be
+	 * displayed */
+	margin-top: 20px;
+	
+	margin-bottom: 5px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .mcore-login-bar {
-    /* get the login bar completely out of the flow so it never messes up with the navbar */
-    position: absolute;
-    top: -15px;
-    right: 0px;
-    
-    float: right;
+	/* get the login bar completely out of the flow so it never messes up with the navbar */
+	position: absolute;
+	top: -15px;
+	right: 0px;
+	
+	float: right;
 }
 
 /* Sectional Nav */
@@ -623,7 +623,7 @@ a:focus .grid-title {
 	margin-right: -10px;
 }
 .mcore-nav-link > .mcore-btn-fb-like > *{
-    padding-top: 3px;
+	padding-top: 3px;
 }
 .mcore-btn-like {
 	padding-left: 18px;
@@ -1023,15 +1023,15 @@ textarea {
 }
 
 .mcore-btn-img {
-    border: none;
-    height: 26px;
+	border: none;
+	height: 26px;
 }
 
 .mcore-nav-link form {
-    float: left;
+	float: left;
 }
 .mcore-cursor-pointer {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .mcore-alerts {

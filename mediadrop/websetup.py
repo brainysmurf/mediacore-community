@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -9,6 +9,7 @@ import logging
 import os
 import random
 import string
+import sys
 
 import pylons
 
@@ -62,7 +63,7 @@ appearance_settings = [
     (u'appearance_show_dislike', u'True'),
 ]
 
-
+did_run_setup = False
 def setup_app(command, conf, vars):
     """Called by ``paster setup-app``.
 
@@ -92,6 +93,17 @@ def setup_app(command, conf, vars):
          script yourself.
 
     """
+    # paster just scans the source code for a "websetup.py". Due to our
+    # compatibility module for the old "mediacore" namespace it actually finds
+    # two modules (mediadrop.websetup and mediacore.websetup) even though both
+    # actually point to the same source code.
+    # Because of that "paster setup-app" actually runs "setup_app()" twice
+    # which causes some bad stuff to happen (e.g. duplicate metadata
+    # initialization. Until we get rid of the compat package we should make
+    # sure the following code is only run once.
+    global did_run_setup
+    if did_run_setup:
+        return
     config = load_environment(conf.global_conf, conf.local_conf)
     plugin_manager = config['pylons.app_globals'].plugin_mgr
     mediadrop_migrator = MediaDropMigrator.from_config(conf, log=log)
@@ -114,11 +126,11 @@ def setup_app(command, conf, vars):
         for migrator in plugin_manager.migrators():
             migrator.init_db()
         events.Environment.database_initialized()
-    elif not mediadrop_migrator.migrate_table_exists():
-        log.error('No migration table found, probably your MediaDrop install '
-            'is too old (< 0.9?). Please upgrade to MediaCore CE 0.9 first.')
-        raise AssertionError('no migration table found')
     elif not mediadrop_migrator.alembic_table_exists():
+        if not mediadrop_migrator.migrate_table_exists():
+            log.error('No migration table found, probably your MediaDrop install '
+                'is too old (< 0.9?). Please upgrade to MediaCore CE 0.9 first.')
+            raise AssertionError('no migration table found')
         alembic_revision = mediadrop_migrator.map_migrate_version()
         mediadrop_migrator.stamp(alembic_revision)
     if run_migrations:
@@ -135,8 +147,20 @@ def setup_app(command, conf, vars):
 
     log.info('Generating appearance.css from your current settings')
     settings = DBSession.query(Setting.key, Setting.value)
+    if settings.count() == 0:
+        error_msg = (
+            u"Unable to find any settings in the database. This may happen if a previous\n"
+            u"setup did not complete successfully.\n"
+            u"Please inspect your database contents. If you don't have any valuable data in\n"
+            u"that db you can try to remove all tables and run the setup process again.\n"
+            u"BE CAREFUL: REMOVING ALL TABLES MIGHT CAUSE DATA LOSS!\n"
+        )
+        sys.stderr.write(error_msg)
+        log.error(error_msg.replace('\n', u' '))
+        sys.exit(99)
     generate_appearance_css(settings, cache_dir=conf['cache_dir'])
 
+    did_run_setup = True
     log.info('Successfully setup')
 
 def random_string(length):
@@ -184,6 +208,7 @@ def add_default_data():
         (u'advertising_sidebar_html', u''),
         (u'comments_engine', u'builtin'),
         (u'facebook_appid', u''),
+        (u'youtube_apikey', u''),
     ]
     settings.extend(appearance_settings)
 
@@ -302,7 +327,7 @@ def add_default_data():
         u'This sceencast explains the publish status feature in MediaDrop.\nInitially all videos uploaded through the front-end or admin panel are placed under \"awaiting review\" status. Once the administrator hits the \"review complete\" button, they can upload media. Videos can be added in any format, however, they can only be published if they are in a web-ready format such as FLV, M4V, MP3, or MP4. Alternatively, if they are published through Youtube or Vimeo the encoding step is skipped\nOnce uploaded and encoded the administrator can then publish the video.',
         datetime.datetime(2010, 5, 13, 2, 29, 40),
         218,
-        u'http://static.mediadrop.net/files/videos/tutorial-workflow-in-mediadrop.mp4',
+        u'http://static.mediadrop.video/files/videos/tutorial-workflow-in-mediadrop.mp4',
         u'video',
         u'mp4',
         ),
@@ -312,7 +337,7 @@ def add_default_data():
         u'This describes the process an administrator goes through in creating a podcast in MediaDrop. An administrator can enter information that will automatically generate the iTunes/RSS feed information. Any episodes published to a podcast will automatically publish to iTunes/RSS.',
         datetime.datetime(2010, 5, 13, 2, 33, 44),
         100,
-        u'http://static.mediadrop.net/files/videos/tutorial-create-podcast-in-mediadrop.mp4',
+        u'http://static.mediadrop.video/files/videos/tutorial-create-podcast-in-mediadrop.mp4',
         u'video',
         u'mp4',
         ),
@@ -322,14 +347,14 @@ def add_default_data():
         u'This screencast shows how video or audio can be added in MediaDrop.\nMediaDrop supports a wide range of formats including (but not limited to): YouTube, Vimeo, Amazon S3, Bits on the Run, BrightCove, Kaltura, and either your own server or someone else\'s.\nVideos can be uploaded in any format, but can only be published in web-ready formats such as FLV, MP3, M4V, MP4 etc.',
         datetime.datetime(2010, 5, 13, 02, 37, 36),
         169,
-        u'http://static.mediadrop.net/files/videos/tutorial-add-video-in-mediadrop.mp4',
+        u'http://static.mediadrop.video/files/videos/tutorial-add-video-in-mediadrop.mp4',
         u'video',
         u'mp4',
         ),
     ]
 
     name = u'MediaDrop Team'
-    email = u'info@mediadrop.net'
+    email = u'info@mediadrop.video'
     for slug, title, desc, desc_plain, publish_on, duration, url, type_, container in instructional_media:
         media = Media()
         media.author = Author(name, email)

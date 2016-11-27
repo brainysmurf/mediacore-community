@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -410,7 +410,21 @@ class CommentsForm(MediaCoreSettingsForm):
         SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
     ]
 
-class APIForm(MediaCoreSettingsForm):
+class GoogleAPIForm(ListForm):
+    template = 'admin/box-form.html'
+    id = 'settings-form'
+    css_class = 'form'
+    submit_text = None
+
+    event = events.Admin.Settings.CommentsForm
+
+    fields = [
+        TextField('google_apikey', label_text=N_('Google API key'),
+            help_text=N_('See https://console.developers.google.com/')),
+        SubmitButton('save', default=N_('Save'), css_classes=['btn', 'btn-save', 'blue', 'f-rgt']),
+    ]
+
+class APIForm(ListForm):
     template = 'admin/box-form.html'
     id = 'settings-form'
     css_class = 'form'

@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -11,10 +11,10 @@ import sys
 # http://bayes.colorado.edu/PythonGuidelines.html#module_formatting
 __version__ = '0.11dev'
 __status__ = 'Beta'
-__copyright__ = 'Copyright 2009-2013, MediaDrop contributors'
+__copyright__ = 'Copyright 2009-2014, MediaDrop contributors'
 __license__ = 'GPLv3'
-__email__ = 'info@mediadrop.net'
-__maintainer__ = 'http://mediadrop.net'
+__email__ = 'info@mediadrop.video'
+__maintainer__ = 'http://mediadrop.video'
 __all__ = ['__version__', 'debug', 'ipython']
 
 USER_AGENT = 'MediaDrop/%s' % __version__
@@ -70,22 +70,6 @@ try:
             cache_max_age=self.cache_max_age
         )
         return sup(environ, start_response)
-
-    # Monkey Patch Beautiful Soup
-    from BeautifulSoup import NavigableString
-    @monkeypatch_method(NavigableString)
-    def __eq__(self, other):
-        """Monkey-patch inserted method.
-
-        This patch is a temporary solution to the problem described here:
-            http://bugs.launchpad.net/beautifulsoup/+bug/397997
-        """
-        if other is None:
-            return False
-        elif isinstance(other, NavigableString):
-            return other is self
-        else:
-            return unicode(self) == unicode(other)
 
     # Disable the webob.request.AdhocAttrMixin.
     # We want to be able to set and get attributes very quickly, and they

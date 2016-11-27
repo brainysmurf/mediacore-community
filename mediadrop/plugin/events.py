@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -233,6 +233,7 @@ class Admin(object):
         analytics_save = Event(['**kwargs'])
         appearance_save = Event(['**kwargs'])
         comments_save = Event(['**kwargs'])
+        googleapi_save = Event(['**kwargs'])
         general_save = Event(['**kwargs'])
         notifications_save = Event(['**kwargs'])
         popularity_save = Event(['**kwargs'])

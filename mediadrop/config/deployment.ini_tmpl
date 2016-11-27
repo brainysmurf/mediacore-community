@@ -1,11 +1,3 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
-# For the exact contribution history, see the git revision log.
-# The source code contained in this file is licensed under the GPLv3 or
-# (at your option) any later version.
-# See LICENSE.txt in the main project directory, for more information.
-
-#
 # MediaDrop - Pylons configuration
 #
 # The %(here)s variable will be replaced with the parent directory of this file
@@ -64,7 +56,7 @@ sa_auth.cookie_secret = ${app_instance_secret}
 #                    block with an alias from the path __mediadrop_serve__ to
 #                    your /path/to/mediadrop/data/media directory.
 #                    See the full docs below for an example:
-#                    http://mediadrop.net/docs/install/nginx-uwsgi.html
+#                    http://mediadrop.video/docs/install/nginx-uwsgi.html
 #   default - uses environ['wsgi.file_wrapper'] if it's provided by the server,
 #             otherwise a pure-python file iterator returns the file in chunks
 file_serve_method = default

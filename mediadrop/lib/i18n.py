@@ -1,5 +1,5 @@
-# This file is a part of MediaDrop (http://www.mediadrop.net),
-# Copyright 2009-2013 MediaDrop contributors
+# This file is a part of MediaDrop (http://www.mediadrop.video),
+# Copyright 2009-2015 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
@@ -14,9 +14,13 @@ from babel.core import Locale
 from babel.dates import (format_date as _format_date,
     format_datetime as _format_datetime, format_time as _format_time)
 from babel.numbers import format_decimal as _format_decimal
+from babel.support import Translations
 from babel.util import LOCALTZ
-from pylons import config, request, translator
+import pylons
 from pylons.i18n.translation import lazify
+
+from mediadrop.lib.app_globals import is_object_registered
+from mediadrop.lib.listify import tuplify
 
 
 __all__ = ['_', 'N_', 'format_date', 'format_datetime', 'format_decimal',
@@ -24,7 +28,7 @@ __all__ = ['_', 'N_', 'format_date', 'format_datetime', 'format_decimal',
 
 log = logging.getLogger(__name__)
 
-MEDIACORE = 'mediadrop'
+MEDIADROP = 'mediadrop'
 """The primary MediaDrop domain name."""
 
 class LanguageError(Exception):
@@ -66,16 +70,7 @@ class Translator(object):
         self._domains = {}
 
         # Fetch the 'mediadrop' domain immediately & cache a direct ref for perf
-        self._mediadrop = self._load_domain(MEDIACORE)
-
-    def install_pylons_global(self):
-        """Replace the current pylons.translator SOP with this instance.
-
-        This is specific to the current request.
-        """
-        environ = request.environ
-        environ['pylons.pylons'].translator = self
-        environ['paste.registry'].replace(translator, self)
+        self._mediadrop = self._load_domain(MEDIADROP)
 
     def _load_domain(self, domain, fallback=True):
         """Load the given domain from one of the pre-configured locale dirs.
@@ -96,22 +91,33 @@ class Translator(object):
         :raises LanguageError: If no translations could be found for this
             domain in this locale and the fallback is off.
         """
-        localedir = self._locale_dirs.get(domain, None)
-        if localedir:
-            try:
-                t = gettext_translation(domain, localedir, self._languages,
-                                        fallback=fallback)
-            except IOError:
-                # This only occurs when fallback is false.
-                msg = 'No %r translations found for %r at %r.' % \
-                    (domain, self._languages, localedir)
-                raise LanguageError(msg)
+        locale_dirs = self._locale_dirs.get(domain, None)
+        if locale_dirs:
+            if isinstance(locale_dirs, basestring):
+                locale_dirs = (locale_dirs, )
+            translation_list = self._load_translations(domain, locale_dirs, fallback)
+            if (not fallback) and len(translation_list) == 0:
+                msg = 'No %r translations found for %r in %r.'
+                raise LanguageError(msg % (domain, self._languages, locale_dirs))
+            translations = Translations(domain=domain)
+            for translation in translation_list:
+                translations.merge(translation)
         elif fallback:
-            t = NullTranslations()
+            translations = NullTranslations()
         else:
             raise DomainError('No localedir specified for domain %r' % domain)
-        self._domains[domain] = t
-        return t
+        self._domains[domain] = translations
+        return translations
+
+    @tuplify
+    def _load_translations(self, domain, locale_dirs, fallback):
+        for locale_dir in locale_dirs:
+            try:
+                yield gettext_translation(domain, locale_dir, self._languages, fallback=fallback)
+            except IOError:
+                # This only occurs when fallback is false and no translation was
+                # found in <locale_dir>.
+                pass
 
     def gettext(self, msgid, domain=None):
         """Translate the given msgid in this translator's locale.
@@ -128,7 +134,7 @@ class Translator(object):
             return u''
         if domain is None and isinstance(msgid, _TranslateableUnicode):
             domain = msgid.domain
-        if domain is None or domain == MEDIACORE:
+        if domain is None or domain == MEDIADROP:
             t = self._mediadrop
         else:
             try:
@@ -152,7 +158,7 @@ class Translator(object):
         :returns: The translated string, or the original msgid if no
             translation was found.
         """
-        if domain is None or domain == MEDIACORE:
+        if domain is None or domain == MEDIADROP:
             t = self._mediadrop
         else:
             try:
@@ -191,9 +197,9 @@ def gettext(msgid, domain=None):
     :returns: The translated string, or the original msgid if no
         translation was found.
     """
-    translator_obj = translator._current_obj()
+    translator_obj = pylons.translator._current_obj()
     if not isinstance(translator_obj, Translator):
-        if config['debug']:
+        if pylons.config['debug']:
             log.warn('_, ugettext, or gettext called with msgid "%s" before '\
                      'pylons.translator has been replaced with our custom '\
                      'version.' % msgid)
@@ -218,7 +224,7 @@ def ngettext(singular, plural, n, domain=None):
     :rtype: ``unicode``
     :returns: The pluralized translation.
     """
-    return translator.ngettext(singular, plural, n, domain)
+    return pylons.translator.ngettext(singular, plural, n, domain)
 
 class _TranslateableUnicode(unicode):
     """A special string that remembers what domain it belongs to.
@@ -269,7 +275,7 @@ def format_date(date=None, format='medium'):
                    date/time pattern
     :rtype: `unicode`
     """
-    return _format_date(date, format, translator.locale)
+    return _format_date(date, format, pylons.translator.locale)
 
 def format_datetime(datetime=None, format='medium', tzinfo=None):
     """Return a date formatted according to the given pattern.
@@ -285,7 +291,7 @@ def format_datetime(datetime=None, format='medium', tzinfo=None):
     """
     if datetime and (datetime.tzinfo is None):
         datetime = datetime.replace(tzinfo=LOCALTZ)
-    return _format_datetime(datetime, format, tzinfo, translator.locale)
+    return _format_datetime(datetime, format, tzinfo, pylons.translator.locale)
 
 def format_decimal(number):
     """Return a formatted number (using the correct decimal mark).
@@ -295,7 +301,7 @@ def format_decimal(number):
     :param number: the ``int``, ``float`` or ``decimal`` object
     :rtype: `unicode`
     """
-    return _format_decimal(number, locale=translator.locale)
+    return _format_decimal(number, locale=pylons.translator.locale)
 
 def format_time(time=None, format='medium', tzinfo=None):
     """Return a time formatted according to the given pattern.
@@ -311,15 +317,36 @@ def format_time(time=None, format='medium', tzinfo=None):
     """
     if time and (time.tzinfo is None):
         time = time.replace(tzinfo=LOCALTZ)
-    return _format_time(time, format, tzinfo, translator.locale)
+    return _format_time(time, format, tzinfo, pylons.translator.locale)
 
 def get_available_locales():
     """Yield all the locale names for which we have translations.
 
     Considers only the 'mediadrop' domain, not plugins.
     """
-    i18n_dir = os.path.join(config['pylons.paths']['root'], 'i18n')
+    i18n_dir = os.path.join(pylons.config['pylons.paths']['root'], 'i18n')
     for name in os.listdir(i18n_dir):
         mo_path = os.path.join(i18n_dir, name, 'LC_MESSAGES/mediadrop.mo')
         if os.path.exists(mo_path):
             yield name
+
+def setup_global_translator(default_language='en', registry=None):
+    """Load the primary translator during the first call of this function and
+    reactivate it for each subsequent call until the primary language is
+    changed."""
+    app_globs = pylons.app_globals._current_obj()
+    lang = app_globs.settings['primary_language'] or default_language
+    if app_globs.primary_language == lang and app_globs.primary_translator:
+        translator = app_globs.primary_translator
+    else:
+        translator = Translator(lang, pylons.config['locale_dirs'])
+        app_globs.primary_translator = translator
+        app_globs.primary_language = lang
+
+    # no need to replace the translator if it uses the same domain anyway
+    if is_object_registered(pylons.translator):
+        pylons_translator = pylons.translator._current_obj()
+        uses_same_locale = (getattr(pylons_translator, 'locale', None) == translator.locale)
+        if uses_same_locale:
+            return
+    registry.register(pylons.translator, translator)
