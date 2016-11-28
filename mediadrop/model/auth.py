@@ -7,6 +7,7 @@
 import os
 from pylons import config
 import psycopg2
+import subprocess, shlex
 import json
 
 from datetime import datetime
